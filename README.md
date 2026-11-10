@@ -6,6 +6,11 @@
 
 **Source:** <https://github.com/Ejajaka/ui-prompt-linter>
 
+[![Deploy to Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=https://github.com/Ejajaka/ui-prompt-linter&branch=main&mainModule=app.py)
+
+The badge opens Streamlit Community Cloud with this repository pre-filled, which
+is the easiest permanent deployment (a Dockerfile is also included).
+
 A UI prompt is often sent to a code/UI generator while important details are missing
 ("Add a red button" — where? what does it do? what text goes on it?). This project
 reads the prompt **before** generation, detects the UI elements, links every
