@@ -74,3 +74,12 @@ def test_json_serialisable():
     import json
 
     json.dumps(analyze("Add a red button.", backend="rules"))
+
+
+def test_emoji_and_very_long_input_do_not_crash():
+    analysis = analyze("🎨 Add a button 🚀", backend="rules")
+    assert analysis["result"]["summary"]["n_elements"] == 1
+
+    long_text = "x " * 1200
+    analysis = analyze(long_text, backend="rules")
+    assert analysis["result"]["summary"]["n_elements"] == 0

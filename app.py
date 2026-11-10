@@ -271,12 +271,12 @@ def main() -> None:
             st.session_state["analysis_text"] = text
         shown_text = st.session_state.get("analysis_text", "")
 
-    if len(text) > MAX_PROMPT_CHARS:
+    if len(text) > MAX_PROMPT_CHARS or len(shown_text) > MAX_PROMPT_CHARS:
         st.warning(
             f"Prompt is longer than {MAX_PROMPT_CHARS} characters; "
             "only the first part will be analysed."
         )
-        shown_text = text[:MAX_PROMPT_CHARS]
+    shown_text = shown_text[:MAX_PROMPT_CHARS]
 
     if not shown_text or not shown_text.strip():
         st.info("Type a prompt or pick an example to get started.")
