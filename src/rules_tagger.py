@@ -18,6 +18,7 @@ import re
 
 from .schema import ELEMENT_SCHEMA, NOUN_TO_TYPE
 from .tokenization import tokenize_with_offsets
+from .vague import find_vague
 
 # --------------------------------------------------------------------------- lexicons
 ELEMENT_PHRASES = [
@@ -344,6 +345,11 @@ class RulesTagger:
                     continue  # quoted label already handled by pass 1
                 end = self._label_end(tokens, lowered, start, claimed)
                 if end > start:
+                    # Vague content is deliberately not labelled (annotation
+                    # rule 2); it must stay "missing" and be reported as vague.
+                    label_text = " ".join(tokens[start:end])
+                    if "LABEL" in find_vague(label_text):
+                        break
                     self._set_span(tags, claimed, start, end, "LABEL")
                 break
 
@@ -359,7 +365,8 @@ class RulesTagger:
                 continue
             if word in BASE_COLORS or word in COLOR_MODIFIERS:
                 continue
-            if word in ACTION_VERBS:
+            # "Submit button" is a label; only lower-case "submit" is a verb.
+            if word in ACTION_VERBS and not tokens[candidate][:1].isupper():
                 continue
             self._set_span(tags, claimed, candidate, candidate + 1, "LABEL")
 

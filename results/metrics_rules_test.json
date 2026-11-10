@@ -3,9 +3,9 @@
   "split": "test",
   "n_prompts": 200,
   "entity": {
-    "precision": 0.9682854311199207,
+    "precision": 0.9711729622266402,
     "recall": 0.9740777666999003,
-    "f1": 0.9711729622266402,
+    "f1": 0.9726231956197113,
     "per_label": {
       "ELEMENT": {
         "precision": 0.9894736842105263,
@@ -32,9 +32,9 @@
         "support": 77
       },
       "LABEL": {
-        "precision": 0.9523809523809523,
+        "precision": 0.9649122807017544,
         "recall": 0.9606986899563319,
-        "f1": 0.9565217391304347,
+        "f1": 0.9628008752735231,
         "support": 229
       }
     }
@@ -75,12 +75,12 @@
     }
   },
   "missing_detection": {
-    "precision": 0.9790697674418605,
-    "recall": 0.9929245283018868,
-    "f1": 0.9859484777517564,
-    "tp": 421,
+    "precision": 0.9792147806004619,
+    "recall": 1.0,
+    "f1": 0.9894982497082847,
+    "tp": 424,
     "fp": 9,
-    "fn": 3,
+    "fn": 0,
     "per_attribute": {
       "COLOR": {
         "precision": 1.0,
@@ -107,12 +107,12 @@
         "fn": 0
       },
       "LABEL": {
-        "precision": 0.9664429530201343,
-        "recall": 0.9795918367346939,
-        "f1": 0.9729729729729729,
-        "tp": 144,
+        "precision": 0.9671052631578947,
+        "recall": 1.0,
+        "f1": 0.9832775919732442,
+        "tp": 147,
         "fp": 5,
-        "fn": 3
+        "fn": 0
       }
     },
     "per_element_type": {
@@ -150,11 +150,11 @@
       },
       "footer": {
         "precision": 1.0,
-        "recall": 0.9259259259259259,
-        "f1": 0.9615384615384615,
-        "tp": 25,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 27,
         "fp": 0,
-        "fn": 2
+        "fn": 0
       },
       "image": {
         "precision": 0.7894736842105263,
@@ -190,25 +190,25 @@
       },
       "sidebar": {
         "precision": 1.0,
-        "recall": 0.9772727272727273,
-        "f1": 0.9885057471264368,
-        "tp": 43,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 44,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       }
     }
   },
   "prompt_level": {
-    "has_missing_accuracy": 0.99,
-    "exact_missing_set_accuracy": 0.96
+    "has_missing_accuracy": 0.995,
+    "exact_missing_set_accuracy": 0.975
   },
   "by_source": {
     "synthetic": {
       "n_prompts": 200,
-      "entity_f1": 0.9711729622266402,
-      "missing_f1": 0.9859484777517564,
-      "has_missing_accuracy": 0.99,
-      "exact_missing_set_accuracy": 0.96
+      "entity_f1": 0.9726231956197113,
+      "missing_f1": 0.9894982497082847,
+      "has_missing_accuracy": 0.995,
+      "exact_missing_set_accuracy": 0.975
     }
   }
 }

@@ -7,8 +7,8 @@ Generated automatically by `evaluate.py`.  Test sets were used for reporting onl
 | split | bert | rules |
 |---|---|---|
 | dev | 1.000 | 0.993 |
-| test | 0.900 | 0.971 |
-| handwritten_test | 0.718 | 0.831 |
+| test | 0.900 | 0.973 |
+| handwritten_test | 0.718 | 0.837 |
 
 ## Element detection (matched by token overlap)
 
@@ -25,9 +25,9 @@ Generated automatically by `evaluate.py`.  Test sets were used for reporting onl
 | dev | bert | 1.000 | 1.000 | 1.000 |
 | dev | rules | 1.000 | 1.000 | 1.000 |
 | test | bert | 0.972 | 0.981 | 0.977 |
-| test | rules | 0.979 | 0.993 | 0.986 |
+| test | rules | 0.979 | 1.000 | 0.989 |
 | handwritten_test | bert | 0.880 | 0.978 | 0.926 |
-| handwritten_test | rules | 0.957 | 0.978 | 0.967 |
+| handwritten_test | rules | 0.978 | 0.978 | 0.978 |
 
 ## Prompt-level metrics
 
@@ -36,9 +36,9 @@ Generated automatically by `evaluate.py`.  Test sets were used for reporting onl
 | dev | bert | 1.000 | 1.000 |
 | dev | rules | 1.000 | 1.000 |
 | test | bert | 0.970 | 0.910 |
-| test | rules | 0.990 | 0.960 |
+| test | rules | 0.995 | 0.975 |
 | handwritten_test | bert | 0.933 | 0.800 |
-| handwritten_test | rules | 0.967 | 0.900 |
+| handwritten_test | rules | 0.967 | 0.933 |
 
 ## Attribute linking accuracy (gold tags)
 
@@ -58,9 +58,9 @@ Generated automatically by `evaluate.py`.  Test sets were used for reporting onl
 | dev | bert | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 |
 | dev | rules | 1.000 | 1.000 | 1.000 | 0.951 | 0.983 |
 | test | bert | 0.915 | 0.837 | 0.939 | 0.871 | 0.901 |
-| test | rules | 0.995 | 1.000 | 0.951 | 0.883 | 0.957 |
+| test | rules | 0.995 | 1.000 | 0.951 | 0.883 | 0.963 |
 | handwritten_test | bert | 0.831 | 1.000 | 0.129 | 0.842 | 0.706 |
-| handwritten_test | rules | 0.986 | 1.000 | 0.129 | 0.889 | 0.936 |
+| handwritten_test | rules | 0.986 | 1.000 | 0.129 | 0.889 | 0.958 |
 
 ## Missing detection by attribute (F1)
 
@@ -69,9 +69,9 @@ Generated automatically by `evaluate.py`.  Test sets were used for reporting onl
 | dev | bert | 1.000 | 1.000 | 1.000 | 1.000 |
 | dev | rules | 1.000 | 1.000 | 1.000 | 1.000 |
 | test | bert | 0.948 | 0.996 | 0.971 | 0.979 |
-| test | rules | 1.000 | 0.986 | 1.000 | 0.973 |
+| test | rules | 1.000 | 0.986 | 1.000 | 0.983 |
 | handwritten_test | bert | 1.000 | 1.000 | 1.000 | 0.741 |
-| handwritten_test | rules | 0.957 | 1.000 | 1.000 | 0.917 |
+| handwritten_test | rules | 0.957 | 1.000 | 1.000 | 0.957 |
 
 ## Synthetic vs handwritten gap
 
@@ -81,8 +81,8 @@ Generated automatically by `evaluate.py`.  Test sets were used for reporting onl
 | bert | test | synthetic | 200 | 0.900 | 0.977 | 0.910 |
 | bert | handwritten_test | handwritten | 30 | 0.718 | 0.926 | 0.800 |
 | rules | dev | synthetic | 150 | 0.993 | 1.000 | 1.000 |
-| rules | test | synthetic | 200 | 0.971 | 0.986 | 0.960 |
-| rules | handwritten_test | handwritten | 30 | 0.831 | 0.967 | 0.900 |
+| rules | test | synthetic | 200 | 0.973 | 0.989 | 0.975 |
+| rules | handwritten_test | handwritten | 30 | 0.837 | 0.978 | 0.933 |
 
 The synthetic-vs-handwritten gap is expected: the synthetic templates share vocabulary with training, while the handwritten prompts use freer phrasing and different span boundaries (for example they often exclude 'at the' from a location).
 
@@ -115,23 +115,17 @@ The synthetic-vs-handwritten gap is expected: the synthetic templates share voca
 
 - **element boundary/count** (test-0003): Create a portfolio website. Give me a banner image of the product photo. Next, put a call-to-action button that opens the signup form with the text "Login", above the footer, coloured navy blue.  
   gold missing: `[[1, 'LOCATION']]`; predicted: `[[1, 'LABEL'], [1, 'LOCATION']]`
-- **missed missing** (test-0030): Include a picture. Additionally, insert a footer section in a bright colour with suitable content. Also include a card in the middle of the screen.  
-  gold missing: `[[1, 'LABEL'], [1, 'LOCATION'], [2, 'COLOR'], [2, 'LABEL'], [3, 'COLOR'], [3, 'LABEL']]`; predicted: `[[1, 'LABEL'], [1, 'LOCATION'], [2, 'COLOR'], [3, 'COLOR'], [3, 'LABEL']]`
 - **element boundary/count** (test-0044): Put a dropdown menu listing sort order which shows the matching results in the top right corner. Also add a photo depicting a team photo in the middle of the screen.  
   gold missing: `[]`; predicted: `[[2, 'LABEL'], [2, 'LOCATION']]`
-- **missed missing** (test-0125): Put a sidebar with the usual content. Then add a menu bar in the top right corner.  
-  gold missing: `[[1, 'COLOR'], [1, 'LABEL'], [1, 'LOCATION'], [2, 'COLOR'], [2, 'LABEL']]`; predicted: `[[1, 'COLOR'], [1, 'LOCATION'], [2, 'COLOR'], [2, 'LABEL']]`
 - **element boundary/count** (test-0131): Add a CTA button with suitable content that saves the changes. Next, put a picture of a team photo.  
   gold missing: `[[1, 'COLOR'], [1, 'LABEL'], [1, 'LOCATION'], [2, 'LOCATION']]`; predicted: `[[1, 'COLOR'], [1, 'LABEL'], [1, 'LOCATION'], [2, 'LABEL'], [2, 'LOCATION']]`
 - **element boundary/count** (test-0134): Build the homepage of a travel blog. Add an image of the product photo, in the middle of the screen. Then add a check box below the header, with the text "Subscribe to updates". Next, put a yellow card titled "Our Team".  
   gold missing: `[[3, 'LOCATION']]`; predicted: `[[1, 'LABEL'], [1, 'LOCATION'], [3, 'LOCATION']]`
-- **missed missing** (test-0181): Design a #FF5733 page footer with the usual content.  
-  gold missing: `[[1, 'LABEL']]`; predicted: `[]`
 - **false missing** (test-0187): Make a checkout screen for an online store. I need a navigation bar with the items Features, Pricing, FAQ on the right side. Then place a dropdown menu which updates the displayed currency somewhere visible to choose sort order.  
   gold missing: `[[1, 'COLOR'], [2, 'LOCATION']]`; predicted: `[[1, 'COLOR'], [2, 'LABEL'], [2, 'LOCATION']]`
-- **false missing** (hand-017): Make the Submit button orange.  
-  gold missing: `[[1, 'ACTION'], [1, 'LOCATION']]`; predicted: `[[1, 'ACTION'], [1, 'LABEL'], [1, 'LOCATION']]`
 - **element boundary/count** (hand-018): Add a teal card titled "Our Team" in the middle of the screen, and below it a footer with contact details.  
   gold missing: `[[2, 'COLOR']]`; predicted: `[]`
+- **false missing** (hand-022): Add a black navbar with Shop, Cart and Profile.  
+  gold missing: `[[1, 'LOCATION']]`; predicted: `[[1, 'LABEL'], [1, 'LOCATION']]`
 
 Per-attribute and per-element-type tables are stored in the JSON metrics files (`results/metrics_*.json`).

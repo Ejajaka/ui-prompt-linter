@@ -209,24 +209,24 @@ All numbers are micro-averaged; test sets were **not** used for tuning.
 | split | BERT | Rules |
 |---|---|---|
 | dev | **1.000** | 0.993 |
-| test | 0.900 | **0.971** |
-| handwritten_test | 0.718 | **0.831** |
+| test | 0.900 | **0.973** |
+| handwritten_test | 0.718 | **0.837** |
 
 ### End metric — missing-attribute detection F1
 
 | split | BERT | Rules |
 |---|---|---|
 | dev | 1.000 | 1.000 |
-| test | 0.977 | **0.986** |
-| handwritten_test | 0.926 | **0.967** |
+| test | 0.977 | **0.989** |
+| handwritten_test | 0.926 | **0.978** |
 
 ### Prompt-level exact missing-set accuracy
 
 | split | BERT | Rules |
 |---|---|---|
 | dev | 1.000 | 1.000 |
-| test | 0.910 | **0.960** |
-| handwritten_test | 0.800 | **0.900** |
+| test | 0.910 | **0.975** |
+| handwritten_test | 0.800 | **0.933** |
 
 ### Other metrics
 
@@ -235,7 +235,7 @@ All numbers are micro-averaged; test sets were **not** used for tuning.
   backends (447/447 dev, 627/627 test, 63/63 handwritten). The linking heuristic
   is therefore not the bottleneck.
 * **Synthetic vs handwritten gap:** BERT drops from 0.900 → 0.718 entity F1 and
-  Rules from 0.971 → 0.831. Hand-written prompts use freer phrasing and also
+  Rules from 0.973 → 0.837. Hand-written prompts use freer phrasing and also
   mark locations without the leading "at the" (gold spans there are often just
   "top right corner"), which is why sequence-level LOCATION F1 is 0.129 on that
   split even though attribute detection and missing detection stay high.
@@ -248,7 +248,7 @@ All numbers are micro-averaged; test sets were **not** used for tuning.
   in training, so its COLOR F1 falls to 0.837. This is a genuine generalisation
   finding, not a bug: BERT is perfect on dev (1.000) where vocabulary is shared.
 * **The end metric is much more stable than token F1.** Missing-attribute F1 is
-  0.986 for Rules and 0.977 for BERT on test, because linking and the schema check
+  0.989 for Rules and 0.977 for BERT on test, because linking and the schema check
   recover most boundary errors.
 * **Data-size experiment.** We additionally generated 1,595 synthetic training
   prompts using the same held-out vocabulary and retrained. Test F1 moved from
