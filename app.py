@@ -187,6 +187,8 @@ def render_result(analysis: dict) -> None:
 def run_analysis(text: str, backend: str) -> dict | None:
     """Call the pipeline and turn backend errors into friendly messages."""
     try:
+        if backend == "bert":
+            _ensure_model_downloaded()
         backend_obj = load_backend(backend)
         return analyze(text, backend=backend, backend_obj=backend_obj)
     except BackendNotAvailable as exc:
@@ -201,7 +203,6 @@ def run_analysis(text: str, backend: str) -> dict | None:
 # --------------------------------------------------------------------------- main
 def main() -> None:
     st.set_page_config(page_title="UI Prompt Linter", page_icon="🧹", layout="centered")
-    _ensure_model_downloaded()
 
     st.title("UI Prompt Linter")
     st.caption(
@@ -209,7 +210,9 @@ def main() -> None:
         "before sending it to a UI generator."
     )
 
-    model_available = (PROJECT_ROOT / "models" / "bert_tagger").exists()
+    model_available = (
+        (PROJECT_ROOT / "models" / "bert_tagger").exists() or bool(BERT_MODEL_URL)
+    )
 
     with st.sidebar:
         st.header("Settings")

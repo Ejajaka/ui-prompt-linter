@@ -1,6 +1,10 @@
 # UI Prompt Linter
 
-**Live demo:** _added after deployment_ — `streamlit run app.py` locally works out of the box.
+**Live demo:** <https://infrastructure-dts-gathering-analyst.trycloudflare.com>
+(temporary tunnel from the author's machine; if it is offline, run
+`streamlit run app.py` locally — everything works offline after install).
+
+**Source:** <https://github.com/Ejajaka/ui-prompt-linter>
 
 A UI prompt is often sent to a code/UI generator while important details are missing
 ("Add a red button" — where? what does it do? what text goes on it?). This project
@@ -270,6 +274,20 @@ The BERT model is cached with `st.cache_resource`.
 For a hosted deployment the model is not committed to Git (too large). Set
 `BERT_MODEL_URL` to a release asset containing `bert_tagger/` and the app
 downloads it once on first run; otherwise BERT is disabled and Rules still work.
+The default URL points at the `model-v1` GitHub release, so a fresh clone with
+network access gets BERT automatically.
+
+### Docker deployment
+
+A `Dockerfile` is included:
+
+```bash
+docker build -t ui-prompt-linter .
+docker run -p 8501:8501 ui-prompt-linter
+```
+
+The container installs CPU-only PyTorch, runs Streamlit on port 8501, and uses the
+same `BERT_MODEL_URL` behaviour described above.
 
 ---
 

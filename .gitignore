@@ -11,3 +11,5 @@ models/*
 .streamlit/secrets.toml
 .DS_Store
 *.log
+
+bert_tagger.zip

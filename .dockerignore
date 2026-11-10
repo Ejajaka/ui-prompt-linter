@@ -1,0 +1,11 @@
+models/
+results/
+tests/
+.git/
+.github/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+bert_tagger.zip
