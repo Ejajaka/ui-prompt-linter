@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><script src="engine.js"></script></head>
+<body>
+<script>
+  window.runAnalyze = function(text, answersJson, finalize) {
+    try {
+      var answers = answersJson ? JSON.parse(answersJson) : {};
+      var result = PromptLinterEngine.analyze(text || "", answers, !!finalize);
+      return JSON.stringify(result);
+    } catch (e) {
+      return JSON.stringify({ error: String(e) });
+    }
+  };
+</script>
+</body>
+</html>
