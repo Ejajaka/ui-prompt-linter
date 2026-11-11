@@ -1,7 +1,5 @@
 # UI Prompt Linter
 
-[![Live UI](https://img.shields.io/badge/Live%20UI-ejajaka.github.io%2Fui--prompt--linter-49686C?style=for-the-badge)](https://ejajaka.github.io/ui-prompt-linter/)
-
 **Vector-style UI (React, permanent):** <https://ejajaka.github.io/ui-prompt-linter/>  
 The home page is the advertising/overview UI; **New Analysis** embeds the Streamlit engine in an iframe.
 
