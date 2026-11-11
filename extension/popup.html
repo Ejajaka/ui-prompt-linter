@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Prompt Linter</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Brand header -->
+    <header class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <path d="m9 11 2 2 4-4" stroke="#D1B653" stroke-width="2.4" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">Prompt Linter</div>
+        <div class="brand-sub">UI/UX Prompt Review</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Editor -->
+      <section class="card editor">
+        <label class="editor-label" for="prompt">Describe the UI you want</label>
+        <textarea
+          id="prompt"
+          rows="4"
+          placeholder='e.g. Add a red button at the top right corner labelled "Sign Up" that opens the signup form.'
+        ></textarea>
+
+        <div class="examples">
+          <button type="button" class="example" data-prompt='Add a red button labelled "Sign Up".'>
+            <b>Complete-ish</b><span>red button labelled "Sign Up"</span>
+          </button>
+          <button type="button" class="example" data-prompt="Create a blue navbar at the top of the page with links Home, About and Contact.">
+            <b>Navbar</b><span>blue navbar with links</span>
+          </button>
+          <button type="button" class="example" data-prompt="I need a button on my homepage.">
+            <b>Vague</b><span>a button, that's all</span>
+          </button>
+        </div>
+
+        <div class="editor-footer">
+          <span class="hint">Ctrl/⌘ + Enter</span>
+          <button type="button" id="analyze" class="primary">Analyze Prompt</button>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section id="results" class="hidden">
+        <div id="risk"></div>
+        <div id="highlighted"></div>
+        <div id="elements"></div>
+        <div id="clarify"></div>
+        <div id="final"></div>
+      </section>
+
+      <footer class="foot">
+        Runs the Rules engine locally · <a href="https://ejajaka.github.io/ui-prompt-linter/" target="_blank" rel="noreferrer">Full app →</a>
+      </footer>
+    </main>
+
+    <script src="engine.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

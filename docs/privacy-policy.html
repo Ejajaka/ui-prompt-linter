@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — Prompt Linter</title>
+    <meta name="description" content="Privacy policy for the Prompt Linter browser extension." />
+    <link rel="icon" type="image/svg+xml" href="logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #F6F4EC; --card: #FFFFFF; --teal: #49686C; --teal-dark: #30494B;
+        --mustard: #D1B653; --text: #283638; --text-2: #737A72; --border: #E5E2D8;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: var(--bg); color: var(--text); line-height: 1.65;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased; padding: 32px 16px;
+      }
+      .wrap { max-width: 720px; margin: 0 auto; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 32px; box-shadow: 0 1px 3px rgba(40,54,56,.06); }
+      .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+      .logo { width: 40px; height: 40px; border-radius: 10px; background: var(--teal); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+      .brand-name { font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
+      .brand-sub { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-2); font-weight: 700; }
+      h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+      .updated { font-size: 12px; color: var(--text-2); margin-bottom: 24px; }
+      h2 { font-size: 16px; font-weight: 800; margin: 22px 0 8px; color: var(--teal-dark); }
+      p, li { font-size: 14px; color: var(--text); }
+      ul { padding-left: 20px; }
+      li { margin: 4px 0; }
+      a { color: var(--teal); }
+      .note { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 13px; color: var(--text-2); margin-top: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="brand">
+          <div class="logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <path d="m9 11 2 2 4-4" stroke="#D1B653" stroke-width="2.4" />
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">Prompt Linter</div>
+            <div class="brand-sub">UI/UX Prompt Review</div>
+          </div>
+        </div>
+
+        <h1>Privacy Policy</h1>
+        <div class="updated">Last updated: November 11, 2026</div>
+
+        <p>Prompt Linter is a browser extension that reviews natural-language UI prompts for missing details before they are sent to a UI generator.</p>
+
+        <h2>Data collection</h2>
+        <p>Prompt Linter collects <strong>no data</strong>. It does not:</p>
+        <ul>
+          <li>collect, store or transmit any prompt text, browsing history, or personal information;</li>
+          <li>use analytics, trackers, or cookies;</li>
+          <li>require an account or sign-in.</li>
+        </ul>
+
+        <h2>How it works</h2>
+        <p>All analysis runs locally in your browser using a deterministic rule engine. Your prompt never leaves your device. The extension requests no special permissions.</p>
+
+        <h2>Clipboard</h2>
+        <p>The popup writes to the clipboard only when you explicitly click “Copy prompt”, using the standard Clipboard API on that click.</p>
+
+        <h2>Third parties</h2>
+        <p>No data is shared with any third party.</p>
+
+        <h2>Contact</h2>
+        <p>For questions or issues, open an issue on the project repository: <a href="https://github.com/Ejajaka/ui-prompt-linter">github.com/Ejajaka/ui-prompt-linter</a>.</p>
+
+        <div class="note">This policy applies to the Prompt Linter browser extension and the Prompt Linter website.</div>
+      </div>
+    </div>
+  </body>
+</html>
