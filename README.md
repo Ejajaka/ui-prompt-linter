@@ -1,6 +1,6 @@
 # UI Prompt Linter
 
-**Live demo:** <https://infrastructure-dts-gathering-analyst.trycloudflare.com>
+**Live demo:** <https://exam-extend-jokes-incidents.trycloudflare.com>
 (temporary tunnel from the author's machine; if it is offline, run
 `streamlit run app.py` locally — everything works offline after install).
 
