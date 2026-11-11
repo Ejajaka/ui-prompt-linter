@@ -74,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Context Label */}
         <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F6F4EC] border border-[#E5E2D8] text-xs font-medium text-[#49686C]">
           <span>UI</span>
-          <span className="text-[#CDC9BC]">?</span>
+          <span className="text-[#CDC9BC]">/</span>
           <span>UX Prompt Review</span>
         </div>
 
@@ -90,8 +90,8 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label="Hybrid UI prompt engine status info"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-[#3E6B33]" />
-            <span className="hidden xs:inline">Rules + BERT + LLM</span>
-            <span className="xs:hidden">Hybrid</span>
+            <span className="hidden sm:inline">Rules + BERT + LLM</span>
+            <span className="sm:hidden">Hybrid</span>
             <Info className="w-3 h-3 text-[#688E5E] ml-0.5 opacity-80" />
           </button>
 

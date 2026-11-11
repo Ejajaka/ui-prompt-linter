@@ -13,6 +13,7 @@ import {
   X
 } from 'lucide-react';
 import type { ActiveTab } from '../../types/analysis.ts';
+import { Logo } from '../ui/Logo.tsx';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -85,22 +86,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={() => setIsCollapsed(false)}
-              className="w-10 h-10 rounded-lg bg-[#2D5D4F] hover:bg-[#254C41] flex items-center justify-center text-white shrink-0 shadow-xs transition-all cursor-pointer"
+              className="w-10 h-10 rounded-lg bg-[#49686C] hover:bg-[#30494B] flex items-center justify-center text-white shrink-0 shadow-xs transition-all cursor-pointer"
               title="Prompt Linter - Click to expand sidebar"
               aria-label="Prompt Linter - Click to expand sidebar"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FACB43" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M9 9v11" />
-              </svg>
+              <Logo size={20} />
             </button>
           ) : (
             /* Expanded: Logo + Typography + Collapse button */
             <>
               <div className="flex items-center gap-2.5 overflow-hidden">
-                <div className="w-8 h-8 rounded-lg bg-[#2D5D4F] flex items-center justify-center text-white shrink-0 shadow-xs">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FACB43" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M9 9v11" />
-                  </svg>
+                <div className="w-8 h-8 rounded-lg bg-[#49686C] flex items-center justify-center text-white shrink-0 shadow-xs">
+                  <Logo size={20} />
                 </div>
                 <div className="flex flex-col truncate">
                   <span className="font-bold text-base tracking-tight text-[#283638]">

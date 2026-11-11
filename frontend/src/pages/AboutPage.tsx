@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ArrowRight,
   Check,
@@ -6,7 +6,6 @@ import {
   Sparkles,
   Cpu,
   Layers,
-  MessageSquare,
   ShieldCheck,
   AlertTriangle,
   CheckCircle2,
@@ -18,6 +17,7 @@ import {
   Lock,
   Eye,
   Terminal,
+  RefreshCw,
 } from 'lucide-react';
 
 interface AboutPageProps {
@@ -28,6 +28,18 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
   const scrollToWorkflow = () => {
     document.getElementById('workflow-section')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Interactive live-preview simulation state
+  const [animStep, setAnimStep] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setAnimStep((prev) => (prev + 1) % 4);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
   return (
     <div className="space-y-16 lg:space-y-24 max-w-6xl mx-auto pb-12 antialiased">
@@ -94,17 +106,21 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
           </div>
 
           {/* LIVE PREVIEW CARD */}
-          <div className="lg:col-span-5 relative">
+          <div
+            className="lg:col-span-5 relative"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
             <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E2D8] shadow-lg p-5 sm:p-6 space-y-4 relative overflow-hidden">
               <div className="flex items-center justify-between pb-3 border-b border-[#E5E2D8]">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-[#B94D42]/70" />
                   <div className="w-2.5 h-2.5 rounded-full bg-[#D1B653]/70" />
                   <div className="w-2.5 h-2.5 rounded-full bg-[#688E5E]/70" />
-                  <span className="text-[11px] font-mono text-[#737A72] ml-2">prompt-linter.ui</span>
+                  <span className="text-[11px] font-mono text-[#737A72] ml-2">prompt-linter.live</span>
                 </div>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F6F4EC] text-[#49686C] font-semibold">
-                  Live review
+                  Step {animStep + 1}/4
                 </span>
               </div>
 
@@ -112,7 +128,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
                 <span className="text-[10px] uppercase tracking-wider font-bold text-[#737A72]">
                   Input UI prompt
                 </span>
-                <div className="p-3 rounded-lg bg-[#FAFAF8] border border-[#E5E2D8] text-xs font-mono text-[#283638] leading-relaxed">
+                <div className="p-3 rounded-lg bg-[#FAFAF8] border border-[#E5E2D8] text-xs font-mono text-[#283638] leading-relaxed relative">
                   Add a{' '}
                   <span className="bg-[#FDF2F0] text-[#B94D42] px-1 py-0.5 rounded font-bold">
                     red
@@ -120,15 +136,16 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
                   <span className="bg-[#E4EBDD] text-[#30494B] px-1 py-0.5 rounded font-bold">
                     button
                   </span>{' '}
-                  at the top right corner labelled{' '}
+                  labelled{' '}
                   <span className="bg-[#F0F5F5] text-[#49686C] px-1 py-0.5 rounded font-bold">
                     “Sign Up”
-                  </span>{' '}
-                  that opens the signup form.
+                  </span>
+                  .
                 </div>
               </div>
 
-              <div>
+              {/* Step 1: Element Detection */}
+              <div className={`transition-all duration-300 ${animStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-1'}`}>
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="font-semibold text-[#283638] flex items-center gap-1.5">
                     <Cpu className="w-3.5 h-3.5 text-[#49686C]" /> Detected elements
@@ -148,31 +165,73 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
                 </div>
               </div>
 
-              <div>
+              {/* Step 2: Evaluation Findings */}
+              <div className={`transition-all duration-300 ${animStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-1'}`}>
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="font-semibold text-[#283638] flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5 text-[#D1B653]" /> Clarification
+                    <AlertTriangle className="w-3.5 h-3.5 text-[#D1B653]" /> Evaluation findings
                   </span>
-                  <span className="text-[11px] text-[#856C16] font-semibold font-mono">2 pending</span>
+                  <span className="text-[11px] text-[#856C16] font-semibold font-mono">Medium · 44/100</span>
                 </div>
-                <div className="p-2 rounded bg-[#FEFCE8] border border-[#FEF08A] text-[11px] text-[#856C16] leading-relaxed">
-                  Where exactly should the button sit? What should clicking it do?
+                <div className="space-y-1.5">
+                  <div className="p-2 rounded bg-[#FEFCE8] border border-[#FEF08A] flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#856C16] shrink-0" />
+                      <span className="font-semibold text-[#856C16]">Missing action (ACTION)</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold uppercase text-[#856C16]">Missing</span>
+                  </div>
+                  <div className="p-2 rounded bg-[#FEFCE8] border border-[#FEF08A] flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#856C16] shrink-0" />
+                      <span className="font-semibold text-[#856C16]">Missing placement (LOCATION)</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold uppercase text-[#856C16]">Missing</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#F4F9F1] border border-[#CFE2C8] space-y-1 text-xs text-[#2D5A27]">
-                <div className="flex items-center justify-between gap-2 font-bold">
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#3E6B33]" />
-                    Best prompt
-                  </span>
-                  <span className="text-[10px] font-mono bg-white/70 rounded px-1.5 py-0.5 text-[#3E6B33]">
-                    risk 9/100
-                  </span>
+              {/* Step 3: Validated Rewrite */}
+              <div className={`transition-all duration-300 ${animStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-1'}`}>
+                <div className="p-2.5 rounded-lg bg-[#F4F9F1] border border-[#CFE2C8] space-y-1 text-xs text-[#2D5A27]">
+                  <div className="flex items-center justify-between gap-2 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#3E6B33]" />
+                      Validated best prompt
+                    </span>
+                    <span className="text-[10px] font-mono bg-white/70 rounded px-1.5 py-0.5 text-[#3E6B33]">
+                      risk 44/100
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-mono leading-relaxed">
+                    Add a red button in the &lt;location&gt; labelled “Sign Up” that &lt;what it does&gt;.
+                  </p>
                 </div>
-                <p className="text-[11px] font-mono leading-relaxed">
-                  Add a red button at the top right corner labelled “Sign Up” that opens the signup form.
-                </p>
+              </div>
+
+              {/* Interactive step indicator */}
+              <div className="flex items-center justify-between pt-2 border-t border-[#E5E2D8] text-[11px] text-[#737A72]">
+                <div className="flex items-center gap-1.5">
+                  {[0, 1, 2, 3].map((step) => (
+                    <button
+                      key={step}
+                      type="button"
+                      onClick={() => setAnimStep(step)}
+                      className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                        animStep === step ? 'w-6 bg-[#49686C]' : 'w-2 bg-[#E5E2D8] hover:bg-[#CDC9BC]'
+                      }`}
+                      aria-label={`Show step ${step + 1}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAnimStep((s) => (s + 1) % 4)}
+                  className="inline-flex items-center gap-1 text-[#49686C] hover:text-[#30494B] font-medium"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Next simulation step</span>
+                </button>
               </div>
             </div>
           </div>

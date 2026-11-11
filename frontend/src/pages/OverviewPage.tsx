@@ -9,7 +9,7 @@ import {
   Filter, 
   ArrowUpRight, 
   ShieldAlert, 
-  ShieldCheck, 
+  ListChecks, 
   Layers, 
   Clock, 
   BarChart3,
@@ -64,15 +64,15 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-6 sm:p-8 shadow-xs relative overflow-hidden">
         <div className="max-w-2xl space-y-3 relative z-10">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#E4EBDD] text-[#30494B]">
-            <span>Vector Platform</span>
+            <span>Prompt Linter</span>
             <span>·</span>
-            <span>Pre-generation Diagnosis</span>
+            <span>Pre-generation UI Review</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#283638]">
-            Infrastructure Security Overview
+            UI Prompt Completeness Overview
           </h1>
           <p className="text-sm text-[#737A72] leading-relaxed">
-            Identify missing security requirements and eliminate critical misconfigurations before generating your AWS infrastructure code.
+            Identify missing labels, colours, placement and actions before your prompt reaches a UI generator.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-3">
@@ -92,10 +92,11 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
         </div>
 
-        {/* Subtle Vector mark watermark in background */}
+        {/* Subtle Prompt Linter mark watermark in background */}
         <div className="absolute right-6 -bottom-8 opacity-5 hidden md:block pointer-events-none text-[#2D5D4F]">
           <svg width="220" height="220" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 6l6 13 6-13" />
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 9h18M9 9v11" />
           </svg>
         </div>
       </div>
@@ -138,12 +139,12 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
         </div>
 
-        {/* Average Coverage */}
+        {/* Average Completeness */}
         <div className="bg-[#FFFFFF] p-5 rounded-xl border border-[#E5E2D8] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-[#737A72] mb-3">
-            <span className="text-xs font-semibold">Avg. Security Coverage</span>
+            <span className="text-xs font-semibold">Avg. Completeness</span>
             <div className="p-1.5 rounded-md bg-[#F4F9F1] text-[#3E6B33]">
-              <ShieldCheck className="w-4 h-4" />
+              <ListChecks className="w-4 h-4" />
             </div>
           </div>
           <div>
@@ -151,7 +152,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               {totalCount > 0 ? `${avgCoverage}%` : '—'}
             </div>
             <div className="text-[11px] text-[#737A72] mt-1">
-              Applicable controls declared
+              Required details stated
             </div>
           </div>
         </div>
@@ -194,7 +195,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 <Search className="w-3.5 h-3.5 text-[#737A72] absolute left-2.5 top-1/2 transform -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Search prompts or resources..."
+                  placeholder="Search prompts or elements..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-8 pr-3 py-1.5 text-xs bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg focus:bg-white focus:outline-none focus:border-[#49686C] text-[#283638]"
@@ -224,7 +225,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               <p className="text-xs text-[#737A72] max-w-sm mx-auto">
                 {searchQuery || selectedRiskFilter !== 'ALL'
                   ? 'No records match your search filter criteria.'
-                  : 'Start your first infrastructure prompt security diagnosis.'}
+                  : 'Start your first UI prompt completeness review.'}
               </p>
               <button
                 onClick={onStartNewAnalysis}
@@ -239,10 +240,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-[#E5E2D8] text-[#737A72] font-semibold">
-                    <th className="py-2.5 px-3">Infrastructure Prompt</th>
-                    <th className="py-2.5 px-3">Resources</th>
+                    <th className="py-2.5 px-3">UI Prompt</th>
+                    <th className="py-2.5 px-3">Elements</th>
                     <th className="py-2.5 px-3">Risk</th>
-                    <th className="py-2.5 px-3">Coverage</th>
+                    <th className="py-2.5 px-3">Completeness</th>
                     <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
                 </thead>
@@ -269,7 +270,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                               key={r.id}
                               className="px-1.5 py-0.5 rounded text-[10px] bg-[#F6F4EC] text-[#49686C] font-mono border border-[#E5E2D8]"
                             >
-                              {r.id.toUpperCase()}
+                              {r.label}
                             </span>
                           ))}
                         </div>

@@ -1,5 +1,5 @@
 ﻿// Persisted settings for the web app (deep scan credentials + behaviour).
-export interface VectorSettings {
+export interface AppSettings {
   apiKey: string;
   baseUrl: string;
   model: string;
@@ -15,14 +15,14 @@ const DEMO = (typeof window !== 'undefined' && (window as any).VECTOR_DEMO_SETTI
 const TEST_API_KEY =
   ((import.meta as any).env?.VITE_VECTOR_TEST_API_KEY as string) || DEMO.apiKey || '';
 
-export const DEFAULT_SETTINGS: VectorSettings = {
+export const DEFAULT_SETTINGS: AppSettings = {
   apiKey: TEST_API_KEY,
   baseUrl: DEMO.baseUrl || 'https://api.groq.com/openai/v1',
   model: DEMO.model || 'qwen/qwen3.8-27b',
   autoDeepScan: true
 };
 
-export function loadSettings(): VectorSettings {
+export function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
@@ -47,7 +47,7 @@ export function loadSettings(): VectorSettings {
   }
 }
 
-export function saveSettings(settings: VectorSettings): void {
+export function saveSettings(settings: AppSettings): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   } catch {
@@ -64,7 +64,7 @@ export function onDeviceModelAvailable(): boolean {
   }
 }
 
-export function deepScanAvailable(settings: VectorSettings): boolean {
+export function deepScanAvailable(settings: AppSettings): boolean {
   return !!settings.apiKey || onDeviceModelAvailable();
 }
 
