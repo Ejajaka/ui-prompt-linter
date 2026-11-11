@@ -1,8 +1,11 @@
 # UI Prompt Linter
 
-**Live demo:** <https://exam-extend-jokes-incidents.trycloudflare.com>
-(temporary tunnel from the author's machine; if it is offline, run
-`streamlit run app.py` locally — everything works offline after install).
+**Permanent Rules demo:** <https://ejajaka.github.io/ui-prompt-linter/>  
+Runs the actual Python rules engine in your browser via Pyodide ? no server needed.
+
+**Full Streamlit app (BERT + LLM):** deploy or refresh with the badge below.  
+If you already deployed it on Streamlit Community Cloud, open the app and click **Rerun / Reboot app**; it auto-redeploys from `main`.
+
 
 **Source:** <https://github.com/Ejajaka/ui-prompt-linter>
 
