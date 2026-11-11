@@ -265,6 +265,7 @@ export const GuidelinesPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Page Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-[#283638] tracking-tight">
           Prompt Guidelines &amp; Baseline
@@ -285,6 +286,7 @@ export const GuidelinesPage: React.FC = () => {
         </p>
       </div>
 
+      {/* Accordion List */}
       <div className="space-y-3">
         {GUIDELINES_DATA.map((cat) => {
           const Icon = cat.icon;
@@ -306,8 +308,12 @@ export const GuidelinesPage: React.FC = () => {
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-bold text-[#283638]">{cat.title}</h3>
-                    <p className="text-xs text-[#737A72] line-clamp-1">{cat.description}</p>
+                    <h3 className="text-sm sm:text-base font-bold text-[#283638]">
+                      {cat.title}
+                    </h3>
+                    <p className="text-xs text-[#737A72] line-clamp-1">
+                      {cat.description}
+                    </p>
                   </div>
                 </div>
 
@@ -323,11 +329,16 @@ export const GuidelinesPage: React.FC = () => {
 
               {isExpanded && (
                 <div className="px-5 pb-5 pt-1 border-t border-[#E5E2D8] space-y-4 bg-[#FAFAF8]">
-                  <p className="text-xs text-[#737A72] pt-2">{cat.description}</p>
+                  <p className="text-xs text-[#737A72] pt-2">
+                    {cat.description}
+                  </p>
 
                   <div className="space-y-3">
                     {cat.controls.map((ctrl, idx) => (
-                      <div key={idx} className="p-4 rounded-lg bg-[#FFFFFF] border border-[#E5E2D8] space-y-2">
+                      <div
+                        key={idx}
+                        className="p-4 rounded-lg bg-[#FFFFFF] border border-[#E5E2D8] space-y-2"
+                      >
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="text-xs font-bold text-[#283638]">
                             {ctrl.name}
@@ -336,7 +347,9 @@ export const GuidelinesPage: React.FC = () => {
                             {ctrl.badge}
                           </span>
                         </div>
-                        <p className="text-xs text-[#737A72]">{ctrl.description}</p>
+                        <p className="text-xs text-[#737A72]">
+                          {ctrl.description}
+                        </p>
                         <div className="p-2.5 rounded bg-[#F6F4EC] border border-[#E5E2D8] text-xs font-mono text-[#30494B]">
                           <span className="font-sans font-bold text-[#49686C] block text-[11px] mb-0.5">
                             {cat.detailLabel}:

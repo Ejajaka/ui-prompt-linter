@@ -31,8 +31,8 @@ export const Header: React.FC<HeaderProps> = ({
       subtitle: 'UI/UX Prompt Analyzer'
     },
     history: {
-      title: 'Prompt History',
-      subtitle: 'Past Reviews'
+      title: 'Analysis History',
+      subtitle: 'Past Evaluations'
     },
     guidelines: {
       title: 'Prompt Guidelines',

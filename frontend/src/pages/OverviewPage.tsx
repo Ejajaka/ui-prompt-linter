@@ -103,10 +103,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
       {/* Summary Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Reviews */}
+        {/* Total Analyses */}
         <div className="bg-[#FFFFFF] p-5 rounded-xl border border-[#E5E2D8] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-[#737A72] mb-3">
-            <span className="text-xs font-semibold">Total Reviews</span>
+            <span className="text-xs font-semibold">Total Analyses</span>
             <div className="p-1.5 rounded-md bg-[#F0F5F5] text-[#49686C]">
               <Layers className="w-4 h-4" />
             </div>
@@ -116,7 +116,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               {totalCount}
             </div>
             <div className="text-[11px] text-[#737A72] mt-1">
-              UI prompts reviewed
+              Prompts evaluated
             </div>
           </div>
         </div>
@@ -160,7 +160,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         {/* High Risk Analyses */}
         <div className="bg-[#FFFFFF] p-5 rounded-xl border border-[#E5E2D8] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-[#737A72] mb-3">
-            <span className="text-xs font-semibold">High-Risk Prompts</span>
+            <span className="text-xs font-semibold">High-Risk Analyses</span>
             <div className="p-1.5 rounded-md bg-[#FDF2F0] text-[#B94D42]">
               <ShieldAlert className="w-4 h-4" />
             </div>
@@ -186,7 +186,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 Recent Analyses
               </h3>
               <p className="text-xs text-[#737A72]">
-                Previous UI prompt reviews and risk diagnoses
+                Historical evaluation records and risk diagnoses
               </p>
             </div>
 
@@ -232,7 +232,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold hover:bg-[#30494B] transition-colors"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>Start your first review</span>
+                <span>Start your first analysis</span>
               </button>
             </div>
           ) : (
@@ -325,7 +325,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
 
           <p className="text-xs text-[#737A72]">
-            Risk levels across all stored prompt reviews.
+            Severity categorization across all stored analysis records.
           </p>
 
           {totalCount === 0 ? (

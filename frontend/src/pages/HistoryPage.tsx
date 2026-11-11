@@ -58,7 +58,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#283638] tracking-tight">
-            Prompt History
+            Analysis History
           </h1>
           <p className="text-xs sm:text-sm text-[#737A72]">
             Review, reopen, and manage previous UI prompt evaluations.
@@ -126,7 +126,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
       {items.length === 0 ? (
         <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-12 text-center space-y-3">
           <FolderOpen className="w-10 h-10 text-[#CDC9BC] mx-auto" />
-          <h3 className="text-base font-bold text-[#283638]">No prompt history</h3>
+          <h3 className="text-base font-bold text-[#283638]">No analysis history</h3>
           <p className="text-xs text-[#737A72] max-w-sm mx-auto">
             {search || riskFilter !== 'ALL'
               ? 'No evaluations match your search or filter criteria.'
@@ -137,7 +137,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
             className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#49686C] text-white text-xs font-bold rounded-lg hover:bg-[#30494B] transition-colors"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Start your first review</span>
+            <span>Start your first analysis</span>
           </button>
         </div>
       ) : (
