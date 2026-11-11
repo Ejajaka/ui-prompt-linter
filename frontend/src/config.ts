@@ -7,4 +7,5 @@ export const ENGINE_URL =
   fromQuery ||
   'https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app';
 
-export const ENGINE_EMBED_URL = `${ENGINE_URL}${ENGINE_URL.includes('?') ? '&' : '?'}uiembed=1`;
+const separator = ENGINE_URL.includes('?') ? '&' : '?';
+export const ENGINE_EMBED_URL = `${ENGINE_URL}${separator}embed=true&uiembed=1`;
