@@ -83,6 +83,12 @@ python evaluate_router.py
 if one is available. `evaluate.py` writes `results/metrics_*.json`,
 `results/errors_*.jsonl` and `results/RESULTS.md`.
 
+Regenerate the browser-demo Python mirror after changing `src/`:
+
+```bash
+python sync_docs.py
+```
+
 Run the tests:
 
 ```bash

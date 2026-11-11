@@ -1,0 +1,34 @@
+[
+  {
+    "id": "hand-000",
+    "text": "Add a red button at the top right corner labelled \"Sign Up\" that opens the signup form."
+  },
+  {
+    "id": "hand-001",
+    "text": "I need a button on my homepage."
+  },
+  {
+    "id": "hand-002",
+    "text": "Create a blue navbar at the top of the page with links Home, About and Contact."
+  },
+  {
+    "id": "hand-003",
+    "text": "Put a Login button in the top right, green colour, that logs the user in."
+  },
+  {
+    "id": "hand-004",
+    "text": "Add a search input field in the center of the screen."
+  },
+  {
+    "id": "hand-005",
+    "text": "Add an email input field and a password input field."
+  },
+  {
+    "id": "hand-006",
+    "text": "Design a login page with an input field for username, another input field for password and a button that logs in the user."
+  },
+  {
+    "id": "hand-007",
+    "text": "Make a dark blue sidebar on the left side with Inbox, Sent and Drafts."
+  }
+]
