@@ -39,7 +39,9 @@ if it is unavailable, deterministic templates are used.
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 # Linux/macOS: source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt        # app only
+# or, for training and evaluation:
+pip install -r requirements-dev.txt
 ```
 
 Run the app:
