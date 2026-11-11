@@ -400,6 +400,32 @@ network access gets BERT automatically. LLM features require a reachable Ollama
 or OpenAI-compatible endpoint via `LLM_BASE_URL`; if unavailable, the app still
 works with deterministic explanations.
 
+### Permanent full app (Streamlit Community Cloud)
+
+The GitHub Pages demo is Rules-only. For a permanent **BERT + LLM** app:
+
+1. Open the deploy link:
+   <https://share.streamlit.io/deploy?repository=https://github.com/Ejajaka/ui-prompt-linter&branch=main&mainModule=app.py>
+2. Sign in with GitHub, choose the repository, branch `main`, main file `app.py`,
+   and click **Deploy**.
+3. BERT works automatically: the app downloads `models/bert_tagger` from the
+   `model-v1` release on first use.
+4. For LLM features, open **App settings ? Secrets** and add any
+   OpenAI-compatible endpoint (see `.streamlit/secrets.toml.example`):
+
+   ```toml
+   LLM_BASE_URL = "https://api.groq.com/openai/v1"
+   LLM_MODEL = "llama-3.1-8b-instant"
+   LLM_API_KEY = "your-api-key"
+   ```
+
+   Without a key, LLM detection/explanation falls back to the deterministic
+   templates; BERT and the risk/clarification flow still work.
+
+Streamlit Community Cloud cannot run Ollama, so a local Ollama model is not
+available there. For a fully self-hosted Ollama setup, use the Dockerfile on a
+server with enough RAM, or keep the app on a machine that runs Ollama.
+
 ### Docker deployment
 
 A `Dockerfile` is included:

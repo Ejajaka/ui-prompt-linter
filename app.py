@@ -67,10 +67,28 @@ def _ensure_model_downloaded() -> None:
         st.warning(f"Could not download the BERT model automatically: {exc}")
 
 
+def _secret(name: str) -> str | None:
+    """Read an optional Streamlit secret without failing when none exist."""
+    try:
+        value = st.secrets.get(name)
+        return str(value) if value else None
+    except Exception:
+        return None
+
+
 @st.cache_resource(show_spinner=False)
 def get_llm_client() -> LLMClient:
-    """Cache the OpenAI-compatible client (Ollama by default)."""
-    return LLMClient()
+    """Cache the OpenAI-compatible client.
+
+    Locally this defaults to Ollama. On Streamlit Cloud, configure
+    ``LLM_BASE_URL`` / ``LLM_MODEL`` / ``LLM_API_KEY`` in the app secrets to use
+    any OpenAI-compatible hosted endpoint.
+    """
+    return LLMClient(
+        base_url=_secret("LLM_BASE_URL") or os.environ.get("LLM_BASE_URL"),
+        model=_secret("LLM_MODEL") or os.environ.get("LLM_MODEL"),
+        api_key=_secret("LLM_API_KEY") or os.environ.get("LLM_API_KEY"),
+    )
 
 
 @st.cache_data
@@ -325,7 +343,8 @@ def main() -> None:
         if allow_llm:
             st.caption(
                 "LLM provider: local Ollama (`qwen2.5:3b-instruct` by default). "
-                "Nothing leaves this machine."
+                "On a hosted deployment, set `LLM_BASE_URL`, `LLM_MODEL` and "
+                "`LLM_API_KEY` in App settings ? Secrets."
             )
 
         st.divider()
