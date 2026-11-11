@@ -9,8 +9,13 @@ Runs the actual Python rules engine in your browser with no server.
 **Full Streamlit engine (BERT + LLM):** <https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/>  
 Hosts the BERT tagger and the optional LLM layer; the React UI links to it for those backends.
 
+**Browser extension (Manifest V3):** [`extension/`](extension/)  
+Fully offline popup with the same branding and Rules engine; no permissions, no network.
 
+**Android app (Jetpack Compose):** [`android/`](android/)  
+Native app mirroring the web UI and content, running the same Rules engine on-device.
 
+**Privacy policy:** <https://ejajaka.github.io/ui-prompt-linter/privacy-policy.html>
 
 **Source:** <https://github.com/Ejajaka/ui-prompt-linter>
 
@@ -24,6 +29,20 @@ A UI prompt is often sent to a code/UI generator while important details are mis
 reads the prompt **before** generation, detects the UI elements, links every
 colour/location/action/label to the right element, asks about anything ambiguous,
 scores the prompt's risk, and produces a validated final recommendation.
+
+### Platforms
+
+The product ships on five surfaces. The Rules engine is the shared baseline
+everywhere, so a prompt gets the same findings, questions and score across all of
+them.
+
+| Surface | Stack | Engine | Distribution |
+|---|---|---|---|
+| Web app | React + TypeScript (`frontend/`) | Rules via Pyodide in the browser | GitHub Pages |
+| Web demo | Static page (`docs/rules/`) | Rules via Pyodide | GitHub Pages |
+| Browser extension | Manifest V3 (`extension/`) | `extension/engine.js` (JS port of Rules) | Chrome Web Store / Edge Add-ons package |
+| Android app | Jetpack Compose (`android/`) | Same `engine.js` in an on-device WebView | Debug APK / sideload |
+| Full engine | Streamlit (`app.py`) | Rules + DistilBERT + grounded LLM | Streamlit Cloud / Docker / HF Space |
 
 Three detection methods share the same checker and UI:
 
@@ -462,6 +481,11 @@ via Pyodide (the Python mirror in `frontend/public/py/`), and links out to the
 full Streamlit app for BERT and the optional LLM layer. The other pages keep
 their existing layout.
 
+The shipped UI uses the Prompt Linter logo (chat bubble with a mustard check), an
+animated hero, and a persisted light/dark theme. The favicon and app icons use
+the same mark, and the About, Overview, New Analysis, History, Guidelines and
+Settings pages all share the teal/mustard design system.
+
 ```bash
 cd frontend
 npm install
@@ -484,6 +508,103 @@ docker run -p 8501:8501 ui-prompt-linter
 
 The container installs CPU-only PyTorch, runs Streamlit on port 8501, and uses the
 same `BERT_MODEL_URL` behaviour described above.
+
+---
+
+## Browser extension (Manifest V3)
+
+A Chrome/Edge extension that runs the Prompt Linter Rules engine entirely in the
+popup. It requests **no permissions**, makes **no network calls** and collects
+**no data**, so it works offline and declares no remote code.
+
+It mirrors the web app: same teal/mustard palette, same chat-bubble + checkmark
+logo, same 4-step analysis flow. The popup detects the 10 element types, links
+colour/location/action/label to each element, flags missing and vague details,
+asks clarification questions, shows the 0–100 risk score and produces a
+copy-ready validated prompt.
+
+| File | Purpose |
+|---|---|
+| `extension/manifest.json` | Manifest V3 config (popup + icons, no permissions) |
+| `extension/engine.js` | JavaScript port of the Rules engine in `src/` |
+| `extension/popup.html` / `popup.css` / `popup.js` | Popup UI |
+| `extension/icons/` | 16/32/48/128 icons |
+| `extension/store/` | Store listing, permission/privacy answers, policy, 300px logo |
+| `extension/package.py` | Builds the store logo and upload zip |
+
+### Load for development
+
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Click **Load unpacked** and select the `extension/` folder.
+3. Pin **Prompt Linter** and click the icon to open the popup.
+
+### Package for the store
+
+```bash
+python extension/package.py
+```
+
+This writes `extension/dist/prompt-linter-extension.zip` (with `manifest.json` at
+the zip root) and `extension/store/store-logo-300.png`. The listing text is in
+`extension/store/listing.md`, the privacy answers in
+`extension/store/permissions-and-privacy.md`, and the submission checklist in
+`extension/store/publish-steps.md`.
+
+The hosted privacy policy is
+<https://ejajaka.github.io/ui-prompt-linter/privacy-policy.html>.
+
+---
+
+## Android app (Jetpack Compose)
+
+The native app in `android/` is a separate Jetpack Compose project (package
+`com.promptlinter.app`, `minSdk` 24, `compileSdk`/`targetSdk` 36) that recreates
+the web product rather than embedding it in a browser. It uses the same teal
+`#49686C` / mustard `#D1B653` / warm ivory `#F6F4EC` branding and a drawn
+chat-bubble + checkmark logo.
+
+| Screen | Matches web page |
+|---|---|
+| Overview | Dashboard hero, metrics, risk distribution, recent analyses |
+| Analyze | New UI Prompt Analysis, examples, results, clarification rounds, final prompt |
+| History | Search, risk filter, sort, reopen, delete |
+| Guide | Guidelines and completeness baseline (elements, attributes, rules, risk bands) |
+| About | Hero, problem, workflow, advantages, analysis approach, responsible use |
+| Settings | Theme, engine information, local data controls, onboarding replay |
+
+### Cross-platform engine parity
+
+- `android/app/src/main/assets/engine.js` is an exact copy of
+  `extension/engine.js`, the JavaScript port of the Python Rules backend.
+- `android/app/src/main/java/com/promptlinter/app/data/engine/JsEngine.kt` loads
+  that engine in an off-screen `WebView` and calls
+  `PromptLinterEngine.analyze(text, answers, finalize)`.
+- Analysis, clarification questions, scoring and the final validated prompt
+  therefore match the Rules behaviour of the website and extension.
+- BERT and the grounded LLM are **not** bundled in the app. They remain in the
+  full Streamlit engine, linked from the app's Settings screen. Nothing is
+  fabricated when a model is unreachable.
+
+Additional native behaviour:
+
+- 4-step onboarding on first launch, replayable from Settings.
+- Light/dark Material 3 themes that preserve the Prompt Linter accents; the
+  choice is persisted.
+- Analysis history is stored only on-device under the SharedPreferences key
+  `prompt_linter_history_v1`, with no account and no upload.
+
+### Build and install
+
+```powershell
+cd android
+gradle assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+Requirements: JDK 17+, Android SDK 36, Gradle 9.3.1 (AGP 9.1.1). Open the
+`android/` folder in Android Studio or run Gradle 9.3.1 from the command line as
+shown. See [`android/README.md`](android/README.md) for the screen map and parity
+notes.
 
 ---
 
