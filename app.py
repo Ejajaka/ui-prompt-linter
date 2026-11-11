@@ -88,6 +88,7 @@ def get_llm_client() -> LLMClient:
         base_url=_secret("LLM_BASE_URL") or os.environ.get("LLM_BASE_URL"),
         model=_secret("LLM_MODEL") or os.environ.get("LLM_MODEL"),
         api_key=_secret("LLM_API_KEY") or os.environ.get("LLM_API_KEY"),
+        session=_secret("LLM_SESSION") or os.environ.get("LLM_SESSION"),
     )
 
 

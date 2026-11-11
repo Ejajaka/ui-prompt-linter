@@ -416,9 +416,16 @@ The GitHub Pages demo is Rules-only. For a permanent **BERT + LLM** app:
    OpenAI-compatible endpoint (see `.streamlit/secrets.toml.example`):
 
    ```toml
-   LLM_BASE_URL = "https://api.groq.com/openai/v1"
-   LLM_MODEL = "llama-3.1-8b-instant"
-   LLM_API_KEY = "your-api-key"
+   # OpenCode Go (uses your existing OpenCode key):
+   LLM_BASE_URL = "https://opencode.ai/zen/go/v1"
+   LLM_MODEL = "deepseek-v4.1-flash"
+   LLM_API_KEY = "oc_..."
+   LLM_SESSION = "ui-prompt-linter"
+
+   # Or any other OpenAI-compatible provider, e.g. Groq:
+   # LLM_BASE_URL = "https://api.groq.com/openai/v1"
+   # LLM_MODEL = "llama-3.1-8b-instant"
+   # LLM_API_KEY = "your-api-key"
    ```
 
    Without a key, LLM detection/explanation falls back to the deterministic

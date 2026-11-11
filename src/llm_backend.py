@@ -73,11 +73,13 @@ class LLMClient:
         model: str | None = None,
         api_key: str | None = None,
         timeout: float = 60.0,
+        session: str | None = None,
     ) -> None:
         self.base_url = base_url or os.environ.get("LLM_BASE_URL", DEFAULT_BASE_URL)
         self.model = model or os.environ.get("LLM_MODEL", DEFAULT_MODEL)
         self.api_key = api_key or os.environ.get("LLM_API_KEY", "ollama")
         self.timeout = timeout
+        self.session = session or os.environ.get("LLM_SESSION", "ui-prompt-linter")
         self._client = None
 
     @property
@@ -89,10 +91,15 @@ class LLMClient:
                 raise LLMNotAvailable(
                     "The 'openai' package is not installed. Run: pip install openai"
                 ) from exc
+            headers = None
+            if "opencode.ai" in self.base_url:
+                # OpenCode Go requires a session header for routing.
+                headers = {"x-opencode-session": self.session}
             self._client = OpenAI(
                 base_url=self.base_url,
                 api_key=self.api_key,
                 timeout=self.timeout,
+                default_headers=headers,
             )
         return self._client
 
