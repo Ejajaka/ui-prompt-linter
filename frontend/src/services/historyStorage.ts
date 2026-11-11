@@ -1,6 +1,6 @@
 import type { AnalysisResult, RiskLevel } from '../types/analysis.ts';
 
-const STORAGE_KEY = 'vector_analysis_history_v1';
+const STORAGE_KEY = 'prompt_linter_history_v1';
 
 /**
  * Local analysis history. Starts empty - records are added only as the user

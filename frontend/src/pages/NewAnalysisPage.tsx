@@ -67,8 +67,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = () => {
           <a className="underline text-[#49686C]" href={ENGINE_URL} target="_blank" rel="noreferrer">
             {ENGINE_URL}
           </a>
-          . The home, guidelines and settings pages in this UI are the same Vector design you
-          already know.
+          . The home, guidelines and settings pages use the same warm dashboard design as the rest of the site.
         </p>
       </div>
 

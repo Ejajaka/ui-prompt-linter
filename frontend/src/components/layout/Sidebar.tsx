@@ -35,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'about' as ActiveTab, label: 'About & Overview', icon: Sparkles },
     { id: 'overview' as ActiveTab, label: 'Overview', icon: LayoutDashboard },
     { id: 'new-analysis' as ActiveTab, label: 'New Analysis', icon: PlusCircle },
-    { id: 'history' as ActiveTab, label: 'Analysis History', icon: History },
+    { id: 'history' as ActiveTab, label: 'Prompt History', icon: History },
     { id: 'guidelines' as ActiveTab, label: 'Prompt Guidelines', icon: BookOpen },
     { id: 'settings' as ActiveTab, label: 'Settings', icon: Settings },
   ];

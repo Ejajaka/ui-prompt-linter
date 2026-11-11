@@ -8,7 +8,7 @@ export interface FindingFeedback {
   createdAt: string;
 }
 
-const STORAGE_KEY = 'vector_feedback_v1';
+const STORAGE_KEY = 'prompt_linter_feedback_v1';
 
 export function recordFeedback(
   prompt: string,

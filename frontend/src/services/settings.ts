@@ -6,7 +6,7 @@ export interface VectorSettings {
   autoDeepScan: boolean;
 }
 
-const STORAGE_KEY = 'vector_webapp_settings_v1';
+const STORAGE_KEY = 'prompt_linter_settings_v1';
 
 // Demo builds: tools/inject-demo-config.js writes a gitignored
 // public/engine/demo-config.js exposing window.VECTOR_DEMO_SETTINGS. The
@@ -17,8 +17,8 @@ const TEST_API_KEY =
 
 export const DEFAULT_SETTINGS: VectorSettings = {
   apiKey: TEST_API_KEY,
-  baseUrl: DEMO.baseUrl || 'https://api.groq.com/openai/v1',
-  model: DEMO.model || 'qwen/qwen3.8-27b',
+  baseUrl: DEMO.baseUrl || 'https://opencode.ai/zen/go/v1',
+  model: DEMO.model || 'deepseek-v4.1-flash',
   autoDeepScan: true
 };
 

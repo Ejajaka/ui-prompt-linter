@@ -40,7 +40,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
     setSettings((prev) => ({ ...prev, ...patch }));
 
   const handleClearData = () => {
-    if (window.confirm('Clear all local analysis history?')) {
+    if (window.confirm('Clear all local prompt history?')) {
       historyStorage.clear();
       if (onRefreshData) onRefreshData();
       toast('Local history cleared', 'info');
@@ -54,7 +54,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           System Settings
         </h1>
         <p className="text-xs sm:text-sm text-[#737A72] mt-1">
-          Configure Vector analysis parameters, diagnostic engines, and local data persistence.
+          Configure Prompt Linter preferences, engine behavior and local data.
         </p>
       </div>
 
@@ -66,7 +66,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
         </div>
 
         <p className="text-xs text-[#737A72]">
-          Choose your interface theme. Both themes preserve Vector's primary teal, mustard-yellow risk accents, and high-contrast technical readability.
+          Choose your interface theme. Both themes preserve the prompt linter's teal and mustard accents with high-contrast readability.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -89,7 +89,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
                 <Sun className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[#283638] block">Vector Classic (Light)</span>
+                <span className="text-xs font-bold text-[#283638] block">Prompt Linter Light</span>
                 <span className="text-[11px] text-[#737A72]">Warm ivory #F6F4EC canvas & teal typography</span>
               </div>
             </div>
@@ -115,7 +115,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
                 <Moon className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[#283638] block">Vector Obsidian (Dark)</span>
+                <span className="text-xs font-bold text-[#283638] block">Prompt Linter Dark</span>
                 <span className="text-[11px] text-[#737A72]">Deep slate teal-black canvas & high contrast</span>
               </div>
             </div>
@@ -128,27 +128,27 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
       <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-4">
         <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
           <Cpu className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">Analysis Engine Configuration</h2>
+          <h2 className="text-base font-bold text-[#283638]">Engine Configuration</h2>
         </div>
 
         <div className="p-4 rounded-lg bg-[#F4F9F1] border border-[#CFE2C8] space-y-1.5">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#3E6B33]" />
             <span className="text-xs font-bold text-[#2D5A27]">
-              Active Engine: Offline Rule-Based Analyzer
+              Active Engine: Auto (Rules / BERT / LLM)
             </span>
           </div>
           <p className="text-xs text-[#283638] leading-relaxed pl-6">
-            The core Vector analyzer operates locally and deterministically. It checks input infrastructure prompts against AWS security rules without transmitting prompts to external third-party services.
+            The engine runs in the embedded Streamlit panel. It chooses Rules, BERT or an optional grounded LLM, then checks the prompt against the UI element schema.
           </p>
         </div>
 
         <form onSubmit={handleSaveSettings} className="space-y-4 pt-2">
           <div className="flex items-center justify-between p-3 rounded-lg bg-[#FAFAF8] border border-[#E5E2D8]">
             <div className="pr-4">
-              <span className="text-xs font-bold text-[#283638] block">Auto deep scan</span>
+              <span className="text-xs font-bold text-[#283638] block">LLM assist</span>
               <span className="text-[11px] text-[#737A72]">
-                Run the LLM automatically when confidence or coverage is low, then merge with the rules.
+                Use the configured LLM for low-confidence prompts and plain-language explanations.
               </span>
             </div>
             <input
@@ -161,7 +161,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
 
           <div>
             <label className="text-xs font-bold text-[#283638] block mb-1">
-              Deep scan API key
+              LLM API key
             </label>
             <input
               type="password"
@@ -193,13 +193,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           <div className="flex items-center justify-between gap-3">
             <span className="text-[11px] text-[#737A72]">
               {onDevice
-                ? 'On-device model detected (no key needed).'
+                ? 'Local model detected (no key needed).'
                 : settings.apiKey
-                ? 'Hosted key configured.'
-                : 'Not configured — rules only.'}
+                ? 'LLM key configured.'
+                : 'Not configured - deterministic mode.'}
             </span>
             <button type="submit" className="px-4 py-2 bg-[#49686C] text-white text-xs font-bold rounded-lg hover:bg-[#30494B] transition-colors">
-              {isSaved ? 'Saved' : 'Save Engine Settings'}
+              {isSaved ? 'Saved' : 'Save Settings'}
             </button>
           </div>
         </form>
@@ -213,7 +213,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
         </div>
 
         <p className="text-xs text-[#737A72]">
-          All analysis history and prompts are stored locally within your browser's private web storage. No data is stored in remote databases.
+          All prompt history and reviews are stored locally within your browser's private web storage. No data is stored in remote databases.
         </p>
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -232,25 +232,25 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
       <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-3">
         <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
           <Info className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">About Vector</h2>
+          <h2 className="text-base font-bold text-[#283638]">About Prompt Linter</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
             <span className="text-[#737A72] block">Application</span>
-            <span className="font-bold text-[#283638]">Vector — AWS Infrastructure Prompt Security</span>
+            <span className="font-bold text-[#283638]">Prompt Linter - UI/UX Prompt Review</span>
           </div>
           <div>
             <span className="text-[#737A72] block">Version</span>
-            <span className="font-mono font-bold text-[#283638]">v0.8.0</span>
+            <span className="font-mono font-bold text-[#283638]">v2.0</span>
           </div>
           <div>
             <span className="text-[#737A72] block">Engine Type</span>
-            <span className="font-bold text-[#283638]">Deterministic NLP Rule Evaluation</span>
+            <span className="font-bold text-[#283638]">Hybrid Rules + BERT + LLM</span>
           </div>
           <div>
             <span className="text-[#737A72] block">Execution Context</span>
-            <span className="font-bold text-[#283638]">Rules run locally; deep scan is optional (on-device or your key)</span>
+            <span className="font-bold text-[#283638]">Engine runs in the embedded Streamlit panel; LLM optional</span>
           </div>
         </div>
       </div>

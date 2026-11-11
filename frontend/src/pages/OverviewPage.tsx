@@ -64,15 +64,15 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-6 sm:p-8 shadow-xs relative overflow-hidden">
         <div className="max-w-2xl space-y-3 relative z-10">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#E4EBDD] text-[#30494B]">
-            <span>Vector Platform</span>
+            <span>Prompt Linter</span>
             <span>·</span>
-            <span>Pre-generation Diagnosis</span>
+            <span>UI/UX Prompt Review</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#283638]">
-            Infrastructure Security Overview
+            UI Prompt Overview
           </h1>
           <p className="text-sm text-[#737A72] leading-relaxed">
-            Identify missing security requirements and eliminate critical misconfigurations before generating your AWS infrastructure code.
+            Find missing UI details and unresolved ambiguities before sending a prompt to a UI generator.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-3">
@@ -95,17 +95,17 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         {/* Subtle Vector mark watermark in background */}
         <div className="absolute right-6 -bottom-8 opacity-5 hidden md:block pointer-events-none text-[#2D5D4F]">
           <svg width="220" height="220" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 6l6 13 6-13" />
+            <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M9 9v11" />
           </svg>
         </div>
       </div>
 
       {/* Summary Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Analyses */}
+        {/* Total Reviews */}
         <div className="bg-[#FFFFFF] p-5 rounded-xl border border-[#E5E2D8] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-[#737A72] mb-3">
-            <span className="text-xs font-semibold">Total Analyses</span>
+            <span className="text-xs font-semibold">Total Reviews</span>
             <div className="p-1.5 rounded-md bg-[#F0F5F5] text-[#49686C]">
               <Layers className="w-4 h-4" />
             </div>
@@ -115,7 +115,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               {totalCount}
             </div>
             <div className="text-[11px] text-[#737A72] mt-1">
-              Prompts evaluated
+              UI prompts reviewed
             </div>
           </div>
         </div>
@@ -141,7 +141,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         {/* Average Coverage */}
         <div className="bg-[#FFFFFF] p-5 rounded-xl border border-[#E5E2D8] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-[#737A72] mb-3">
-            <span className="text-xs font-semibold">Avg. Security Coverage</span>
+            <span className="text-xs font-semibold">Avg. Completeness</span>
             <div className="p-1.5 rounded-md bg-[#F4F9F1] text-[#3E6B33]">
               <ShieldCheck className="w-4 h-4" />
             </div>
@@ -151,7 +151,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               {totalCount > 0 ? `${avgCoverage}%` : '—'}
             </div>
             <div className="text-[11px] text-[#737A72] mt-1">
-              Applicable controls declared
+              Required details stated
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         {/* High Risk Analyses */}
         <div className="bg-[#FFFFFF] p-5 rounded-xl border border-[#E5E2D8] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-[#737A72] mb-3">
-            <span className="text-xs font-semibold">High-Risk Analyses</span>
+            <span className="text-xs font-semibold">High-Risk Prompts</span>
             <div className="p-1.5 rounded-md bg-[#FDF2F0] text-[#B94D42]">
               <ShieldAlert className="w-4 h-4" />
             </div>
@@ -185,7 +185,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 Recent Analyses
               </h3>
               <p className="text-xs text-[#737A72]">
-                Historical evaluation records and risk diagnoses
+                Previous UI prompt reviews and risk diagnoses
               </p>
             </div>
 
@@ -194,7 +194,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 <Search className="w-3.5 h-3.5 text-[#737A72] absolute left-2.5 top-1/2 transform -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Search prompts or resources..."
+                  placeholder="Search prompts or elements..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-8 pr-3 py-1.5 text-xs bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg focus:bg-white focus:outline-none focus:border-[#49686C] text-[#283638]"
@@ -224,14 +224,14 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               <p className="text-xs text-[#737A72] max-w-sm mx-auto">
                 {searchQuery || selectedRiskFilter !== 'ALL'
                   ? 'No records match your search filter criteria.'
-                  : 'Start your first infrastructure prompt security diagnosis.'}
+                  : 'Start your first UI prompt review.'}
               </p>
               <button
                 onClick={onStartNewAnalysis}
                 className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold hover:bg-[#30494B] transition-colors"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>Start your first analysis</span>
+                <span>Start your first review</span>
               </button>
             </div>
           ) : (
@@ -239,10 +239,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-[#E5E2D8] text-[#737A72] font-semibold">
-                    <th className="py-2.5 px-3">Infrastructure Prompt</th>
-                    <th className="py-2.5 px-3">Resources</th>
+                    <th className="py-2.5 px-3">UI Prompt</th>
+                    <th className="py-2.5 px-3">Elements</th>
                     <th className="py-2.5 px-3">Risk</th>
-                    <th className="py-2.5 px-3">Coverage</th>
+                    <th className="py-2.5 px-3">Completeness</th>
                     <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
                 </thead>
@@ -324,7 +324,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
 
           <p className="text-xs text-[#737A72]">
-            Severity categorization across all stored analysis records.
+            Risk levels across all stored prompt reviews.
           </p>
 
           {totalCount === 0 ? (

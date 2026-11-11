@@ -58,10 +58,10 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#283638] tracking-tight">
-            Analysis History
+            Prompt History
           </h1>
           <p className="text-xs sm:text-sm text-[#737A72]">
-            Review, reopen, and manage previous infrastructure security evaluations.
+            Review, reopen, and manage previous UI prompt evaluations.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
           <Search className="w-4 h-4 text-[#737A72] absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search prompt text, resources (e.g. S3, EC2)..."
+            placeholder="Search prompt text, elements (e.g. button, navbar)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-xs bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg text-[#283638] focus:bg-white focus:outline-none focus:border-[#49686C]"
@@ -117,7 +117,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
           >
             <option value="date_desc">Most Recent</option>
             <option value="risk_desc">Highest Risk First</option>
-            <option value="coverage_asc">Lowest Coverage First</option>
+            <option value="coverage_asc">Lowest Completeness First</option>
           </select>
         </div>
       </div>
@@ -126,18 +126,18 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
       {items.length === 0 ? (
         <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-12 text-center space-y-3">
           <FolderOpen className="w-10 h-10 text-[#CDC9BC] mx-auto" />
-          <h3 className="text-base font-bold text-[#283638]">No analysis history</h3>
+          <h3 className="text-base font-bold text-[#283638]">No prompt history</h3>
           <p className="text-xs text-[#737A72] max-w-sm mx-auto">
             {search || riskFilter !== 'ALL'
               ? 'No evaluations match your search or filter criteria.'
-              : 'You have not evaluated any infrastructure prompts yet.'}
+              : 'You have not reviewed any UI prompts yet.'}
           </p>
           <button
             onClick={onStartNewAnalysis}
             className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#49686C] text-white text-xs font-bold rounded-lg hover:bg-[#30494B] transition-colors"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Start your first analysis</span>
+            <span>Start your first review</span>
           </button>
         </div>
       ) : (
@@ -147,10 +147,10 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
               <thead>
                 <tr className="border-b border-[#E5E2D8] text-[#737A72] font-semibold bg-[#FAFAF8]">
                   <th className="py-3 px-4">Evaluated Prompt</th>
-                  <th className="py-3 px-4">AWS Resources</th>
+                  <th className="py-3 px-4">UI Elements</th>
                   <th className="py-3 px-4">Risk Level & Score</th>
-                  <th className="py-3 px-4">Coverage</th>
-                  <th className="py-3 px-4">Evaluated Date</th>
+                  <th className="py-3 px-4">Completeness</th>
+                  <th className="py-3 px-4">Reviewed</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>

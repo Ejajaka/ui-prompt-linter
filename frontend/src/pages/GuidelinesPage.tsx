@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  KeyRound, 
-  ShieldCheck, 
-  Lock, 
-  FileText, 
-  Database, 
-  Globe, 
-  Key, 
-  Scale, 
-  CheckCircle2, 
-  ChevronDown, 
+import {
+  LayoutDashboard,
+  Type,
+  Palette,
+  MousePointerClick,
+  MessageSquare,
+  Layers,
+  CheckCircle2,
+  ChevronDown,
   ChevronUp,
-  ExternalLink
 } from 'lucide-react';
 
 interface GuidelineCategory {
@@ -29,206 +26,190 @@ interface GuidelineCategory {
 
 const GUIDELINES_DATA: GuidelineCategory[] = [
   {
-    id: 'iam',
-    title: 'Identity and Access Management (IAM)',
-    icon: KeyRound,
-    description: 'Ensure compute workloads, serverless runtimes, and administrative actors operate under least-privilege principles without persistent wildcard credentials.',
+    id: 'elements',
+    title: 'Element completeness',
+    icon: Layers,
+    description: 'Every required UI element should be named with a supported type and a clear surface form.',
     controls: [
       {
-        name: 'Least-Privilege Execution Roles',
-        description: 'Workload execution roles must restrict actions to explicit resource ARNs rather than Resource: "*".',
-        remediationClause: 'Attach a dedicated IAM role restricted to designated resource ARNs with minimal required permissions.',
-        severity: 'high'
+        name: 'Name the element',
+        description: 'State the UI element explicitly: button, navbar, input, card, modal, image, dropdown, sidebar, footer or checkbox.',
+        remediationClause: 'Add a navbar at the top of the page with links Home, About and Contact.',
+        severity: 'high',
       },
       {
-        name: 'No Hard-Coded Access Keys',
-        description: 'Never embed AWS access keys or static credentials directly in application requests or launch configurations.',
-        remediationClause: 'Use IAM instance profiles or ECS task roles for temporary credential vending.',
-        severity: 'critical'
+        name: 'Use a supported type',
+        description: 'Use one of the ten supported element types so the checker applies the right required-attribute schema.',
+        remediationClause: 'Use “input field” instead of “thing for typing”.',
+        severity: 'high',
       },
       {
-        name: 'IAM Permissions Boundary',
-        description: 'Define maximum allowable permission boundaries on developer-managed roles.',
-        remediationClause: 'Set IAM permissions boundaries to cap delegated administrator capabilities.',
-        severity: 'medium'
-      }
-    ]
+        name: 'Avoid landmark confusion',
+        description: 'A UI noun inside a location phrase is a landmark reference, not another element.',
+        remediationClause: '“Above the footer” is a location; it does not create a second footer element.',
+        severity: 'medium',
+      },
+    ],
   },
   {
-    id: 'network',
-    title: 'Network Security & Ingress Restrictions',
-    icon: ShieldCheck,
-    description: 'Segment infrastructure across private VPC tiers and eliminate unauthenticated public listeners.',
+    id: 'labels',
+    title: 'Labels & content',
+    icon: Type,
+    description: 'Specify the text, list items or purpose the user will see on the element.',
     controls: [
       {
-        name: 'No 0.0.0.0/0 Administrative Ingress',
-        description: 'Ports 22 (SSH) and 3389 (RDP) must never accept inbound traffic from the open Internet.',
-        remediationClause: 'Eliminate direct SSH/RDP ingress; mandate AWS Systems Manager (SSM) Session Manager or corporate VPN CIDR.',
-        severity: 'critical'
+        name: 'Button text',
+        description: 'Say what the button says, not just that it exists.',
+        remediationClause: 'Add a red button labelled “Sign Up” at the top right corner.',
+        severity: 'high',
       },
       {
-        name: 'Multi-Tier VPC Subnetting',
-        description: 'Separate public ingress, application compute, and persistence layers into distinct private subnets.',
-        remediationClause: 'Deploy backend workloads and databases in private subnets without public IPv4 assignments.',
-        severity: 'high'
+        name: 'Navigation and sidebar items',
+        description: 'List the links or items in a navbar or sidebar.',
+        remediationClause: 'Add a navbar with links Home, Products and Pricing.',
+        severity: 'high',
       },
       {
-        name: 'TLS / HTTPS Ingress Termination',
-        description: 'All public web ingress must terminate on HTTPS with modern TLS 1.3 protocol enforcement.',
-        remediationClause: 'Configure Application Load Balancer with ACM SSL/TLS certificates and automatic HTTP-to-HTTPS redirect.',
-        severity: 'high'
-      }
-    ]
+        name: 'Input purpose',
+        description: 'Say what an input field is for, such as email, password or search query.',
+        remediationClause: 'Add an email input field in the center of the screen.',
+        severity: 'high',
+      },
+    ],
   },
   {
-    id: 'data-protection',
-    title: 'Data Protection & Encryption',
-    icon: Lock,
-    description: 'Protect application data at rest on object storage, block volumes, and managed databases using customer-managed KMS keys.',
+    id: 'colour',
+    title: 'Colour & styling',
+    icon: Palette,
+    description: 'State an explicit colour or theme intent; vague colour requests are treated as missing.',
     controls: [
       {
-        name: 'S3 Default Encryption at Rest',
-        description: 'Enforce server-side encryption for all uploaded objects and bucket contents.',
-        remediationClause: 'Configure default SSE-KMS or SSE-S3 encryption across all S3 buckets.',
-        severity: 'high'
+        name: 'Explicit colour',
+        description: 'Give a concrete colour name or hex code.',
+        remediationClause: 'Use blue, dark green, maroon or #2E86C1 rather than “a nice colour”.',
+        severity: 'high',
       },
       {
-        name: 'S3 Block Public Access Enforcement',
-        description: 'Prevent accidental public bucket exposure via bucket policies or ACLs.',
-        remediationClause: 'Enable all four S3 Block Public Access settings at the bucket and account level.',
-        severity: 'critical'
+        name: 'No vague colour',
+        description: 'Expressions like “some nice colour” or “a colour that looks good” are not actionable.',
+        remediationClause: 'Replace “in a bright colour” with “in teal”.',
+        severity: 'medium',
       },
       {
-        name: 'RDS Storage Volume Encryption',
-        description: 'Encrypt persistent database storage disks and automated snapshot backups.',
-        remediationClause: 'Enable AWS KMS storage encryption on Amazon RDS and Aurora clusters at creation.',
-        severity: 'high'
-      }
-    ]
+        name: 'Theme and contrast intent',
+        description: 'If the element should blend with a theme, state the theme or the contrast requirement.',
+        remediationClause: 'Use the dark theme with a light label for contrast.',
+        severity: 'medium',
+      },
+    ],
   },
   {
-    id: 'logging',
-    title: 'Logging, Audit Trails & Monitoring',
-    icon: FileText,
-    description: 'Establish comprehensive forensic auditability and anomaly alerts across management and data events.',
+    id: 'placement',
+    title: 'Placement & layout',
+    icon: LayoutDashboard,
+    description: 'Say where the element sits using an absolute or relational location.',
     controls: [
       {
-        name: 'Multi-Region AWS CloudTrail',
-        description: 'Record all management events across all AWS regions to detect credential abuse.',
-        remediationClause: 'Enable multi-region AWS CloudTrail with log file validation and KMS encryption.',
-        severity: 'high'
+        name: 'Absolute placement',
+        description: 'Use a screen region: top right corner, bottom left, center of the page, middle of the screen.',
+        remediationClause: 'Place the card in the bottom right corner.',
+        severity: 'high',
       },
       {
-        name: 'S3 Server Access Logging',
-        description: 'Capture detailed requester records for bucket operations and data access.',
-        remediationClause: 'Route S3 server access logs to a centralized, write-once audit log archive bucket.',
-        severity: 'medium'
+        name: 'Relational placement',
+        description: 'Describe placement relative to another element when that is clearer.',
+        remediationClause: 'Place the checkbox below the password field.',
+        severity: 'high',
       },
       {
-        name: 'VPC Flow Logs',
-        description: 'Record IP traffic flow information for network interfaces within your VPC.',
-        remediationClause: 'Enable VPC Flow Logs delivering to CloudWatch Logs or S3 for network anomaly detection.',
-        severity: 'medium'
-      }
-    ]
+        name: 'Region clarity',
+        description: 'Say whether the location is on the page, the screen, the header or a specific section.',
+        remediationClause: 'Place the button at the top of the page, not just “at the top”.',
+        severity: 'medium',
+      },
+    ],
   },
   {
-    id: 'backup',
-    title: 'Resilience, Backup & Recovery',
-    icon: Database,
-    description: 'Implement high-availability replication, automated snapshots, and deletion safeguards.',
+    id: 'actions',
+    title: 'Actions & behaviour',
+    icon: MousePointerClick,
+    description: 'Describe what happens after the user interacts with the element.',
     controls: [
       {
-        name: 'RDS Multi-AZ High Availability',
-        description: 'Maintain synchronous standby replicas across distinct availability zones for automatic failover.',
-        remediationClause: 'Enable Multi-AZ deployment for production database instances.',
-        severity: 'medium'
+        name: 'Click action',
+        description: 'For a button, state what clicking it does.',
+        remediationClause: 'Add a “Sign Up” button that opens the signup form.',
+        severity: 'high',
       },
       {
-        name: 'S3 Versioning & Lifecycle Rules',
-        description: 'Safeguard objects against accidental deletion or ransomware overwrites.',
-        remediationClause: 'Enable S3 Versioning with lifecycle rules to transition aged versions to Glacier.',
-        severity: 'medium'
-      }
-    ]
-  },
-  {
-    id: 'exposure',
-    title: 'Infrastructure Exposure & Public Gateways',
-    icon: Globe,
-    description: 'Restrict Internet-facing surface areas and route public requests through protective edge layers.',
-    controls: [
-      {
-        name: 'CloudFront Origin Access Control (OAC)',
-        description: 'Direct S3 access should be blocked; allow retrieval exclusively through CloudFront CDN.',
-        remediationClause: 'Enforce CloudFront Origin Access Control (OAC) on S3 origin buckets.',
-        severity: 'high'
+        name: 'Modal trigger',
+        description: 'For a modal, state what opens it or when it appears.',
+        remediationClause: 'Add a modal titled “Confirm Delete” that appears when the user clicks Delete.',
+        severity: 'high',
       },
       {
-        name: 'AWS WAF on Public Endpoints',
-        description: 'Protect public ALB and API Gateway entrypoints against common OWASP web exploits.',
-        remediationClause: 'Attach AWS WAF WebACL with AWS Managed Rules (Core Rule Set and Known Bad Inputs).',
-        severity: 'high'
-      }
-    ]
+        name: 'Dropdown selection',
+        description: 'For a dropdown, state what happens when an option is selected.',
+        remediationClause: 'Add a country dropdown that filters the list by country.',
+        severity: 'high',
+      },
+    ],
   },
   {
-    id: 'secrets',
-    title: 'Secrets Management & Credential Safety',
-    icon: Key,
-    description: 'Eliminate plaintext database passwords, API tokens, and private keys from code and configuration prompts.',
+    id: 'states',
+    title: 'States & feedback',
+    icon: MessageSquare,
+    description: 'Mention validating, loading, empty, success and error states when they matter for the UI.',
     controls: [
       {
-        name: 'AWS Secrets Manager Integration',
-        description: 'Store database credentials and third-party API keys in managed secret stores with automatic rotation.',
-        remediationClause: 'Retrieve database credentials from AWS Secrets Manager with automated 30-day rotation.',
-        severity: 'high'
-      }
-    ]
+        name: 'Loading and empty states',
+        description: 'Say what the user sees while data loads or when there is nothing to show.',
+        remediationClause: 'Show a loading spinner and an empty-state message when there are no results.',
+        severity: 'high',
+      },
+      {
+        name: 'Validation copy',
+        description: 'Describe the message shown when input is missing or invalid.',
+        remediationClause: 'Show “Enter a valid email” below the email field.',
+        severity: 'medium',
+      },
+      {
+        name: 'Success feedback',
+        description: 'Say how the user knows an action succeeded.',
+        remediationClause: 'Show a “Saved successfully” toast after the form is submitted.',
+        severity: 'medium',
+      },
+    ],
   },
-  {
-    id: 'governance',
-    title: 'Governance & Compliance Baselines',
-    icon: Scale,
-    description: 'Align infrastructure specifications with the AWS Well-Architected Framework and CIS Benchmarks.',
-    controls: [
-      {
-        name: 'AWS Config Continuous Evaluation',
-        description: 'Continuously assess resource configurations against defined security baselines.',
-        remediationClause: 'Enable AWS Config conformance packs for CIS AWS Foundations Benchmark.',
-        severity: 'medium'
-      }
-    ]
-  }
 ];
 
 export const GuidelinesPage: React.FC = () => {
-  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>('iam');
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>('elements');
 
   const toggleCategory = (id: string) => {
-    setExpandedCategoryId(prev => (prev === id ? null : id));
+    setExpandedCategoryId((prev) => (prev === id ? null : id));
   };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Page Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-[#283638] tracking-tight">
-          Security Guidelines & Controls
+          Prompt Guidelines & Attributes
         </h1>
         <p className="text-xs sm:text-sm text-[#737A72] mt-1">
-          Reference catalog of AWS security controls, baseline checks, and remediation clauses evaluated by Vector.
+          Reference catalog of UI prompt checks, required attributes and example wording used by Prompt Linter.
         </p>
       </div>
 
       <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#E5E2D8] text-xs text-[#737A72] leading-relaxed flex items-start gap-3">
         <CheckCircle2 className="w-4 h-4 text-[#49686C] shrink-0 mt-0.5" />
         <p>
-          Vector enforces rule-based constraints inspired by the <strong>AWS Well-Architected Framework</strong> (Security Pillar) and <strong>CIS AWS Foundations Benchmark</strong>. Findings generated during analysis match these canonical baseline recommendations.
+          Prompt Linter checks prompts against a schema-driven completeness baseline. The examples
+          below use the same annotation rules as the dataset: only stated details count, vague values
+          are treated as missing, and landmark phrases are not elements.
         </p>
       </div>
 
-      {/* Accordion List */}
       <div className="space-y-3">
         {GUIDELINES_DATA.map((cat) => {
           const Icon = cat.icon;
@@ -250,18 +231,14 @@ export const GuidelinesPage: React.FC = () => {
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-bold text-[#283638]">
-                      {cat.title}
-                    </h3>
-                    <p className="text-xs text-[#737A72] line-clamp-1">
-                      {cat.description}
-                    </p>
+                    <h3 className="text-sm sm:text-base font-bold text-[#283638]">{cat.title}</h3>
+                    <p className="text-xs text-[#737A72] line-clamp-1">{cat.description}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-mono text-[#737A72] hidden sm:inline-block">
-                    {cat.controls.length} controls
+                    {cat.controls.length} checks
                   </span>
                   <div className="p-1 rounded text-[#737A72]">
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -271,36 +248,29 @@ export const GuidelinesPage: React.FC = () => {
 
               {isExpanded && (
                 <div className="px-5 pb-5 pt-1 border-t border-[#E5E2D8] space-y-4 bg-[#FAFAF8]">
-                  <p className="text-xs text-[#737A72] pt-2">
-                    {cat.description}
-                  </p>
+                  <p className="text-xs text-[#737A72] pt-2">{cat.description}</p>
 
                   <div className="space-y-3">
                     {cat.controls.map((ctrl, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 rounded-lg bg-[#FFFFFF] border border-[#E5E2D8] space-y-2"
-                      >
+                      <div key={idx} className="p-4 rounded-lg bg-[#FFFFFF] border border-[#E5E2D8] space-y-2">
                         <div className="flex items-center justify-between gap-2">
-                          <h4 className="text-xs font-bold text-[#283638]">
-                            {ctrl.name}
-                          </h4>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase border ${
-                            ctrl.severity === 'critical'
-                              ? 'bg-[#FDF2F0] text-[#B94D42] border-[#F0C4BF]'
-                              : ctrl.severity === 'high'
-                              ? 'bg-[#FFF7ED] text-[#C96839] border-[#FED7AA]'
-                              : 'bg-[#FEFCE8] text-[#856C16] border-[#FEF08A]'
-                          }`}>
+                          <h4 className="text-xs font-bold text-[#283638]">{ctrl.name}</h4>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase border ${
+                              ctrl.severity === 'critical'
+                                ? 'bg-[#FDF2F0] text-[#B94D42] border-[#F0C4BF]'
+                                : ctrl.severity === 'high'
+                                ? 'bg-[#FFF7ED] text-[#C96839] border-[#FED7AA]'
+                                : 'bg-[#FEFCE8] text-[#856C16] border-[#FEF08A]'
+                            }`}
+                          >
                             {ctrl.severity}
                           </span>
                         </div>
-                        <p className="text-xs text-[#737A72]">
-                          {ctrl.description}
-                        </p>
+                        <p className="text-xs text-[#737A72]">{ctrl.description}</p>
                         <div className="p-2.5 rounded bg-[#F6F4EC] border border-[#E5E2D8] text-xs font-mono text-[#30494B]">
                           <span className="font-sans font-bold text-[#49686C] block text-[11px] mb-0.5">
-                            Standard Remediation Clause:
+                            Example wording:
                           </span>
                           &ldquo;{ctrl.remediationClause}&rdquo;
                         </div>
