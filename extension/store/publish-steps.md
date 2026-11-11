@@ -1,5 +1,8 @@
 # Publish to the Chrome Web Store / Edge Add-ons - step by step
 
+> Live listing (already published): **Edge Add-ons**
+> <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
+
 ## 0. Build the upload file
 
 ```powershell

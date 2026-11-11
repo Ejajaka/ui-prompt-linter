@@ -4,6 +4,13 @@ A Manifest V3 Chrome/Edge extension that runs the Prompt Linter Rules engine
 entirely in the browser (no server, no network, no permissions). The UI matches
 the main web app (teal/mustard, the chat-bubble + checkmark logo).
 
+## Install
+
+- **Microsoft Edge Add-ons (live):**
+  <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
+- **Chrome:** load unpacked in Developer mode (below), or package with
+  `package.py` for the Chrome Web Store.
+
 ## Load for development
 
 1. Open `chrome://extensions` and enable **Developer mode**.

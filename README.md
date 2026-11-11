@@ -10,7 +10,8 @@ Runs the actual Python rules engine in your browser with no server.
 Hosts the BERT tagger and the optional LLM layer; the React UI links to it for those backends.
 
 **Browser extension (Manifest V3):** [`extension/`](extension/)  
-Fully offline popup with the same branding and Rules engine; no permissions, no network.
+Fully offline popup with the same branding and Rules engine; no permissions, no network.  
+Install it from the Edge Add-ons store: <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
 
 **Android app (Jetpack Compose):** [`android/`](android/)  
 Native app mirroring the web UI and content, running the same Rules engine on-device.
@@ -40,7 +41,7 @@ them.
 |---|---|---|---|
 | Web app | React + TypeScript (`frontend/`) | Rules via Pyodide in the browser | GitHub Pages |
 | Web demo | Static page (`docs/rules/`) | Rules via Pyodide | GitHub Pages |
-| Browser extension | Manifest V3 (`extension/`) | `extension/engine.js` (JS port of Rules) | Chrome Web Store / Edge Add-ons package |
+| Browser extension | Manifest V3 (`extension/`) | `extension/engine.js` (JS port of Rules) | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf) (live) / Chrome Web Store |
 | Android app | Jetpack Compose (`android/`) | Same `engine.js` in an on-device WebView | Debug APK / sideload |
 | Full engine | Streamlit (`app.py`) | Rules + DistilBERT + grounded LLM | Streamlit Cloud / Docker / HF Space |
 
@@ -522,6 +523,12 @@ logo, same 4-step analysis flow. The popup detects the 10 element types, links
 colour/location/action/label to each element, flags missing and vague details,
 asks clarification questions, shows the 0–100 risk score and produces a
 copy-ready validated prompt.
+
+### Install
+
+- **Microsoft Edge (live):** <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
+- **Chrome:** load unpacked in Developer mode (see below) or package with
+  `extension/package.py` for the Chrome Web Store.
 
 | File | Purpose |
 |---|---|

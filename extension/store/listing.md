@@ -1,6 +1,9 @@
-# Chrome Web Store listing
+# Chrome Web Store / Edge Add-ons listing
 
 Use this text in the Developer Dashboard when creating the listing.
+
+- **Edge Add-ons (live):**
+  <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
 
 ## Name (max 45 chars)
 Prompt Linter - UI Prompt Review
