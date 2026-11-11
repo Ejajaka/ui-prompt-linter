@@ -435,6 +435,18 @@ Streamlit Community Cloud cannot run Ollama, so a local Ollama model is not
 available there. For a fully self-hosted Ollama setup, use the Dockerfile on a
 server with enough RAM, or keep the app on a machine that runs Ollama.
 
+#### Hugging Face Docker Space (one command)
+
+If you have a Hugging Face **write** token:
+
+```bash
+HF_TOKEN=hf_xxx python deploy_hf_space.py --use-opencode-key
+```
+
+This creates a public Docker Space, uploads the app, downloads BERT at runtime
+and stores the OpenCode Go key as a Space secret (never in the repository). The
+script prints the Space URL.
+
 ### Docker deployment
 
 A `Dockerfile` is included:
