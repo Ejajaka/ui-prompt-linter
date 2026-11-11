@@ -270,10 +270,14 @@ initial score and the score after clarification.
   Rules/BERT detector has low confidence.
 - The LLM returns strict JSON; attribute values must be copied verbatim from the
   prompt. Ungrounded values are dropped and become clarification questions.
+- **Safety gate:** the LLM result is accepted only if it finds more grounded
+  elements/attributes than Rules. Otherwise the deterministic result is kept.
 - The LLM explains the already-computed risk and recommends next steps. The
   deterministic checklist and placeholders remain the source of truth.
 - If Ollama is unavailable, invalid output is rejected and deterministic
   explanations/recommendations are used.
+- Recommended local model: `qwen2.5:3b-instruct`. `qwen2.5:1.5b-instruct` is
+  faster but noticeably weaker at structured extraction; both are optional.
 
 ---
 

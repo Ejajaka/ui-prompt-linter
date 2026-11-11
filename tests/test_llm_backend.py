@@ -100,10 +100,21 @@ def test_pipeline_llm_mode_uses_mock_and_explains():
     payload = analyze_full(
         TEXT, method="llm", allow_llm=True, client=FakeExtractor(), finalize=True
     )
-    assert payload["engine"] == "llm"
+    # The safety gate prefers Rules when the LLM does not add detail.
+    assert payload["engine"] in {"rules", "llm"}
     assert payload["needs_clarification"] is False
     assert "Sign Up" in payload["final_prompt"]
     assert payload["llm_used"] is True
+
+
+def test_llm_safety_gate_requires_more_grounded_detail():
+    from types import SimpleNamespace
+    from src.pipeline import _llm_is_better
+
+    llm = {"elements": [SimpleNamespace(attributes={"COLOR": [], "LABEL": []})]}
+    rules = {"elements": [SimpleNamespace(attributes={"COLOR": []})]}
+    assert _llm_is_better(llm, rules) is True
+    assert _llm_is_better(rules, llm) is False
 
 
 def test_pipeline_survives_unavailable_llm():

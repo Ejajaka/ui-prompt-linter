@@ -223,6 +223,22 @@ def _try_tagger(name: str, text: str) -> dict | None:
         return None
 
 
+def _detail_counts(analysis: dict) -> tuple[int, int]:
+    elements = analysis.get("elements", [])
+    return len(elements), sum(len(element.attributes) for element in elements)
+
+
+def _llm_is_better(llm: dict, other: dict) -> bool:
+    """LLM may replace a tagger only if it finds more grounded detail."""
+    llm_elements, llm_attributes = _detail_counts(llm)
+    other_elements, other_attributes = _detail_counts(other)
+    if llm_elements > other_elements:
+        return True
+    if llm_elements == other_elements and llm_attributes > other_attributes:
+        return True
+    return False
+
+
 def _route_and_run(text: str, method: str, allow_llm: bool, client: LLMClient | None) -> tuple[dict, dict, str | None]:
     router_meta: dict = {"method": method, "reason": "manual selection", "scores": {}}
     if method == "auto":
@@ -238,6 +254,17 @@ def _route_and_run(text: str, method: str, allow_llm: bool, client: LLMClient | 
                 chosen = _analyse_llm(text, client or LLMClient())
             except (LLMNotAvailable, LLMResponseError, Exception) as exc:  # noqa: BLE001
                 llm_error = str(exc)
+        if chosen is not None:
+            # The local LLMs are small; only accept their extraction if it
+            # actually adds grounded detail over Rules.
+            rules_alt = _try_tagger("rules", text)
+            if rules_alt is not None and not _llm_is_better(chosen, rules_alt):
+                llm_meta = dict(chosen.get("llm_meta", {}))
+                rules_alt["llm_meta"] = {
+                    "overridden_by": "rules",
+                    "llm_raw": llm_meta,
+                }
+                chosen = rules_alt
         if chosen is None:
             # Fall back to the best tagger available.
             order = sorted(
@@ -273,9 +300,13 @@ def _route_and_run(text: str, method: str, allow_llm: bool, client: LLMClient | 
     ):
         try:
             llm_result = _analyse_llm(text, client or LLMClient())
-            if llm_result["result"]["summary"]["n_elements"] > 0:
+            if llm_result["result"]["summary"]["n_elements"] > 0 and _llm_is_better(
+                llm_result, chosen
+            ):
                 llm_result["llm_meta"]["fallback_from"] = chosen["engine"]
                 chosen = llm_result
+            else:
+                chosen.setdefault("llm_meta", {})["rejected_llm"] = True
         except (LLMNotAvailable, LLMResponseError, Exception) as exc:  # noqa: BLE001
             llm_error = str(exc)
 
