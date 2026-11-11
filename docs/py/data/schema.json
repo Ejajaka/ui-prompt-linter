@@ -1,0 +1,133 @@
+{
+  "tags": [
+    "O",
+    "B-ELEMENT",
+    "I-ELEMENT",
+    "B-COLOR",
+    "I-COLOR",
+    "B-LOCATION",
+    "I-LOCATION",
+    "B-ACTION",
+    "I-ACTION",
+    "B-LABEL",
+    "I-LABEL"
+  ],
+  "elements": {
+    "button": {
+      "allowed": [
+        "COLOR",
+        "LOCATION",
+        "LABEL",
+        "ACTION"
+      ],
+      "required": [
+        "LABEL",
+        "ACTION",
+        "COLOR",
+        "LOCATION"
+      ]
+    },
+    "navbar": {
+      "allowed": [
+        "COLOR",
+        "LOCATION",
+        "LABEL"
+      ],
+      "required": [
+        "COLOR",
+        "LOCATION",
+        "LABEL"
+      ]
+    },
+    "input": {
+      "allowed": [
+        "LABEL",
+        "LOCATION",
+        "COLOR"
+      ],
+      "required": [
+        "LABEL",
+        "LOCATION"
+      ]
+    },
+    "card": {
+      "allowed": [
+        "COLOR",
+        "LOCATION",
+        "LABEL"
+      ],
+      "required": [
+        "COLOR",
+        "LOCATION",
+        "LABEL"
+      ]
+    },
+    "modal": {
+      "allowed": [
+        "ACTION",
+        "LABEL",
+        "COLOR"
+      ],
+      "required": [
+        "ACTION",
+        "LABEL",
+        "COLOR"
+      ]
+    },
+    "image": {
+      "allowed": [
+        "LOCATION",
+        "LABEL"
+      ],
+      "required": [
+        "LOCATION",
+        "LABEL"
+      ]
+    },
+    "dropdown": {
+      "allowed": [
+        "LABEL",
+        "LOCATION",
+        "ACTION"
+      ],
+      "required": [
+        "LABEL",
+        "LOCATION",
+        "ACTION"
+      ]
+    },
+    "sidebar": {
+      "allowed": [
+        "LOCATION",
+        "COLOR",
+        "LABEL"
+      ],
+      "required": [
+        "LOCATION",
+        "COLOR",
+        "LABEL"
+      ]
+    },
+    "footer": {
+      "allowed": [
+        "COLOR",
+        "LABEL"
+      ],
+      "required": [
+        "COLOR",
+        "LABEL"
+      ]
+    },
+    "checkbox": {
+      "allowed": [
+        "LABEL",
+        "LOCATION",
+        "COLOR"
+      ],
+      "required": [
+        "LABEL",
+        "LOCATION"
+      ]
+    }
+  }
+}

@@ -1,13 +1,13 @@
 # UI Prompt Linter
 
 **Vector-style UI (React, permanent):** <https://ejajaka.github.io/ui-prompt-linter/>  
-The home page is the advertising/overview UI; **New Analysis** embeds the Streamlit engine in an iframe.
+The home page is the advertising/overview UI; **New Analysis** runs the Rules engine in-browser via Pyodide.
 
 **Rules-only demo (Pyodide):** <https://ejajaka.github.io/ui-prompt-linter/rules/>  
 Runs the actual Python rules engine in your browser with no server.
 
 **Full Streamlit engine (BERT + LLM):** <https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/>  
-The React UI embeds this engine. Override it without rebuilding with `?engine=https://your-app.streamlit.app`.
+Hosts the BERT tagger and the optional LLM layer; the React UI links to it for those backends.
 
 
 
@@ -457,9 +457,10 @@ script prints the Space URL.
 
 ### React frontend (Vector UI)
 
-The permanent frontend in `frontend/` is the Vector React UI, unchanged except
-for the home/advertising copy and the New Analysis page, which embeds the
-Streamlit engine in an iframe. The other pages keep their existing layout.
+The permanent frontend in `frontend/` runs the **Rules** backend in the browser
+via Pyodide (the Python mirror in `frontend/public/py/`), and links out to the
+full Streamlit app for BERT and the optional LLM layer. The other pages keep
+their existing layout.
 
 ```bash
 cd frontend
@@ -468,15 +469,9 @@ npm run build
 # copy frontend/dist/* into docs/ for GitHub Pages
 ```
 
-The engine URL is in `frontend/src/config.ts`. You can also override it at
-runtime without rebuilding:
-
-```text
-https://ejajaka.github.io/ui-prompt-linter/?engine=https://your-app.streamlit.app
-```
-
-The Streamlit app receives `?uiembed=1`, which hides its own sidebar/header so it
-fits cleanly inside the Vector shell.
+The full engine URL is in `frontend/src/config.ts` (`ENGINE_URL`), and the
+in-browser Rules engine is bootstrapped by
+`frontend/src/services/pyodideEngine.ts`.
 
 ### Docker deployment
 
