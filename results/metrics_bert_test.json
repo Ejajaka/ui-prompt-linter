@@ -210,5 +210,14 @@
       "has_missing_accuracy": 0.97,
       "exact_missing_set_accuracy": 0.91
     }
+  },
+  "engine_counts": {
+    "bert": 200
+  },
+  "risk": {
+    "mean_initial": 34.030000000000015,
+    "mean_final": 34.030000000000015,
+    "mean_final_incomplete": 45.959154929577466,
+    "mean_final_complete": 4.82413793103448
   }
 }

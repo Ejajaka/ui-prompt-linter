@@ -62,6 +62,8 @@ class Span:
     text: str
     char_start: int
     char_end: int
+    #: ``"prompt"`` for spans from the text, ``"clarification"`` for user answers.
+    source: str = "prompt"
 
     def to_dict(self) -> dict:
         """JSON-serialisable representation (used by the API / UI)."""
@@ -72,6 +74,7 @@ class Span:
             "text": self.text,
             "char_start": self.char_start,
             "char_end": self.char_end,
+            "source": self.source,
         }
 
 

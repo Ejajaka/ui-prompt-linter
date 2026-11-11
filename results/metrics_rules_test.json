@@ -210,5 +210,14 @@
       "has_missing_accuracy": 0.995,
       "exact_missing_set_accuracy": 0.975
     }
+  },
+  "engine_counts": {
+    "rules": 200
+  },
+  "risk": {
+    "mean_initial": 36.138500000000015,
+    "mean_final": 36.138500000000015,
+    "mean_final_incomplete": 50.100704225352125,
+    "mean_final_complete": 1.955172413793103
   }
 }

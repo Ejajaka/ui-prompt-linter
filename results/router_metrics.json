@@ -1,0 +1,672 @@
+{
+  "rules": {
+    "backend": "rules",
+    "split": "router_dev",
+    "n_prompts": 300,
+    "entity": {
+      "precision": 0.9710906701708278,
+      "recall": 0.974934036939314,
+      "f1": 0.9730085582620144,
+      "per_label": {
+        "ELEMENT": {
+          "precision": 0.9875886524822695,
+          "recall": 1.0,
+          "f1": 0.9937555753791257,
+          "support": 557
+        },
+        "COLOR": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 247
+        },
+        "LOCATION": {
+          "precision": 0.9737827715355806,
+          "recall": 0.9737827715355806,
+          "f1": 0.9737827715355806,
+          "support": 267
+        },
+        "ACTION": {
+          "precision": 0.8715596330275229,
+          "recall": 0.8715596330275229,
+          "f1": 0.8715596330275229,
+          "support": 109
+        },
+        "LABEL": {
+          "precision": 0.9522388059701492,
+          "recall": 0.9494047619047619,
+          "f1": 0.9508196721311475,
+          "support": 336
+        }
+      }
+    },
+    "element_detection": {
+      "precision": 0.9875886524822695,
+      "recall": 1.0,
+      "f1": 0.9937555753791257,
+      "tp": 557,
+      "fp": 7,
+      "fn": 0
+    },
+    "linking_gold": {
+      "accuracy": 1.0,
+      "correct": 959,
+      "total": 959,
+      "per_label": {
+        "ACTION": {
+          "accuracy": 1.0,
+          "correct": 109,
+          "total": 109
+        },
+        "COLOR": {
+          "accuracy": 1.0,
+          "correct": 247,
+          "total": 247
+        },
+        "LABEL": {
+          "accuracy": 1.0,
+          "correct": 336,
+          "total": 336
+        },
+        "LOCATION": {
+          "accuracy": 1.0,
+          "correct": 267,
+          "total": 267
+        }
+      }
+    },
+    "missing_detection": {
+      "precision": 0.9746621621621622,
+      "recall": 1.0,
+      "f1": 0.9871685201026518,
+      "tp": 577,
+      "fp": 15,
+      "fn": 0,
+      "per_attribute": {
+        "COLOR": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 124,
+          "fp": 0,
+          "fn": 0
+        },
+        "LOCATION": {
+          "precision": 0.9585798816568047,
+          "recall": 1.0,
+          "f1": 0.9788519637462235,
+          "tp": 162,
+          "fp": 7,
+          "fn": 0
+        },
+        "ACTION": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 70,
+          "fp": 0,
+          "fn": 0
+        },
+        "LABEL": {
+          "precision": 0.9650655021834061,
+          "recall": 1.0,
+          "f1": 0.9822222222222223,
+          "tp": 221,
+          "fp": 8,
+          "fn": 0
+        }
+      },
+      "per_element_type": {
+        "button": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 78,
+          "fp": 0,
+          "fn": 0
+        },
+        "card": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 65,
+          "fp": 0,
+          "fn": 0
+        },
+        "checkbox": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 51,
+          "fp": 0,
+          "fn": 0
+        },
+        "dropdown": {
+          "precision": 0.987012987012987,
+          "recall": 1.0,
+          "f1": 0.9934640522875817,
+          "tp": 76,
+          "fp": 1,
+          "fn": 0
+        },
+        "footer": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 51,
+          "fp": 0,
+          "fn": 0
+        },
+        "image": {
+          "precision": 0.65,
+          "recall": 1.0,
+          "f1": 0.787878787878788,
+          "tp": 26,
+          "fp": 14,
+          "fn": 0
+        },
+        "input": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 40,
+          "fp": 0,
+          "fn": 0
+        },
+        "modal": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 64,
+          "fp": 0,
+          "fn": 0
+        },
+        "navbar": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 51,
+          "fp": 0,
+          "fn": 0
+        },
+        "sidebar": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 75,
+          "fp": 0,
+          "fn": 0
+        }
+      }
+    },
+    "prompt_level": {
+      "has_missing_accuracy": 0.9833333333333333,
+      "exact_missing_set_accuracy": 0.9733333333333334
+    },
+    "by_source": {
+      "synthetic": {
+        "n_prompts": 300,
+        "entity_f1": 0.9730085582620144,
+        "missing_f1": 0.9871685201026518,
+        "has_missing_accuracy": 0.9833333333333333,
+        "exact_missing_set_accuracy": 0.9733333333333334
+      }
+    },
+    "engine_counts": {
+      "rules": 300
+    },
+    "risk": {
+      "mean_initial": 33.24233333333332,
+      "mean_final": 33.24233333333332,
+      "mean_final_incomplete": 48.41306532663316,
+      "mean_final_complete": 3.351485148514849
+    }
+  },
+  "bert": {
+    "backend": "bert",
+    "split": "router_dev",
+    "n_prompts": 300,
+    "entity": {
+      "precision": 0.919262555626192,
+      "recall": 0.9538258575197889,
+      "f1": 0.9362253156361282,
+      "per_label": {
+        "ELEMENT": {
+          "precision": 0.925476603119584,
+          "recall": 0.9587073608617595,
+          "f1": 0.9417989417989419,
+          "support": 557
+        },
+        "COLOR": {
+          "precision": 0.9409282700421941,
+          "recall": 0.902834008097166,
+          "f1": 0.9214876033057852,
+          "support": 247
+        },
+        "LOCATION": {
+          "precision": 0.9368029739776952,
+          "recall": 0.9438202247191011,
+          "f1": 0.9402985074626866,
+          "support": 267
+        },
+        "ACTION": {
+          "precision": 0.8760330578512396,
+          "recall": 0.9724770642201835,
+          "f1": 0.9217391304347826,
+          "support": 109
+        },
+        "LABEL": {
+          "precision": 0.8970189701897019,
+          "recall": 0.9851190476190477,
+          "f1": 0.9390070921985816,
+          "support": 336
+        }
+      }
+    },
+    "element_detection": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 557,
+      "fp": 0,
+      "fn": 0
+    },
+    "linking_gold": {
+      "accuracy": 1.0,
+      "correct": 959,
+      "total": 959,
+      "per_label": {
+        "ACTION": {
+          "accuracy": 1.0,
+          "correct": 109,
+          "total": 109
+        },
+        "COLOR": {
+          "accuracy": 1.0,
+          "correct": 247,
+          "total": 247
+        },
+        "LABEL": {
+          "accuracy": 1.0,
+          "correct": 336,
+          "total": 336
+        },
+        "LOCATION": {
+          "accuracy": 1.0,
+          "correct": 267,
+          "total": 267
+        }
+      }
+    },
+    "missing_detection": {
+      "precision": 0.9727427597955707,
+      "recall": 0.9896013864818024,
+      "f1": 0.9810996563573883,
+      "tp": 571,
+      "fp": 16,
+      "fn": 6,
+      "per_attribute": {
+        "COLOR": {
+          "precision": 0.8985507246376812,
+          "recall": 1.0,
+          "f1": 0.9465648854961832,
+          "tp": 124,
+          "fp": 14,
+          "fn": 0
+        },
+        "LOCATION": {
+          "precision": 0.9938650306748467,
+          "recall": 1.0,
+          "f1": 0.9969230769230769,
+          "tp": 162,
+          "fp": 1,
+          "fn": 0
+        },
+        "ACTION": {
+          "precision": 1.0,
+          "recall": 0.9857142857142858,
+          "f1": 0.9928057553956835,
+          "tp": 69,
+          "fp": 0,
+          "fn": 1
+        },
+        "LABEL": {
+          "precision": 0.9953917050691244,
+          "recall": 0.9773755656108597,
+          "f1": 0.9863013698630136,
+          "tp": 216,
+          "fp": 1,
+          "fn": 5
+        }
+      },
+      "per_element_type": {
+        "button": {
+          "precision": 0.9736842105263158,
+          "recall": 0.9487179487179487,
+          "f1": 0.9610389610389611,
+          "tp": 74,
+          "fp": 2,
+          "fn": 4
+        },
+        "card": {
+          "precision": 0.9848484848484849,
+          "recall": 1.0,
+          "f1": 0.9923664122137404,
+          "tp": 65,
+          "fp": 1,
+          "fn": 0
+        },
+        "checkbox": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 51,
+          "fp": 0,
+          "fn": 0
+        },
+        "dropdown": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 76,
+          "fp": 0,
+          "fn": 0
+        },
+        "footer": {
+          "precision": 0.9259259259259259,
+          "recall": 0.9803921568627451,
+          "f1": 0.9523809523809523,
+          "tp": 50,
+          "fp": 4,
+          "fn": 1
+        },
+        "image": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 26,
+          "fp": 0,
+          "fn": 0
+        },
+        "input": {
+          "precision": 0.975609756097561,
+          "recall": 1.0,
+          "f1": 0.9876543209876543,
+          "tp": 40,
+          "fp": 1,
+          "fn": 0
+        },
+        "modal": {
+          "precision": 0.9696969696969697,
+          "recall": 1.0,
+          "f1": 0.9846153846153847,
+          "tp": 64,
+          "fp": 2,
+          "fn": 0
+        },
+        "navbar": {
+          "precision": 0.9622641509433962,
+          "recall": 1.0,
+          "f1": 0.9807692307692307,
+          "tp": 51,
+          "fp": 2,
+          "fn": 0
+        },
+        "sidebar": {
+          "precision": 0.9487179487179487,
+          "recall": 0.9866666666666667,
+          "f1": 0.9673202614379085,
+          "tp": 74,
+          "fp": 4,
+          "fn": 1
+        }
+      }
+    },
+    "prompt_level": {
+      "has_missing_accuracy": 0.9733333333333334,
+      "exact_missing_set_accuracy": 0.9333333333333333
+    },
+    "by_source": {
+      "synthetic": {
+        "n_prompts": 300,
+        "entity_f1": 0.9362253156361282,
+        "missing_f1": 0.9810996563573883,
+        "has_missing_accuracy": 0.9733333333333334,
+        "exact_missing_set_accuracy": 0.9333333333333333
+      }
+    },
+    "engine_counts": {
+      "bert": 300
+    },
+    "risk": {
+      "mean_initial": 30.58700000000004,
+      "mean_final": 30.58700000000004,
+      "mean_final_incomplete": 44.49547738693471,
+      "mean_final_complete": 3.1831683168316816
+    }
+  },
+  "auto": {
+    "backend": "auto",
+    "split": "router_dev",
+    "n_prompts": 300,
+    "entity": {
+      "precision": 0.9665573770491803,
+      "recall": 0.9722955145118733,
+      "f1": 0.9694179546201906,
+      "per_label": {
+        "ELEMENT": {
+          "precision": 0.9840142095914742,
+          "recall": 0.9946140035906643,
+          "f1": 0.9892857142857142,
+          "support": 557
+        },
+        "COLOR": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 247
+        },
+        "LOCATION": {
+          "precision": 0.9626865671641791,
+          "recall": 0.9662921348314607,
+          "f1": 0.9644859813084112,
+          "support": 267
+        },
+        "ACTION": {
+          "precision": 0.8636363636363636,
+          "recall": 0.8715596330275229,
+          "f1": 0.8675799086757991,
+          "support": 109
+        },
+        "LABEL": {
+          "precision": 0.9495548961424333,
+          "recall": 0.9523809523809523,
+          "f1": 0.950965824665676,
+          "support": 336
+        }
+      }
+    },
+    "element_detection": {
+      "precision": 0.9893428063943162,
+      "recall": 1.0,
+      "f1": 0.9946428571428572,
+      "tp": 557,
+      "fp": 6,
+      "fn": 0
+    },
+    "linking_gold": {
+      "accuracy": 1.0,
+      "correct": 959,
+      "total": 959,
+      "per_label": {
+        "ACTION": {
+          "accuracy": 1.0,
+          "correct": 109,
+          "total": 109
+        },
+        "COLOR": {
+          "accuracy": 1.0,
+          "correct": 247,
+          "total": 247
+        },
+        "LABEL": {
+          "accuracy": 1.0,
+          "correct": 336,
+          "total": 336
+        },
+        "LOCATION": {
+          "accuracy": 1.0,
+          "correct": 267,
+          "total": 267
+        }
+      }
+    },
+    "missing_detection": {
+      "precision": 0.9779661016949153,
+      "recall": 1.0,
+      "f1": 0.988860325621251,
+      "tp": 577,
+      "fp": 13,
+      "fn": 0,
+      "per_attribute": {
+        "COLOR": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 124,
+          "fp": 0,
+          "fn": 0
+        },
+        "LOCATION": {
+          "precision": 0.9642857142857143,
+          "recall": 1.0,
+          "f1": 0.9818181818181818,
+          "tp": 162,
+          "fp": 6,
+          "fn": 0
+        },
+        "ACTION": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 70,
+          "fp": 0,
+          "fn": 0
+        },
+        "LABEL": {
+          "precision": 0.9692982456140351,
+          "recall": 1.0,
+          "f1": 0.9844097995545658,
+          "tp": 221,
+          "fp": 7,
+          "fn": 0
+        }
+      },
+      "per_element_type": {
+        "button": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 78,
+          "fp": 0,
+          "fn": 0
+        },
+        "card": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 65,
+          "fp": 0,
+          "fn": 0
+        },
+        "checkbox": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 51,
+          "fp": 0,
+          "fn": 0
+        },
+        "dropdown": {
+          "precision": 0.987012987012987,
+          "recall": 1.0,
+          "f1": 0.9934640522875817,
+          "tp": 76,
+          "fp": 1,
+          "fn": 0
+        },
+        "footer": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 51,
+          "fp": 0,
+          "fn": 0
+        },
+        "image": {
+          "precision": 0.6842105263157895,
+          "recall": 1.0,
+          "f1": 0.8125000000000001,
+          "tp": 26,
+          "fp": 12,
+          "fn": 0
+        },
+        "input": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 40,
+          "fp": 0,
+          "fn": 0
+        },
+        "modal": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 64,
+          "fp": 0,
+          "fn": 0
+        },
+        "navbar": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 51,
+          "fp": 0,
+          "fn": 0
+        },
+        "sidebar": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 75,
+          "fp": 0,
+          "fn": 0
+        }
+      }
+    },
+    "prompt_level": {
+      "has_missing_accuracy": 0.9866666666666667,
+      "exact_missing_set_accuracy": 0.9766666666666667
+    },
+    "by_source": {
+      "synthetic": {
+        "n_prompts": 300,
+        "entity_f1": 0.9694179546201906,
+        "missing_f1": 0.988860325621251,
+        "has_missing_accuracy": 0.9866666666666667,
+        "exact_missing_set_accuracy": 0.9766666666666667
+      }
+    },
+    "engine_counts": {
+      "rules": 292,
+      "bert": 8
+    },
+    "risk": {
+      "mean_initial": 33.091,
+      "mean_final": 33.091,
+      "mean_final_incomplete": 48.357788944723616,
+      "mean_final_complete": 3.01089108910891
+    }
+  }
+}

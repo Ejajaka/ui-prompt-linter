@@ -27,8 +27,8 @@ from seqeval.metrics import classification_report, f1_score, precision_score, re
 
 from src.bio import bio_to_spans, repair_bio
 from src.checker import check_elements
-from src.linking import link_spans_to_elements, linking_accuracy
-from src.pipeline import BackendNotAvailable, get_backend
+from src.linking import linking_accuracy
+from src.pipeline import BackendNotAvailable, _run_full
 from src.schema import DATA_DIR, ELEMENT_SCHEMA, NOUN_TO_TYPE, load_jsonl
 from src.tokenization import tokenize_with_offsets
 from src.vague import annotate_vague
@@ -84,20 +84,24 @@ def _match_elements(pred_elements, gold_elements) -> list[tuple[int, int]]:
     return pairs
 
 
-def _prediction(record: dict, backend) -> dict:
-    tokens, tags = backend.predict(record["text"])
-    tags = repair_bio(tags)
-    spans = bio_to_spans(tokens, tags, record["text"])
-    elements = link_spans_to_elements(spans, tokens, record["text"])
-    annotate_vague(elements, tokens, record["text"])
-    result = check_elements(elements)
+def _prediction(record: dict, backend_name: str, allow_llm: bool = False) -> dict:
+    payload, elements = _run_full(
+        record["text"],
+        method=backend_name,
+        allow_llm=allow_llm,
+        finalize=True,
+        explain=False,
+    )
     return {
         "record": record,
-        "tokens": tokens,
-        "tags": tags,
-        "spans": spans,
+        "tokens": payload["tokens"],
+        "tags": payload["tags"],
+        "spans": payload["spans"],
         "elements": elements,
-        "result": result,
+        "result": payload["result"],
+        "engine": payload["engine"],
+        "risk": payload["risk"],
+        "router": payload["router"],
     }
 
 
@@ -143,13 +147,16 @@ def _empty_counts() -> Counter:
 
 
 # --------------------------------------------------------------------------- main metric
-def evaluate_split(records: list[dict], backend_name: str) -> tuple[dict, list[dict]]:
+def evaluate_split(
+    records: list[dict], backend_name: str, allow_llm: bool = False
+) -> tuple[dict, list[dict]]:
     """Run every metric for one backend/split. Returns (metrics, error_rows)."""
-    backend = get_backend(backend_name)
-
     gold_tags = [record["labels"] for record in records]
-    predictions = [_prediction(record, backend) for record in records]
+    predictions = [
+        _prediction(record, backend_name, allow_llm) for record in records
+    ]
     pred_tags = [item["tags"] for item in predictions]
+    engine_counts = Counter(item.get("engine", backend_name) for item in predictions)
 
     # (1) entity-level seqeval scores -------------------------------------
     overall_entities = _entity_scores(gold_tags, pred_tags)
@@ -269,6 +276,15 @@ def evaluate_split(records: list[dict], backend_name: str) -> tuple[dict, list[d
             )
 
     n = len(records)
+    risk_initial = [item["risk"]["initial"]["score"] for item in predictions if item.get("risk")]
+    risk_final = [item["risk"]["final"]["score"] for item in predictions if item.get("risk")]
+    risk_by_gold = {"missing": [], "complete": []}
+    for item in predictions:
+        if not item.get("risk"):
+            continue
+        bucket = "missing" if item["record"].get("has_missing") else "complete"
+        risk_by_gold[bucket].append(item["risk"]["final"]["score"])
+
     metrics = {
         "backend": backend_name,
         "split": None,
@@ -291,6 +307,19 @@ def evaluate_split(records: list[dict], backend_name: str) -> tuple[dict, list[d
             "exact_missing_set_accuracy": exact_correct / n if n else 0.0,
         },
         "by_source": {},
+        "engine_counts": dict(engine_counts),
+        "risk": {
+            "mean_initial": sum(risk_initial) / len(risk_initial) if risk_initial else 0.0,
+            "mean_final": sum(risk_final) / len(risk_final) if risk_final else 0.0,
+            "mean_final_incomplete": (
+                sum(risk_by_gold["missing"]) / len(risk_by_gold["missing"])
+                if risk_by_gold["missing"] else 0.0
+            ),
+            "mean_final_complete": (
+                sum(risk_by_gold["complete"]) / len(risk_by_gold["complete"])
+                if risk_by_gold["complete"] else 0.0
+            ),
+        },
     }
 
     for source, bucket in per_source.items():
@@ -487,6 +516,33 @@ def _write_results_md(bundle: dict[tuple[str, str], dict],
             lines.append(f"| {split} | {backend} | " + " | ".join(cells) + " |")
     lines.append("")
 
+    # ---------------- routing and risk
+    lines += ["## Auto routing and risk", ""]
+    lines.append("| split | backend | engine counts | mean initial risk | mean final risk | risk (incomplete gold) | risk (complete gold) |")
+    lines.append("|---|---|---|---|---|---|---|")
+    for split in splits:
+        for backend in backends:
+            data = bundle.get((backend, split))
+            if not data:
+                continue
+            engine_counts = data.get("engine_counts") or {}
+            risk = data.get("risk") or {}
+            lines.append(
+                f"| {split} | {backend} | `{engine_counts}` | "
+                f"{_fmt(risk.get('mean_initial', 0.0))} | "
+                f"{_fmt(risk.get('mean_final', 0.0))} | "
+                f"{_fmt(risk.get('mean_final_incomplete', 0.0))} | "
+                f"{_fmt(risk.get('mean_final_complete', 0.0))} |"
+            )
+    lines.append("")
+    lines.append(
+        "Auto requires BERT to beat Rules by a decisive margin (1.25); otherwise "
+        "Rules is used. On train/dev the two backends never disagree, so Auto "
+        "mostly equals Rules and is reported as a conservative router, not a "
+        "learned model."
+    )
+    lines.append("")
+
     # ---------------- synthetic vs handwritten gap
     lines += ["## Synthetic vs handwritten gap", ""]
     lines.append("| backend | split | source | prompts | entity F1 | missing F1 | exact set acc |")
@@ -540,7 +596,8 @@ def _write_results_md(bundle: dict[tuple[str, str], dict],
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Evaluate the prompt linter.")
-    parser.add_argument("--backend", choices=["rules", "bert", "both"], default="both")
+    parser.add_argument("--backend", choices=["rules", "bert", "auto", "both"], default="both")
+    parser.add_argument("--allow-llm", action="store_true", help="allow Ollama LLM fallback/explanation during evaluation")
     parser.add_argument("--split", choices=ALL_SPLITS + ["all"], default="all")
     args = parser.parse_args(argv)
 
@@ -555,7 +612,7 @@ def main(argv: list[str] | None = None) -> int:
             if not split_records:
                 continue
             try:
-                metrics, errors = evaluate_split(split_records, backend_name)
+                metrics, errors = evaluate_split(split_records, backend_name, args.allow_llm)
             except BackendNotAvailable as exc:
                 print(f"[{backend_name}] skipped: {exc}")
                 print("[bert] run: python train_bert.py")

@@ -1,0 +1,224 @@
+{
+  "backend": "auto",
+  "split": "dev",
+  "n_prompts": 150,
+  "entity": {
+    "precision": 0.9930555555555556,
+    "recall": 0.9930555555555556,
+    "f1": 0.9930555555555556,
+    "per_label": {
+      "ELEMENT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 273
+      },
+      "COLOR": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 99
+      },
+      "LOCATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 129
+      },
+      "ACTION": {
+        "precision": 0.9512195121951219,
+        "recall": 0.9512195121951219,
+        "f1": 0.9512195121951219,
+        "support": 41
+      },
+      "LABEL": {
+        "precision": 0.9831460674157303,
+        "recall": 0.9831460674157303,
+        "f1": 0.9831460674157303,
+        "support": 178
+      }
+    }
+  },
+  "element_detection": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "tp": 273,
+    "fp": 0,
+    "fn": 0
+  },
+  "linking_gold": {
+    "accuracy": 1.0,
+    "correct": 447,
+    "total": 447,
+    "per_label": {
+      "ACTION": {
+        "accuracy": 1.0,
+        "correct": 41,
+        "total": 41
+      },
+      "COLOR": {
+        "accuracy": 1.0,
+        "correct": 99,
+        "total": 99
+      },
+      "LABEL": {
+        "accuracy": 1.0,
+        "correct": 178,
+        "total": 178
+      },
+      "LOCATION": {
+        "accuracy": 1.0,
+        "correct": 129,
+        "total": 129
+      }
+    }
+  },
+  "missing_detection": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "tp": 287,
+    "fp": 0,
+    "fn": 0,
+    "per_attribute": {
+      "COLOR": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 64,
+        "fp": 0,
+        "fn": 0
+      },
+      "LOCATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 89,
+        "fp": 0,
+        "fn": 0
+      },
+      "ACTION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 39,
+        "fp": 0,
+        "fn": 0
+      },
+      "LABEL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 95,
+        "fp": 0,
+        "fn": 0
+      }
+    },
+    "per_element_type": {
+      "button": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 43,
+        "fp": 0,
+        "fn": 0
+      },
+      "card": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 39,
+        "fp": 0,
+        "fn": 0
+      },
+      "checkbox": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 19,
+        "fp": 0,
+        "fn": 0
+      },
+      "dropdown": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 28,
+        "fp": 0,
+        "fn": 0
+      },
+      "footer": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 9,
+        "fp": 0,
+        "fn": 0
+      },
+      "image": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 29,
+        "fp": 0,
+        "fn": 0
+      },
+      "input": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 17,
+        "fp": 0,
+        "fn": 0
+      },
+      "modal": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 51,
+        "fp": 0,
+        "fn": 0
+      },
+      "navbar": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 31,
+        "fp": 0,
+        "fn": 0
+      },
+      "sidebar": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 21,
+        "fp": 0,
+        "fn": 0
+      }
+    }
+  },
+  "prompt_level": {
+    "has_missing_accuracy": 1.0,
+    "exact_missing_set_accuracy": 1.0
+  },
+  "by_source": {
+    "synthetic": {
+      "n_prompts": 150,
+      "entity_f1": 0.9930555555555556,
+      "missing_f1": 1.0,
+      "has_missing_accuracy": 1.0,
+      "exact_missing_set_accuracy": 1.0
+    }
+  },
+  "engine_counts": {
+    "rules": 148,
+    "bert": 2
+  },
+  "risk": {
+    "mean_initial": 32.662666666666674,
+    "mean_final": 32.662666666666674,
+    "mean_final_incomplete": 51.663440860215054,
+    "mean_final_complete": 1.6614035087719299
+  }
+}

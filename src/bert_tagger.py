@@ -43,10 +43,17 @@ class BertTagger:
 
     def predict(self, text: str) -> tuple[list[tuple[str, int, int]], list[str]]:
         """Return ``(tokens_with_offsets, BIO tags)`` using the saved model."""
+        tokens_with_offsets, tags, _ = self.predict_with_confidence(text)
+        return tokens_with_offsets, tags
+
+    def predict_with_confidence(
+        self, text: str
+    ) -> tuple[list[tuple[str, int, int]], list[str], float]:
+        """Like :meth:`predict` but also return mean entity-token confidence."""
         tokens_with_offsets = tokenize_with_offsets(text)
         words = [token for token, _, _ in tokens_with_offsets]
         if not words:
-            return tokens_with_offsets, []
+            return tokens_with_offsets, [], 0.0
 
         encoding = self.tokenizer(
             words,
@@ -58,13 +65,23 @@ class BertTagger:
         word_ids = encoding.word_ids()
         with torch.no_grad():
             logits = self.model(**encoding).logits[0]
+        probabilities = torch.softmax(logits, dim=-1)
         predicted_ids = torch.argmax(logits, dim=-1).tolist()
 
         tags = ["O"] * len(words)
+        entity_confidences: list[float] = []
         seen: set[int] = set()
         for position, word_id in enumerate(word_ids):
             if word_id is None or word_id in seen:
                 continue
             seen.add(word_id)
-            tags[word_id] = self.id2label.get(predicted_ids[position], "O")
-        return tokens_with_offsets, tags
+            tag = self.id2label.get(predicted_ids[position], "O")
+            tags[word_id] = tag
+            if tag != "O":
+                entity_confidences.append(float(probabilities[position].max()))
+        confidence = (
+            sum(entity_confidences) / len(entity_confidences)
+            if entity_confidences
+            else 0.0
+        )
+        return tokens_with_offsets, tags, confidence

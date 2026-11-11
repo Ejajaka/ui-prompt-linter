@@ -15,7 +15,8 @@ from urllib.request import urlretrieve
 
 import streamlit as st
 
-from src.pipeline import BackendNotAvailable, analyze
+from src.llm_backend import LLMClient
+from src.pipeline import BackendNotAvailable, analyze_full
 from src.schema import DATA_DIR, PROJECT_ROOT
 
 try:  # package rename: streamlit-keyup >= 1.0 ships the module as st_keyup
@@ -41,6 +42,12 @@ LABEL_STYLES = {
 }
 
 EXAMPLE_OPTION = "— choose an example —"
+RISK_COMPONENTS = {
+    "completeness": "Missing details",
+    "vagueness": "Vague details",
+    "detection": "Detector uncertainty",
+    "unresolved": "Unresolved questions",
+}
 
 
 # --------------------------------------------------------------------------- resources
@@ -60,16 +67,10 @@ def _ensure_model_downloaded() -> None:
         st.warning(f"Could not download the BERT model automatically: {exc}")
 
 
-@st.cache_resource(show_spinner="Loading model...")
-def load_backend(name: str):
-    """Load and cache a backend instance for the whole server process."""
-    if name == "bert":
-        from src.bert_tagger import BertTagger
-
-        return BertTagger()
-    from src.rules_tagger import RulesTagger
-
-    return RulesTagger()
+@st.cache_resource(show_spinner=False)
+def get_llm_client() -> LLMClient:
+    """Cache the OpenAI-compatible client (Ollama by default)."""
+    return LLMClient()
 
 
 @st.cache_data
@@ -84,17 +85,13 @@ def load_examples() -> list[dict]:
 
 # --------------------------------------------------------------------------- rendering
 def highlight_prompt(text: str, spans: list[dict]) -> str:
-    """Return HTML with one coloured span per labelled span.
-
-    The original text is HTML-escaped *before* it is placed in the page, so
-    prompts containing ``<`` or ``&`` cannot inject markup.
-    """
-    ordered = sorted(spans, key=lambda s: s["char_start"])
+    """Return HTML with one coloured span per labelled span."""
+    ordered = sorted(spans, key=lambda s: s["char_start"] if s["char_start"] >= 0 else 10**9)
     parts: list[str] = []
     cursor = 0
     for span in ordered:
         start, end = span["char_start"], span["char_end"]
-        if start < cursor or end <= start or end > len(text):
+        if start < 0 or start < cursor or end <= start or end > len(text):
             continue
         parts.append(html.escape(text[cursor:start]))
         background, _ = LABEL_STYLES.get(span["label"], ("rgba(180,180,180,0.3)", "#333"))
@@ -153,47 +150,139 @@ def render_element(element: dict) -> None:
         st.markdown(f"#### {title}")
         st.caption("Complete" if complete else f"Missing {len(element['missing'])} detail(s)")
         render_attributes(element["attributes"])
-
         if element["missing"]:
             st.markdown("**What is missing**")
             for message in element["messages"]:
                 st.markdown(f"- {message}")
-
         st.markdown("**Suggested rewrite**")
         st.code(element["suggestion"], language=None)
 
 
-def render_result(analysis: dict) -> None:
-    """Highlighted prompt, summary banner and element cards."""
-    result = analysis["result"]
-    summary = result["summary"]
+def render_risk(payload: dict) -> None:
+    """Risk gauge, component bars and explanation."""
+    initial = payload["risk"]["initial"]
+    final = payload["risk"]["final"]
+    delta = final["score"] - initial["score"]
 
-    st.markdown(highlight_prompt(st.session_state["shown_text"], analysis["spans"]),
-                unsafe_allow_html=True)
-    st.write("")
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.metric(
+            "Prompt risk",
+            f"{final['score']:.0f} / 100",
+            delta=f"{delta:+.0f}",
+            delta_color="inverse",
+        )
+        st.caption(f"**{final['level']}** · initial {initial['score']:.0f}")
+    with col2:
+        st.progress(min(1.0, max(0.0, final["score"] / 100.0)))
+        for key, label in RISK_COMPONENTS.items():
+            value = final["components"].get(key, 0.0)
+            st.progress(min(1.0, max(0.0, value)), text=f"{label}: {value * 100:.0f}%")
 
-    if summary["n_elements"] == 0:
-        st.info(summary["message"])
+    explanation = payload.get("explanation") or final.get("explanation", "")
+    if explanation:
+        label = "LLM explanation" if payload.get("llm_used") else "Why this score"
+        st.markdown(f"**{label}**")
+        st.info(explanation)
+
+
+def render_questions(payload: dict) -> None:
+    """Render the blocking clarification form."""
+    questions = payload["clarification"]["questions"]
+    if not questions:
         return
-    if summary["complete"]:
-        st.success(summary["message"])
+    round_no = st.session_state.get("round", 1)
+    st.warning(
+        "Answer these questions so I can produce a safe final recommendation. "
+        f"Round {round_no} of 3."
+    )
+    with st.form(key=f"clarify_{round_no}"):
+        values: dict[str, str] = {}
+        for question in questions:
+            qid = question["id"]
+            if question.get("options"):
+                options = question["options"] + ["I don't know / use placeholder"]
+                choice = st.selectbox(question["prompt"], options, key=f"q_{round_no}_{qid}")
+                values[qid] = "unknown" if choice.startswith("I don't know") else choice
+            else:
+                examples = ", ".join(question.get("examples") or [])
+                text = st.text_input(
+                    question["prompt"],
+                    key=f"q_{round_no}_{qid}",
+                    placeholder=examples,
+                    help=f"Examples: {examples}" if examples else None,
+                )
+                unknown = st.checkbox(
+                    "I don't know (use placeholder)",
+                    key=f"unk_{round_no}_{qid}",
+                )
+                values[qid] = "unknown" if unknown or not text.strip() else text.strip()
+
+        submitted = st.form_submit_button("Submit answers", type="primary")
+        skipped = st.form_submit_button("Stop asking (use placeholders)")
+
+    if submitted or skipped:
+        st.session_state["answers"] = values
+        st.session_state["round"] = round_no + 1
+        if skipped or round_no >= 3:
+            st.session_state["finalized"] = True
+        st.rerun()
+
+
+def render_final(payload: dict) -> None:
+    """Final recommendation, explanation and unresolved items."""
+    unresolved = payload["clarification"]["unresolved"]
+    if unresolved:
+        st.warning("Some questions remain unresolved; the final prompt uses placeholders.")
+        for question in unresolved:
+            st.markdown(f"- {question['prompt']}")
+
+    st.subheader("Best prompt")
+    if payload.get("final_prompt"):
+        st.code(payload["final_prompt"], language=None)
     else:
-        st.warning(summary["message"])
+        st.info(payload["result"]["summary"]["message"])
 
-    for element in result["elements"]:
-        render_element(element)
+    recommendations = payload.get("recommendations") or []
+    if recommendations:
+        st.markdown("**Recommendations**")
+        for recommendation in recommendations:
+            st.markdown(f"- {recommendation}")
 
 
-def run_analysis(text: str, backend: str) -> dict | None:
-    """Call the pipeline and turn backend errors into friendly messages."""
+def render_details(payload: dict) -> None:
+    """Collapsed engine / router / LLM diagnostics."""
+    router = payload.get("router", {})
+    with st.expander("Why this engine?"):
+        st.write(f"**Engine used:** `{payload.get('engine', '?')}`")
+        st.write(f"**Method requested:** `{router.get('method', 'auto')}`")
+        st.write(f"**Reason:** {router.get('reason', 'manual selection')}")
+        st.write(f"**Detector confidence:** {payload.get('confidence', 0):.2f}")
+        if router.get("scores"):
+            st.write(f"**Router scores:** `{router['scores']}`")
+        if payload.get("llm_meta"):
+            st.write(f"**LLM metadata:** `{payload['llm_meta']}`")
+        if payload.get("llm_error"):
+            st.warning(f"LLM unavailable: {payload['llm_error']}")
+        elif payload.get("llm_used"):
+            st.caption("The final explanation/rewrite was produced by the LLM and validated.")
+        elif payload.get("engine") == "llm" or payload.get("needs_clarification"):
+            st.caption("LLM explanation was not used in this view.")
+
+
+def _run(text: str, method: str, allow_llm: bool, answers: dict, finalize: bool) -> dict | None:
     try:
-        if backend == "bert":
+        if method in {"auto", "bert"}:
             _ensure_model_downloaded()
-        backend_obj = load_backend(backend)
-        return analyze(text, backend=backend, backend_obj=backend_obj)
+        return analyze_full(
+            text,
+            method=method,
+            allow_llm=allow_llm,
+            answers=answers or None,
+            finalize=finalize,
+            client=get_llm_client() if allow_llm else None,
+        )
     except BackendNotAvailable as exc:
-        st.error(str(exc))
-    except FileNotFoundError as exc:
         st.error(str(exc))
     except Exception as exc:  # defensive: the UI must never crash
         st.error(f"Could not analyse this prompt: {exc}")
@@ -206,8 +295,8 @@ def main() -> None:
 
     st.title("UI Prompt Linter")
     st.caption(
-        "Check a UI prompt for missing colours, locations, labels and actions "
-        "before sending it to a UI generator."
+        "Analyse a UI prompt, resolve unclear details, and get a risk-rated final "
+        "recommendation before sending it to a UI generator."
     )
 
     model_available = (
@@ -216,18 +305,28 @@ def main() -> None:
 
     with st.sidebar:
         st.header("Settings")
+        backend_labels = ["Auto (choose best)"]
         if model_available:
-            backend_label = st.radio("Backend", ["Rules", "BERT (DistilBERT)"])
-            backend = "bert" if backend_label.startswith("BERT") else "rules"
+            backend_labels += ["Rules", "BERT (DistilBERT)"]
         else:
-            backend = "rules"
-            st.radio("Backend", ["Rules"], disabled=True)
-            st.caption(
-                "BERT is unavailable because `models/bert_tagger` is missing. "
-                "Run `python train_bert.py` to enable it."
-            )
+            backend_labels += ["Rules"]
+            st.caption("BERT is unavailable: `models/bert_tagger` is missing.")
+        backend_label = st.radio("Detection engine", backend_labels)
+        method = (
+            "auto" if backend_label.startswith("Auto")
+            else "bert" if backend_label.startswith("BERT")
+            else "rules"
+        )
 
+        allow_llm = st.toggle("Allow LLM fallback / explanation (Ollama)", value=True)
         live_mode = st.toggle("Live mode (check while typing)", value=False)
+        if live_mode and allow_llm:
+            st.caption("LLM calls are disabled in live mode to avoid repeated requests.")
+        if allow_llm:
+            st.caption(
+                "LLM provider: local Ollama (`qwen2.5:3b-instruct` by default). "
+                "Nothing leaves this machine."
+            )
 
         st.divider()
         st.subheader("Examples")
@@ -282,10 +381,54 @@ def main() -> None:
         st.info("Type a prompt or pick an example to get started.")
         return
 
+    # Reset clarification state when the prompt or engine changes.
+    state_key = f"{method}|{shown_text}"
+    if st.session_state.get("state_key") != state_key:
+        st.session_state["state_key"] = state_key
+        st.session_state["answers"] = {}
+        st.session_state["round"] = 1
+        st.session_state["finalized"] = False
+
+    effective_llm = allow_llm and not live_mode
+    answers = st.session_state.get("answers", {}) if not live_mode else {}
+    finalize = st.session_state.get("finalized", False) if not live_mode else False
+
     st.session_state["shown_text"] = shown_text
-    analysis = run_analysis(shown_text, backend)
-    if analysis is not None:
-        render_result(analysis)
+    with st.spinner("Analysing the prompt..."):
+        payload = _run(shown_text, method, effective_llm, answers, finalize)
+    if payload is None:
+        return
+
+    st.markdown(highlight_prompt(shown_text, payload["spans"]), unsafe_allow_html=True)
+    st.write("")
+    render_risk(payload)
+
+    result = payload["result"]
+    summary = result["summary"]
+    if summary["n_elements"] == 0:
+        st.info(summary["message"])
+    elif summary["complete"]:
+        st.success(summary["message"])
+    else:
+        st.warning(summary["message"])
+
+    for element in result["elements"]:
+        render_element(element)
+
+    if payload["needs_clarification"]:
+        if live_mode:
+            st.info(
+                "Turn off live mode to answer the clarification questions and get "
+                "the final recommendation."
+            )
+            for question in payload["clarification"]["questions"]:
+                st.markdown(f"- {question['prompt']}")
+        else:
+            render_questions(payload)
+    else:
+        render_final(payload)
+
+    render_details(payload)
 
 
 if __name__ == "__main__":

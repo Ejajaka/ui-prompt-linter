@@ -9,3 +9,4 @@ streamlit-keyup>=0.2.2
 pytest>=7.0
 matplotlib>=3.7
 accelerate>=0.20
+openai>=1.0

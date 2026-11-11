@@ -1,0 +1,224 @@
+{
+  "backend": "auto",
+  "split": "test",
+  "n_prompts": 200,
+  "entity": {
+    "precision": 0.9691848906560636,
+    "recall": 0.9720837487537388,
+    "f1": 0.9706321553011449,
+    "per_label": {
+      "ELEMENT": {
+        "precision": 0.9894736842105263,
+        "recall": 1.0,
+        "f1": 0.9947089947089947,
+        "support": 376
+      },
+      "COLOR": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 157
+      },
+      "LOCATION": {
+        "precision": 0.9390243902439024,
+        "recall": 0.9390243902439024,
+        "f1": 0.9390243902439024,
+        "support": 164
+      },
+      "ACTION": {
+        "precision": 0.8831168831168831,
+        "recall": 0.8831168831168831,
+        "f1": 0.8831168831168831,
+        "support": 77
+      },
+      "LABEL": {
+        "precision": 0.9649122807017544,
+        "recall": 0.9606986899563319,
+        "f1": 0.9628008752735231,
+        "support": 229
+      }
+    }
+  },
+  "element_detection": {
+    "precision": 0.9894736842105263,
+    "recall": 1.0,
+    "f1": 0.9947089947089947,
+    "tp": 376,
+    "fp": 4,
+    "fn": 0
+  },
+  "linking_gold": {
+    "accuracy": 1.0,
+    "correct": 627,
+    "total": 627,
+    "per_label": {
+      "ACTION": {
+        "accuracy": 1.0,
+        "correct": 77,
+        "total": 77
+      },
+      "COLOR": {
+        "accuracy": 1.0,
+        "correct": 157,
+        "total": 157
+      },
+      "LABEL": {
+        "accuracy": 1.0,
+        "correct": 229,
+        "total": 229
+      },
+      "LOCATION": {
+        "accuracy": 1.0,
+        "correct": 164,
+        "total": 164
+      }
+    }
+  },
+  "missing_detection": {
+    "precision": 0.9792147806004619,
+    "recall": 1.0,
+    "f1": 0.9894982497082847,
+    "tp": 424,
+    "fp": 9,
+    "fn": 0,
+    "per_attribute": {
+      "COLOR": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 101,
+        "fp": 0,
+        "fn": 0
+      },
+      "LOCATION": {
+        "precision": 0.9722222222222222,
+        "recall": 1.0,
+        "f1": 0.9859154929577464,
+        "tp": 140,
+        "fp": 4,
+        "fn": 0
+      },
+      "ACTION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 36,
+        "fp": 0,
+        "fn": 0
+      },
+      "LABEL": {
+        "precision": 0.9671052631578947,
+        "recall": 1.0,
+        "f1": 0.9832775919732442,
+        "tp": 147,
+        "fp": 5,
+        "fn": 0
+      }
+    },
+    "per_element_type": {
+      "button": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 68,
+        "fp": 0,
+        "fn": 0
+      },
+      "card": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 76,
+        "fp": 0,
+        "fn": 0
+      },
+      "checkbox": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 31,
+        "fp": 0,
+        "fn": 0
+      },
+      "dropdown": {
+        "precision": 0.9642857142857143,
+        "recall": 1.0,
+        "f1": 0.9818181818181818,
+        "tp": 27,
+        "fp": 1,
+        "fn": 0
+      },
+      "footer": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 27,
+        "fp": 0,
+        "fn": 0
+      },
+      "image": {
+        "precision": 0.7894736842105263,
+        "recall": 1.0,
+        "f1": 0.8823529411764706,
+        "tp": 30,
+        "fp": 8,
+        "fn": 0
+      },
+      "input": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 29,
+        "fp": 0,
+        "fn": 0
+      },
+      "modal": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 31,
+        "fp": 0,
+        "fn": 0
+      },
+      "navbar": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 61,
+        "fp": 0,
+        "fn": 0
+      },
+      "sidebar": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 44,
+        "fp": 0,
+        "fn": 0
+      }
+    }
+  },
+  "prompt_level": {
+    "has_missing_accuracy": 0.995,
+    "exact_missing_set_accuracy": 0.975
+  },
+  "by_source": {
+    "synthetic": {
+      "n_prompts": 200,
+      "entity_f1": 0.9706321553011449,
+      "missing_f1": 0.9894982497082847,
+      "has_missing_accuracy": 0.995,
+      "exact_missing_set_accuracy": 0.975
+    }
+  },
+  "engine_counts": {
+    "rules": 197,
+    "bert": 3
+  },
+  "risk": {
+    "mean_initial": 36.11100000000002,
+    "mean_final": 36.11100000000002,
+    "mean_final_incomplete": 50.061267605633816,
+    "mean_final_complete": 1.9568965517241375
+  }
+}

@@ -205,11 +205,12 @@ synthetic-vs-handwritten gap, representative errors). Report honestly.
 
 ## 16. CLI and Streamlit
 
-* `python cli.py "..." --backend rules|bert [--json]`.
-* `streamlit run app.py`: backend radio, live mode via `st_keyup` (debounce 400),
-  examples from `handwritten_test.jsonl`, legend, highlighted prompt,
-  green/amber summary, one card per element with chips/messages/suggestion.
-  Escape user HTML, truncate >1000 chars, never crash, cache BERT.
+* `python cli.py "..." --backend auto|rules|bert [--interactive] [--json]`.
+* `streamlit run app.py`: Auto/Rules/BERT engine, optional Ollama, live mode via
+  `st_keyup` (debounce 400), examples from `handwritten_test.jsonl`, legend,
+  highlighted prompt, initial/final risk gauge, blocking clarification form,
+  best prompt, LLM explanation, one card per element with chips/messages.
+  Escape user HTML, truncate >1000 chars, never crash, cache BERT and the LLM client.
 
 ## 17. Tests
 
@@ -237,5 +238,17 @@ landmark guard.
 
 ## 20. Stretch goals (optional)
 
-Dependency-parse linking comparison; zero-shot LLM baseline (off by default);
-confusion matrix/length analysis; FastAPI `/analyze`.
+Implemented beyond the original scope:
+
+- prompt-level **Rules/BERT/LLM router** (`src/router.py`);
+- **clarification loop** with structured answer merge (`src/clarification.py`);
+- shared deterministic **risk score** (`src/risk.py`);
+- optional **LLM layer** for grounded fallback extraction, risk explanation and
+  recommendation polish (`src/llm_backend.py`), with deterministic fallback.
+
+Still optional / future:
+
+- dependency-parse linking comparison;
+- zero-shot LLM baseline evaluated at scale;
+- confusion matrix / length analysis;
+- FastAPI `/analyze`.
