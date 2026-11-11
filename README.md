@@ -6,8 +6,8 @@ The home page is the advertising/overview UI; **New Analysis** embeds the Stream
 **Rules-only demo (Pyodide):** <https://ejajaka.github.io/ui-prompt-linter/rules/>  
 Runs the actual Python rules engine in your browser with no server.
 
-**Full Streamlit engine (BERT + LLM):** deploy or refresh with the badge below.  
-Override the iframe engine without rebuilding by opening `?engine=https://your-app.streamlit.app`.
+**Full Streamlit engine (BERT + LLM):** <https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/>  
+The React UI embeds this engine. Override it without rebuilding with `?engine=https://your-app.streamlit.app`.
 
 
 
