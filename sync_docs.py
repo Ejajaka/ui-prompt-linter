@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"
-DOCS = ROOT / "docs"
+DOCS = ROOT / "docs" / "rules"
 
 FILES = [
     "__init__.py", "schema.py", "tokenization.py", "bio.py", "messages.py",
@@ -51,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
         print("docs/py is up to date")
         return 0
 
-    print(f"Synced {len(list(targets()))} files into docs/py")
+    print(f"Synced {len(list(targets()))} files into docs/rules/py")
     return 0
 
 

@@ -1,10 +1,15 @@
 # UI Prompt Linter
 
-**Permanent Rules demo:** <https://ejajaka.github.io/ui-prompt-linter/>  
-Runs the actual Python rules engine in your browser via Pyodide ? no server needed.
+**Vector-style UI (React, permanent):** <https://ejajaka.github.io/ui-prompt-linter/>  
+The home page is the advertising/overview UI; **New Analysis** embeds the Streamlit engine in an iframe.
 
-**Full Streamlit app (BERT + LLM):** deploy or refresh with the badge below.  
-If you already deployed it on Streamlit Community Cloud, open the app and click **Rerun / Reboot app**; it auto-redeploys from `main`.
+**Rules-only demo (Pyodide):** <https://ejajaka.github.io/ui-prompt-linter/rules/>  
+Runs the actual Python rules engine in your browser with no server.
+
+**Full Streamlit engine (BERT + LLM):** deploy or refresh with the badge below.  
+Override the iframe engine without rebuilding by opening `?engine=https://your-app.streamlit.app`.
+
+
 
 
 **Source:** <https://github.com/Ejajaka/ui-prompt-linter>
@@ -449,6 +454,29 @@ HF_TOKEN=hf_xxx python deploy_hf_space.py --use-opencode-key
 This creates a public Docker Space, uploads the app, downloads BERT at runtime
 and stores the OpenCode Go key as a Space secret (never in the repository). The
 script prints the Space URL.
+
+### React frontend (Vector UI)
+
+The permanent frontend in `frontend/` is the Vector React UI, unchanged except
+for the home/advertising copy and the New Analysis page, which embeds the
+Streamlit engine in an iframe. The other pages keep their existing layout.
+
+```bash
+cd frontend
+npm install
+npm run build
+# copy frontend/dist/* into docs/ for GitHub Pages
+```
+
+The engine URL is in `frontend/src/config.ts`. You can also override it at
+runtime without rebuilding:
+
+```text
+https://ejajaka.github.io/ui-prompt-linter/?engine=https://your-app.streamlit.app
+```
+
+The Streamlit app receives `?uiembed=1`, which hides its own sidebar/header so it
+fits cleanly inside the Vector shell.
 
 ### Docker deployment
 

@@ -21,5 +21,5 @@ python sync_docs.py
 ```
 
 The page is automatically served at
-<https://ejajaka.github.io/ui-prompt-linter/> once GitHub Pages is enabled for the
+<https://ejajaka.github.io/ui-prompt-linter/rules/> once GitHub Pages is enabled for the
 `docs/` folder on the `main` branch.

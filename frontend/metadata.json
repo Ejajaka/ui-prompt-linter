@@ -1,0 +1,6 @@
+{
+  "name": "Vector",
+  "description": "Pre-generation security diagnosis for AWS infrastructure prompts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

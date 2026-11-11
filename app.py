@@ -864,12 +864,15 @@ def _run(text: str, method: str, allow_llm: bool, answers: dict, finalize: bool)
     return None
 
 
-def render_analysis_page(method: str, allow_llm: bool, live_mode: bool) -> None:
-    page_header(
-        "New UI Prompt Analysis",
-        "UI/UX Prompt Analyzer",
-        "Review your interface request for missing elements, unclear details and risky assumptions before generating UI.",
-    )
+def render_analysis_page(
+    method: str, allow_llm: bool, live_mode: bool, embedded: bool = False
+) -> None:
+    if not embedded:
+        page_header(
+            "New UI Prompt Analysis",
+            "UI/UX Prompt Analyzer",
+            "Review your interface request for missing elements, unclear details and risky assumptions before generating UI.",
+        )
 
     st.session_state.setdefault("live_prompt", "")
     st.session_state.setdefault("batch_prompt", "")
@@ -1172,6 +1175,22 @@ def main() -> None:
         initial_sidebar_state="expanded",
     )
     st.markdown(CSS, unsafe_allow_html=True)
+
+    embed_value = st.query_params.get("uiembed")
+    embed = embed_value == "1" or embed_value == ["1"]
+    if embed:
+        st.markdown(
+            """
+            <style>
+            [data-testid="stSidebar"], [data-testid="stHeader"] { display:none !important; }
+            .block-container { padding-top:.4rem !important; padding-bottom:1rem !important;
+                                max-width:100% !important; }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        render_analysis_page("auto", True, False, embedded=True)
+        return
 
     method, allow_llm, live_mode = render_sidebar()
     page = st.session_state.get("page", "analysis")

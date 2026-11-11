@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI Prompt Linter — Browser Demo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <p class="eyebrow">NLP project · permanent browser demo</p>
+      <h1>UI Prompt Linter</h1>
+      <p class="lead">
+        Check a natural-language UI prompt before sending it to a UI generator.
+        This page runs the actual Python rules engine in your browser via Pyodide.
+      </p>
+      <p class="note">
+        Browser demo uses the <b>Rules</b> backend. BERT and LLM modes run in the
+        full Streamlit app from the repository.
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card input-card">
+      <label for="prompt">Your prompt</label>
+      <textarea id="prompt" rows="4"
+        placeholder='e.g. Add a red button at the top right corner labelled "Sign Up" that opens the signup form.'></textarea>
+      <div class="row">
+        <select id="examples">
+          <option value="">Load an example…</option>
+        </select>
+        <button id="analyze" class="primary" disabled>Analyze prompt</button>
+      </div>
+      <p id="status" class="status">Loading Python runtime…</p>
+    </section>
+
+    <section id="results" class="results hidden">
+      <div id="risk"></div>
+      <div id="highlighted"></div>
+      <div id="summary"></div>
+      <div id="elements"></div>
+      <div id="clarify"></div>
+      <div id="final"></div>
+      <div id="details" class="card details"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>
+        Source:
+        <a href="https://github.com/Ejajaka/ui-prompt-linter">github.com/Ejajaka/ui-prompt-linter</a>
+        · Runs offline in the browser after the first load.
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>

@@ -13,3 +13,6 @@ models/*
 *.log
 
 bert_tagger.zip
+
+frontend/node_modules/
+frontend/dist/

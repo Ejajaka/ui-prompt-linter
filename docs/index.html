@@ -1,63 +1,25 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UI Prompt Linter — Browser Demo</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header>
-    <div class="wrap">
-      <p class="eyebrow">NLP project · permanent browser demo</p>
-      <h1>UI Prompt Linter</h1>
-      <p class="lead">
-        Check a natural-language UI prompt before sending it to a UI generator.
-        This page runs the actual Python rules engine in your browser via Pyodide.
-      </p>
-      <p class="note">
-        Browser demo uses the <b>Rules</b> backend. BERT and LLM modes run in the
-        full Streamlit app from the repository.
-      </p>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <section class="card input-card">
-      <label for="prompt">Your prompt</label>
-      <textarea id="prompt" rows="4"
-        placeholder='e.g. Add a red button at the top right corner labelled "Sign Up" that opens the signup form.'></textarea>
-      <div class="row">
-        <select id="examples">
-          <option value="">Load an example…</option>
-        </select>
-        <button id="analyze" class="primary" disabled>Analyze prompt</button>
-      </div>
-      <p id="status" class="status">Loading Python runtime…</p>
-    </section>
-
-    <section id="results" class="results hidden">
-      <div id="risk"></div>
-      <div id="highlighted"></div>
-      <div id="summary"></div>
-      <div id="elements"></div>
-      <div id="clarify"></div>
-      <div id="final"></div>
-      <div id="details" class="card details"></div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="wrap">
-      <p>
-        Source:
-        <a href="https://github.com/Ejajaka/ui-prompt-linter">github.com/Ejajaka/ui-prompt-linter</a>
-        · Runs offline in the browser after the first load.
-      </p>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.js"></script>
-  <script src="demo.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Linter - UI/UX Prompt Review</title>
+    <meta name="description" content="Pre-generation completeness review for natural-language UI prompts. Detect elements, link attributes, clarify ambiguity and get a validated rewrite." />
+    <link rel="icon" type="image/png" href="favicon-32.png" />
+    
+    <meta name="theme-color" content="#49686C" />
+    <meta property="og:title" content="Prompt Linter - UI/UX Prompt Review" />
+    <meta property="og:description" content="Pre-generation completeness review for natural-language UI prompts. Detect elements, link attributes, clarify ambiguity and get a validated rewrite." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="./assets/index-CYM80YtC.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-B8cFDNsX.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
+
