@@ -25,7 +25,7 @@ extra features.
 * Python 3.10+, laptop CPU; GPU auto-detected but optional.
 * No paid APIs or API keys. Network only for `pip install` and the one-time
   `distilbert-base-uncased` download.
-* The provided `data/` must not be regenerated or edited. `generate_dataset.py`
+* The provided `data/` must not be regenerated or edited. `tools/generate_dataset.py`
   is for reproducibility only.
 * **No test leakage.** Tune rules/hyperparameters on `train.jsonl` and
   `dev.jsonl` only. `test.jsonl` and `handwritten_test.jsonl` are for final
@@ -36,13 +36,13 @@ extra features.
 ## 3. Files
 
 ```
-BUILD_SPEC.md  generate_dataset.py  requirements.txt  README.md
+BUILD_SPEC.md  tools/generate_dataset.py  requirements.txt  README.md
 data/{train,dev,test,handwritten_test}.jsonl  data/schema.json
-src/
+engine/src/
   __init__.py  schema.py  tokenization.py  bio.py  rules_tagger.py
   bert_tagger.py  linking.py  vague.py  messages.py  checker.py  pipeline.py
-train_bert.py  evaluate.py  cli.py  app.py
-tests/{test_tokenization,test_bio,test_linking_checker,test_pipeline}.py
+engine/eval/train_bert.py  engine/eval/evaluate.py  engine/cli/cli.py  app.py
+engine/test/{test_tokenization,test_bio,test_linking_checker,test_pipeline}.py
 models/  results/
 ```
 
@@ -205,7 +205,7 @@ synthetic-vs-handwritten gap, representative errors). Report honestly.
 
 ## 16. CLI and Streamlit
 
-* `python cli.py "..." --backend auto|rules|bert [--interactive] [--json]`.
+* `python engine/cli/cli.py "..." --backend auto|rules|bert [--interactive] [--json]`.
 * `streamlit run app.py`: Auto/Rules/BERT engine, optional Ollama, live mode via
   `st_keyup` (debounce 400), examples from `handwritten_test.jsonl`, legend,
   highlighted prompt, initial/final risk gauge, blocking clarification form,
@@ -230,8 +230,8 @@ landmark guard.
 ## 19. Deliverables checklist
 
 - [x] `pytest -q` passes
-- [x] `python train_bert.py` produces `models/bert_tagger/`
-- [x] `python evaluate.py --backend both --split all` writes RESULTS and errors
+- [x] `python engine/eval/train_bert.py` produces `models/bert_tagger/`
+- [x] `python engine/eval/evaluate.py --backend both --split all` writes RESULTS and errors
 - [x] `streamlit run app.py` works with both backends and live mode
 - [x] README with results and limitations
 - [x] No edits to `data/`; no tuning on test sets
@@ -240,11 +240,11 @@ landmark guard.
 
 Implemented beyond the original scope:
 
-- prompt-level **Rules/BERT/LLM router** (`src/router.py`);
-- **clarification loop** with structured answer merge (`src/clarification.py`);
-- shared deterministic **risk score** (`src/risk.py`);
+- prompt-level **Rules/BERT/LLM router** (`engine/src/router.py`);
+- **clarification loop** with structured answer merge (`engine/src/clarification.py`);
+- shared deterministic **risk score** (`engine/src/risk.py`);
 - optional **LLM layer** for grounded fallback extraction, risk explanation and
-  recommendation polish (`src/llm_backend.py`), with deterministic fallback.
+  recommendation polish (`engine/src/llm_backend.py`), with deterministic fallback.
 
 Still optional / future:
 

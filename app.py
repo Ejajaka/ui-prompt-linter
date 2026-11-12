@@ -14,11 +14,15 @@ import html
 import json
 import math
 import os
+import sys
 import zipfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
 import streamlit as st
+
+# The engine package lives under ``engine/src``; expose it for ``from src.``.
+sys.path.insert(0, str(Path(__file__).resolve().parent / "engine"))
 
 from src.llm_backend import LLMClient
 from src.pipeline import BackendNotAvailable, analyze_full

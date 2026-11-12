@@ -321,7 +321,7 @@ def stats(name, rows):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "dataset"))
+    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "dataset"))
     ap.add_argument("--train", type=int, default=800)
     ap.add_argument("--dev", type=int, default=150)
     ap.add_argument("--test", type=int, default=200)

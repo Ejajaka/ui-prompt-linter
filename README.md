@@ -9,11 +9,11 @@ Runs the actual Python rules engine in your browser with no server.
 **Full Streamlit engine (BERT + LLM):** <https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/>  
 Hosts the BERT tagger and the optional LLM layer; the React UI links to it for those backends.
 
-**Browser extension (Manifest V3):** [`extension/`](extension/)  
+**Browser extension (Manifest V3):** [`ui/extension/`](ui/extension/)  
 Fully offline popup with the same branding and Rules engine; no permissions, no network.  
 Install it from the Edge Add-ons store: <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
 
-**Android app (Jetpack Compose):** [`android/`](android/)  
+**Android app (Jetpack Compose):** [`ui/android/`](ui/android/)  
 Native app mirroring the web UI and content, running the same Rules engine on-device.
 
 **Privacy policy:** <https://ejajaka.github.io/ui-prompt-linter/privacy-policy.html>
@@ -39,10 +39,10 @@ them.
 
 | Surface | Stack | Engine | Distribution |
 |---|---|---|---|
-| Web app | React + TypeScript (`frontend/`) | Rules via Pyodide in the browser | GitHub Pages |
+| Web app | React + TypeScript (`ui/web-app/`) | Rules via Pyodide in the browser | GitHub Pages |
 | Web demo | Static page (`docs/rules/`) | Rules via Pyodide | GitHub Pages |
-| Browser extension | Manifest V3 (`extension/`) | `extension/engine.js` (JS port of Rules) | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf) (live) / Chrome Web Store |
-| Android app | Jetpack Compose (`android/`) | Same `engine.js` in an on-device WebView | Debug APK / sideload |
+| Browser extension | Manifest V3 (`ui/extension/`) | `ui/extension/engine.js` (JS port of Rules) | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf) (live) / Chrome Web Store |
+| Android app | Jetpack Compose (`ui/android/`) | Same `engine.js` in an on-device WebView | Debug APK / sideload |
 | Full engine | Streamlit (`app.py`) | Rules + DistilBERT + grounded LLM | Streamlit Cloud / Docker / HF Space |
 
 Three detection methods share the same checker and UI:
@@ -81,9 +81,9 @@ streamlit run app.py
 Run the CLI:
 
 ```bash
-python cli.py "Add a red button at the top right corner that opens the signup form." --backend auto
-python cli.py "Add a button." --backend rules --interactive
-python cli.py "Add a button." --backend auto --no-llm --json
+python engine/cli/cli.py "Add a red button at the top right corner that opens the signup form." --backend auto
+python engine/cli/cli.py "Add a button." --backend rules --interactive
+python engine/cli/cli.py "Add a button." --backend auto --no-llm --json
 ```
 
 Optional LLM layer (free, local, no API key):
@@ -101,22 +101,22 @@ endpoint can be selected with `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY`.
 Train and evaluate BERT (optional; the app disables BERT without the model):
 
 ```bash
-python train_bert.py --model distilbert-base-uncased --epochs 5 --lr 5e-5 \
+python engine/eval/train_bert.py --model distilbert-base-uncased --epochs 5 --lr 5e-5 \
     --batch 16 --max_len 128 --out models/bert_tagger --seed 42
 
-python evaluate.py --backend both --split all
-python evaluate.py --backend auto --split all
-python evaluate_router.py
+python engine/eval/evaluate.py --backend both --split all
+python engine/eval/evaluate.py --backend auto --split all
+python engine/eval/evaluate_router.py
 ```
 
-`train_bert.py` takes about 7 minutes on a laptop CPU and uses a GPU automatically
-if one is available. `evaluate.py` writes `results/metrics_*.json`,
+`engine/eval/train_bert.py` takes about 7 minutes on a laptop CPU and uses a GPU automatically
+if one is available. `engine/eval/evaluate.py` writes `results/metrics_*.json`,
 `results/errors_*.jsonl` and `results/RESULTS.md`.
 
-Regenerate the browser-demo Python mirror after changing `src/`:
+Regenerate the browser-demo Python mirror after changing `engine/src/`:
 
 ```bash
-python sync_docs.py
+python tools/sync_docs.py
 ```
 
 Run the tests:
@@ -130,7 +130,7 @@ pytest -q
 ## Dataset
 
 `data/` is the provided dataset. It is **not regenerated or edited**;
-`generate_dataset.py` is included only for reproducibility.
+`tools/generate_dataset.py` is included only for reproducibility.
 
 | Split | Prompts | Purpose |
 |---|---|---|
@@ -232,23 +232,23 @@ A test verifies that all 1180 dataset records reproduce their stored tokens.
 
 | File | Responsibility |
 |---|---|
-| `src/schema.py` | paths, tag list, element schema, `Span`/`Element`, `NOUN_TO_TYPE` |
-| `src/tokenization.py` | the shared tokenizer |
-| `src/bio.py` | `repair_bio`, `bio_to_spans` |
-| `src/rules_tagger.py` | six-pass rule baseline |
-| `src/bert_tagger.py` | inference wrapper + entity confidence for the saved DistilBERT model |
-| `src/router.py` | prompt features and the Rules/BERT/LLM decision |
-| `src/linking.py` | attribute → element linking and the gold-tag linking metric |
-| `src/vague.py` | vague-phrase detection over element clause windows |
-| `src/clarification.py` | deterministic questions, answer merge, unresolved tracking |
-| `src/risk.py` | shared deterministic 0–100 risk score and levels |
-| `src/llm_backend.py` | Ollama/OpenAI-compatible client, grounded extraction, explanation |
-| `src/messages.py` | message templates and suggested rewrites |
-| `src/checker.py` | schema comparison and final JSON result |
-| `src/pipeline.py` | `analyze`, `analyze_full` orchestration |
-| `train_bert.py` | DistilBERT fine-tuning (first sub-token labels, `-100` elsewhere) |
-| `evaluate.py` | entity, element, linking, missing, risk and routing metrics |
-| `cli.py` | command-line interface with interactive clarification |
+| `engine/src/schema.py` | paths, tag list, element schema, `Span`/`Element`, `NOUN_TO_TYPE` |
+| `engine/src/tokenization.py` | the shared tokenizer |
+| `engine/src/bio.py` | `repair_bio`, `bio_to_spans` |
+| `engine/src/rules_tagger.py` | six-pass rule baseline |
+| `engine/src/bert_tagger.py` | inference wrapper + entity confidence for the saved DistilBERT model |
+| `engine/src/router.py` | prompt features and the Rules/BERT/LLM decision |
+| `engine/src/linking.py` | attribute → element linking and the gold-tag linking metric |
+| `engine/src/vague.py` | vague-phrase detection over element clause windows |
+| `engine/src/clarification.py` | deterministic questions, answer merge, unresolved tracking |
+| `engine/src/risk.py` | shared deterministic 0–100 risk score and levels |
+| `engine/src/llm_backend.py` | Ollama/OpenAI-compatible client, grounded extraction, explanation |
+| `engine/src/messages.py` | message templates and suggested rewrites |
+| `engine/src/checker.py` | schema comparison and final JSON result |
+| `engine/src/pipeline.py` | `analyze`, `analyze_full` orchestration |
+| `engine/eval/train_bert.py` | DistilBERT fine-tuning (first sub-token labels, `-100` elsewhere) |
+| `engine/eval/evaluate.py` | entity, element, linking, missing, risk and routing metrics |
+| `engine/cli/cli.py` | command-line interface with interactive clarification |
 | `app.py` | Streamlit app with Auto mode, risk gauge and clarification form |
 
 ### How the rules backend works
@@ -468,7 +468,7 @@ server with enough RAM, or keep the app on a machine that runs Ollama.
 If you have a Hugging Face **write** token:
 
 ```bash
-HF_TOKEN=hf_xxx python deploy_hf_space.py --use-opencode-key
+HF_TOKEN=hf_xxx python tools/deploy_hf_space.py --use-opencode-key
 ```
 
 This creates a public Docker Space, uploads the app, downloads BERT at runtime
@@ -477,8 +477,8 @@ script prints the Space URL.
 
 ### React frontend (Vector UI)
 
-The permanent frontend in `frontend/` runs the **Rules** backend in the browser
-via Pyodide (the Python mirror in `frontend/public/py/`), and links out to the
+The permanent frontend in `ui/web-app/` runs the **Rules** backend in the browser
+via Pyodide (the Python mirror in `ui/web-app/public/py/`), and links out to the
 full Streamlit app for BERT and the optional LLM layer. The other pages keep
 their existing layout.
 
@@ -488,15 +488,15 @@ the same mark, and the About, Overview, New Analysis, History, Guidelines and
 Settings pages all share the teal/mustard design system.
 
 ```bash
-cd frontend
+cd ui/web-app
 npm install
 npm run build
-# copy frontend/dist/* into docs/ for GitHub Pages
+# copy ui/web-app/dist/* into docs/ for GitHub Pages
 ```
 
-The full engine URL is in `frontend/src/config.ts` (`ENGINE_URL`), and the
+The full engine URL is in `ui/web-app/src/config.ts` (`ENGINE_URL`), and the
 in-browser Rules engine is bootstrapped by
-`frontend/src/services/pyodideEngine.ts`.
+`ui/web-app/src/services/pyodideEngine.ts`.
 
 ### Docker deployment
 
@@ -528,34 +528,34 @@ copy-ready validated prompt.
 
 - **Microsoft Edge (live):** <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
 - **Chrome:** load unpacked in Developer mode (see below) or package with
-  `extension/package.py` for the Chrome Web Store.
+  `ui/extension/package.py` for the Chrome Web Store.
 
 | File | Purpose |
 |---|---|
-| `extension/manifest.json` | Manifest V3 config (popup + icons, no permissions) |
-| `extension/engine.js` | JavaScript port of the Rules engine in `src/` |
-| `extension/popup.html` / `popup.css` / `popup.js` | Popup UI |
-| `extension/icons/` | 16/32/48/128 icons |
-| `extension/store/` | Store listing, permission/privacy answers, policy, 300px logo |
-| `extension/package.py` | Builds the store logo and upload zip |
+| `ui/extension/manifest.json` | Manifest V3 config (popup + icons, no permissions) |
+| `ui/extension/engine.js` | JavaScript port of the Rules engine in `engine/src/` |
+| `ui/extension/popup.html` / `popup.css` / `popup.js` | Popup UI |
+| `ui/extension/icons/` | 16/32/48/128 icons |
+| `ui/extension/store/` | Store listing, permission/privacy answers, policy, 300px logo |
+| `ui/extension/package.py` | Builds the store logo and upload zip |
 
 ### Load for development
 
 1. Open `chrome://extensions` and enable **Developer mode**.
-2. Click **Load unpacked** and select the `extension/` folder.
+2. Click **Load unpacked** and select the `ui/extension/` folder.
 3. Pin **Prompt Linter** and click the icon to open the popup.
 
 ### Package for the store
 
 ```bash
-python extension/package.py
+python ui/extension/package.py
 ```
 
-This writes `extension/dist/prompt-linter-extension.zip` (with `manifest.json` at
-the zip root) and `extension/store/store-logo-300.png`. The listing text is in
-`extension/store/listing.md`, the privacy answers in
-`extension/store/permissions-and-privacy.md`, and the submission checklist in
-`extension/store/publish-steps.md`.
+This writes `ui/extension/dist/prompt-linter-extension.zip` (with `manifest.json` at
+the zip root) and `ui/extension/store/store-logo-300.png`. The listing text is in
+`ui/extension/store/listing.md`, the privacy answers in
+`ui/extension/store/permissions-and-privacy.md`, and the submission checklist in
+`ui/extension/store/publish-steps.md`.
 
 The hosted privacy policy is
 <https://ejajaka.github.io/ui-prompt-linter/privacy-policy.html>.
@@ -564,7 +564,7 @@ The hosted privacy policy is
 
 ## Android app (Jetpack Compose)
 
-The native app in `android/` is a separate Jetpack Compose project (package
+The native app in `ui/android/` is a separate Jetpack Compose project (package
 `com.promptlinter.app`, `minSdk` 24, `compileSdk`/`targetSdk` 36) that recreates
 the web product rather than embedding it in a browser. It uses the same teal
 `#49686C` / mustard `#D1B653` / warm ivory `#F6F4EC` branding and a drawn
@@ -581,9 +581,9 @@ chat-bubble + checkmark logo.
 
 ### Cross-platform engine parity
 
-- `android/app/src/main/assets/engine.js` is an exact copy of
-  `extension/engine.js`, the JavaScript port of the Python Rules backend.
-- `android/app/src/main/java/com/promptlinter/app/data/engine/JsEngine.kt` loads
+- `ui/android/app/src/main/assets/engine.js` is an exact copy of
+  `ui/extension/engine.js`, the JavaScript port of the Python Rules backend.
+- `ui/android/app/src/main/java/com/promptlinter/app/data/engine/JsEngine.kt` loads
   that engine in an off-screen `WebView` and calls
   `PromptLinterEngine.analyze(text, answers, finalize)`.
 - Analysis, clarification questions, scoring and the final validated prompt
@@ -603,14 +603,14 @@ Additional native behaviour:
 ### Build and install
 
 ```powershell
-cd android
+cd ui/android
 gradle assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 Requirements: JDK 17+, Android SDK 36, Gradle 9.3.1 (AGP 9.1.1). Open the
-`android/` folder in Android Studio or run Gradle 9.3.1 from the command line as
-shown. See [`android/README.md`](android/README.md) for the screen map and parity
+`ui/android/` folder in Android Studio or run Gradle 9.3.1 from the command line as
+shown. See [`ui/android/README.md`](ui/android/README.md) for the screen map and parity
 notes.
 
 ---

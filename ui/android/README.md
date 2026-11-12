@@ -1,7 +1,7 @@
 # Prompt Linter - Android app
 
 Native Jetpack Compose app that mirrors the Prompt Linter web app
-(`frontend/`) and browser extension (`extension/`): same branding, logo,
+(`ui/web-app/`) and browser extension (`ui/extension/`): same branding, logo,
 content, pages, and the same deterministic Rules engine.
 
 ## What is included
@@ -16,12 +16,12 @@ content, pages, and the same deterministic Rules engine.
 | Settings | Theme, engine information, local storage, replay onboarding |
 
 Branding uses the same teal/mustard palette and the chat-bubble + check logo
-(`ui/components/PlLogo.kt`) as `frontend/src/components/ui/Logo.tsx`.
+(`ui/components/PlLogo.kt`) as `ui/web-app/src/components/ui/Logo.tsx`.
 
 ## Engine parity
 
-- `app/src/main/assets/engine.js` is an exact copy of `extension/engine.js`
-  (the JavaScript port of the Python Rules backend in `src/`).
+- `app/src/main/assets/engine.js` is an exact copy of `ui/extension/engine.js`
+  (the JavaScript port of the Python Rules backend in `engine/src/`).
 - `data/engine/JsEngine.kt` loads it in an off-screen `WebView` and calls
   `PromptLinterEngine.analyze(text, answers, finalize)`.
 - Analysis, clarification, scoring and the final prompt therefore match the
@@ -31,7 +31,7 @@ Branding uses the same teal/mustard palette and the chat-bubble + check logo
 
 ## Build
 
-Open this `android/` folder in Android Studio, or from the command line:
+Open this `ui/android/` folder in Android Studio, or from the command line:
 
 ```powershell
 gradle assembleDebug

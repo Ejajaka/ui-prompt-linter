@@ -1,4 +1,4 @@
-"""Pytest configuration: make the project root importable as ``src``."""
+"""Pytest configuration: make the engine package importable as ``src``."""
 import sys
 from pathlib import Path
 

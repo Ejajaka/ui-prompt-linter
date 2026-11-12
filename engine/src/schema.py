@@ -11,7 +11,21 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 # --------------------------------------------------------------------------- paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+def _find_project_root(start: Path) -> Path:
+    """Locate the project root by walking up until ``data/schema.json`` is found.
+
+    This keeps the same source working in three layouts: the repository
+    (``engine/src/schema.py``), the Pyodide virtual filesystem (``/home/pyodide/
+    src/schema.py``) and the Hugging Face Space (``engine/src/schema.py``), where
+    the root is whichever directory contains ``data/schema.json``.
+    """
+    for candidate in (start, *start.parents):
+        if (candidate / "data" / "schema.json").is_file():
+            return candidate
+    return start
+
+
+PROJECT_ROOT = _find_project_root(Path(__file__).resolve().parent)
 DATA_DIR = PROJECT_ROOT / "data"
 DEFAULT_SCHEMA_PATH = DATA_DIR / "schema.json"
 

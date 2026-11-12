@@ -15,6 +15,6 @@ jobs:
       - name: Install test dependencies
         run: pip install pytest
       - name: Check browser-demo mirror
-        run: python sync_docs.py --check
+        run: python tools/sync_docs.py --check
       - name: Run tests
         run: pytest -q

@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # engine/
 
 import evaluate
 from src.schema import load_jsonl
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 ROUTER_DATA = ROOT / "router_data" / "test.jsonl"
 RESULTS = ROOT / "results"
 

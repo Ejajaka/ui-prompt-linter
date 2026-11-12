@@ -20,7 +20,7 @@ from pathlib import Path
 
 from huggingface_hub import HfApi
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 
 SPACE_DOCKERFILE = """FROM python:3.11-slim
 
@@ -116,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
         space = Path(tmp)
         shutil.copy2(ROOT / "app.py", space / "app.py")
         shutil.copy2(ROOT / "requirements.txt", space / "requirements.txt")
-        _copy_tree(ROOT / "src", space / "src")
+        _copy_tree(ROOT / "engine" / "src", space / "engine" / "src")
         (space / "data").mkdir()
         shutil.copy2(ROOT / "data" / "schema.json", space / "data" / "schema.json")
         shutil.copy2(ROOT / "data" / "handwritten_test.jsonl",

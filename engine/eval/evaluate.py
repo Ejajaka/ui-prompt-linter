@@ -20,10 +20,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
 from seqeval.metrics import classification_report, f1_score, precision_score, recall_score
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # engine/
 
 from src.bio import bio_to_spans, repair_bio
 from src.checker import check_elements
@@ -33,7 +36,7 @@ from src.schema import DATA_DIR, ELEMENT_SCHEMA, NOUN_TO_TYPE, load_jsonl
 from src.tokenization import tokenize_with_offsets
 from src.vague import annotate_vague
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results"
 ALL_SPLITS = ["dev", "test", "handwritten_test"]
 ENTITY_LABELS = ["ELEMENT", "COLOR", "LOCATION", "ACTION", "LABEL"]

@@ -16,6 +16,7 @@ import json
 import math
 import os
 import random
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -30,9 +31,11 @@ from transformers import (
     TrainingArguments,
 )
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # engine/
+
 from src.schema import DATA_DIR, ID2LABEL, LABEL2ID, load_jsonl
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 def set_seed(seed: int) -> None:

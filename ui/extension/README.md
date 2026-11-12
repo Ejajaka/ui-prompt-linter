@@ -22,7 +22,7 @@ the main web app (teal/mustard, the chat-bubble + checkmark logo).
 | File | Purpose |
 |---|---|
 | `manifest.json` | Manifest V3 config (popup + icons, no permissions) |
-| `engine.js` | JavaScript port of the Rules engine (`src/`) |
+| `engine.js` | JavaScript port of the Rules engine (`engine/src/`) |
 | `popup.html` / `popup.css` / `popup.js` | Popup UI |
 | `icons/` | Extension icons (16/32/48/128) |
 | `store/` | Chrome Web Store / Edge submission text and logo |

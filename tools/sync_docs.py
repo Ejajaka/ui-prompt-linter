@@ -2,7 +2,7 @@
 """Mirror the Python sources used by the GitHub Pages browser demo.
 
 `docs/` is served by GitHub Pages.  Pyodide loads the Rules backend from
-`docs/py/src`, so those copies must match `src/`.
+`docs/py/src`, so those copies must match `engine/src/`.
 """
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ import filecmp
 import shutil
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-SRC = ROOT / "src"
+ROOT = Path(__file__).resolve().parent.parent
+SRC = ROOT / "engine" / "src"
 DOCS = ROOT / "docs" / "rules"
 
 FILES = [
