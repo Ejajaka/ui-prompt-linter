@@ -6,7 +6,7 @@ export interface AppSettings {
   autoDeepScan: boolean;
 }
 
-const STORAGE_KEY = 'prompt_linter_settings_v1';
+const STORAGE_KEY = 'prompt_linter_settings_v2';
 
 // Demo builds: tools/inject-demo-config.js writes a gitignored
 // public/engine/demo-config.js exposing window.VECTOR_DEMO_SETTINGS. The
@@ -17,8 +17,8 @@ const TEST_API_KEY =
 
 export const DEFAULT_SETTINGS: AppSettings = {
   apiKey: TEST_API_KEY,
-  baseUrl: DEMO.baseUrl || 'https://opencode.ai/zen/go/v1',
-  model: DEMO.model || 'deepseek-v4.1-flash',
+  baseUrl: DEMO.baseUrl || 'https://api.groq.com/openai/v1',
+  model: DEMO.model || 'openai/gpt-oss-120b',
   autoDeepScan: true
 };
 
@@ -34,7 +34,7 @@ export function loadSettings(): AppSettings {
       baseUrl: saved.baseUrl || DEFAULT_SETTINGS.baseUrl,
       model: saved.model || DEFAULT_SETTINGS.model
     };
-    // Test build: a build-time key and the Groq/qwen defaults are authoritative.
+    // Test build: a build-time key and the Groq defaults are authoritative.
     if (TEST_API_KEY) {
       merged.apiKey = TEST_API_KEY;
       merged.baseUrl = DEFAULT_SETTINGS.baseUrl;

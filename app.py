@@ -473,7 +473,7 @@ def render_sidebar() -> tuple[str, bool, bool]:
             else "bert" if engine_label.startswith("BERT")
             else "rules"
         )
-        allow_llm = st.toggle("Allow LLM (OpenCode / Ollama)", value=True, key="allow_llm")
+        allow_llm = st.toggle("Allow LLM (Groq / Ollama)", value=True, key="allow_llm")
         live_mode = st.toggle("Live check while typing", value=False, key="live_mode")
         if allow_llm:
             st.markdown(
