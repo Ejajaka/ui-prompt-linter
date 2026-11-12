@@ -23,7 +23,6 @@ fun HistoryScreen(vm: MainViewModel) {
 
     LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
-            Text("Analysis History", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text("Review, reopen, and manage previous UI prompt evaluations.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(

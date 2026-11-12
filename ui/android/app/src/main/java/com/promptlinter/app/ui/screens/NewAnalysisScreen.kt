@@ -38,9 +38,8 @@ fun NewAnalysisScreen(vm: MainViewModel) {
     val payload = vm.payload
     LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            Text("New UI Prompt Analysis", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text("Review your interface request for missing labels, colours, placement and actions — on-device.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             if (!vm.engineReady && vm.engineError == null) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 Text("Loading the rules engine…", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)

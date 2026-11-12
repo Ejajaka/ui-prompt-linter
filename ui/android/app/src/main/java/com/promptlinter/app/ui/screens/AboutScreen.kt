@@ -100,7 +100,7 @@ fun AboutScreen(vm: MainViewModel) {
                 PromptExaminationVisual()
                 Spacer(Modifier.height(20.dp))
                 Button(
-                    onClick = { vm.selectedTab = Tab.NEW_ANALYSIS },
+                    onClick = { vm.closeDetail(); vm.selectedTab = Tab.NEW_ANALYSIS },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
@@ -315,7 +315,7 @@ fun AboutScreen(vm: MainViewModel) {
                 )
                 Spacer(Modifier.height(14.dp))
                 Button(
-                    onClick = { vm.selectedTab = Tab.NEW_ANALYSIS },
+                    onClick = { vm.closeDetail(); vm.selectedTab = Tab.NEW_ANALYSIS },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
                 ) {

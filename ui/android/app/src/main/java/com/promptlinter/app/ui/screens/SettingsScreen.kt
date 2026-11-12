@@ -2,16 +2,24 @@ package com.promptlinter.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.promptlinter.app.ui.theme.*
+import com.promptlinter.app.ui.viewmodel.DetailPage
 import com.promptlinter.app.ui.viewmodel.MainViewModel
 
 @Composable
@@ -26,9 +34,6 @@ fun SettingsScreen(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Text("System Settings", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Text("Theme, engine information and local data for Prompt Linter.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
-
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Appearance & Theme", fontWeight = FontWeight.Bold)
@@ -67,21 +72,56 @@ fun SettingsScreen(
         }
 
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("About Prompt Linter", fontWeight = FontWeight.Bold)
-                InfoRow("Application", "Prompt Linter — UI/UX Prompt Review")
-                InfoRow("Version", "v1.0 (Android)")
-                InfoRow("Engine Type", "Rules (on-device) · BERT+LLM via full engine")
-                InfoRow("Execution", "Deterministic JS Rules engine embedded locally")
+            Column {
+                Text(
+                    "Learn & Info",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 6.dp)
+                )
+                NavRow(
+                    icon = Icons.AutoMirrored.Filled.MenuBook,
+                    title = "Prompt Guidelines",
+                    subtitle = "Elements, attributes, annotation rules and risk bands",
+                    onClick = { vm.openDetail(DetailPage.GUIDELINES) }
+                )
+                HorizontalDivider(color = LocalPlColors.current.border.copy(alpha = 0.6f))
+                NavRow(
+                    icon = Icons.Default.Info,
+                    title = "About Prompt Linter",
+                    subtitle = "What the app does and how the review works",
+                    onClick = { vm.openDetail(DetailPage.ABOUT) }
+                )
             }
         }
         Spacer(Modifier.height(20.dp))
     }
 }
 
-@Composable private fun InfoRow(label: String, value: String) {
-    Column {
-        Text(label, color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.labelSmall)
-        Text(value, fontWeight = FontWeight.SemiBold)
+@Composable
+private fun NavRow(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, fontWeight = FontWeight.SemiBold)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = LocalPlColors.current.textSecondary,
+                maxLines = 2
+            )
+        }
+        Icon(
+            Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = LocalPlColors.current.textSecondary,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }

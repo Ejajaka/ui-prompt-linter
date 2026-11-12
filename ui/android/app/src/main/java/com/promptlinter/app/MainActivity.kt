@@ -15,10 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +29,7 @@ import com.promptlinter.app.ui.screens.*
 import com.promptlinter.app.ui.theme.PromptLinterTheme
 import com.promptlinter.app.ui.viewmodel.MainViewModel
 import com.promptlinter.app.ui.viewmodel.Tab
+import com.promptlinter.app.ui.viewmodel.DetailPage
 
 class MainActivity : ComponentActivity() {
     private val vm: MainViewModel by viewModels()
@@ -73,47 +74,40 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private data class TopInfo(val title: String, val subtitle: String)
-
-private val topInfo = mapOf(
-    Tab.OVERVIEW to TopInfo("Prompt Diagnosis Overview", "Dashboard"),
-    Tab.NEW_ANALYSIS to TopInfo("New UI Prompt Analysis", "UI/UX Prompt Analyzer"),
-    Tab.HISTORY to TopInfo("Analysis History", "Past Evaluations"),
-    Tab.GUIDELINES to TopInfo("Prompt Guidelines", "Completeness Baseline"),
-    Tab.ABOUT to TopInfo("About Prompt Linter", "UI/UX Prompt Review"),
-    Tab.SETTINGS to TopInfo("System Settings", "Preferences & Engine")
+private val tabTitles = mapOf(
+    Tab.OVERVIEW to "Overview",
+    Tab.NEW_ANALYSIS to "New Analysis",
+    Tab.HISTORY to "History",
+    Tab.SETTINGS to "Settings"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Unit, onShowOnboarding: () -> Unit) {
-    val info = topInfo[vm.selectedTab] ?: topInfo[Tab.OVERVIEW]!!
+    val title = vm.detailPage?.label ?: tabTitles[vm.selectedTab] ?: "Overview"
 
-    BackHandler(enabled = vm.selectedTab != Tab.OVERVIEW) {
-        vm.selectedTab = Tab.OVERVIEW
+    BackHandler(enabled = vm.detailPage != null || vm.selectedTab != Tab.OVERVIEW) {
+        if (vm.detailPage != null) vm.closeDetail() else vm.selectedTab = Tab.OVERVIEW
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        PlLogo(modifier = Modifier.size(28.dp))
-                        Spacer(Modifier.width(10.dp))
-                        androidx.compose.foundation.layout.Column {
-                            Text(
-                                info.title,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            )
-                            Text(
-                                info.subtitle,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 11.sp
-                                )
-                            )
+                navigationIcon = {
+                    if (vm.detailPage != null) {
+                        IconButton(onClick = { vm.closeDetail() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
+                    } else {
+                        PlLogo(modifier = Modifier.padding(start = 16.dp).size(24.dp))
                     }
+                },
+                title = {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        maxLines = 1
+                    )
                 },
                 actions = {
                     Surface(
@@ -122,12 +116,12 @@ fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Uni
                     ) {
                         Text(
                             "Rules · on-device",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(12.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
@@ -138,13 +132,14 @@ fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Uni
                     Triple(Tab.OVERVIEW, "Overview", Icons.Filled.Dashboard),
                     Triple(Tab.NEW_ANALYSIS, "Analyze", Icons.Filled.EditNote),
                     Triple(Tab.HISTORY, "History", Icons.Filled.History),
-                    Triple(Tab.GUIDELINES, "Guide", Icons.Filled.MenuBook),
-                    Triple(Tab.ABOUT, "About", Icons.Filled.Info),
                     Triple(Tab.SETTINGS, "Settings", Icons.Filled.Settings)
                 ).forEach { (tab, label, icon) ->
                     NavigationBarItem(
-                        selected = vm.selectedTab == tab,
-                        onClick = { vm.selectedTab = tab },
+                        selected = vm.detailPage == null && vm.selectedTab == tab,
+                        onClick = {
+                            vm.detailPage = null
+                            vm.selectedTab = tab
+                        },
                         icon = { Icon(icon, contentDescription = label) },
                         label = { Text(label, maxLines = 1, fontSize = 10.sp) },
                         colors = NavigationBarItemDefaults.colors(
@@ -158,13 +153,15 @@ fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Uni
         }
     ) { padding ->
         Surface(modifier = Modifier.padding(padding), color = MaterialTheme.colorScheme.background) {
-            when (vm.selectedTab) {
-                Tab.OVERVIEW -> OverviewScreen(vm)
-                Tab.NEW_ANALYSIS -> NewAnalysisScreen(vm)
-                Tab.HISTORY -> HistoryScreen(vm)
-                Tab.GUIDELINES -> GuidelinesScreen()
-                Tab.ABOUT -> AboutScreen(vm)
-                Tab.SETTINGS -> SettingsScreen(vm, dark, onDarkChange, onShowOnboarding)
+            when {
+                vm.detailPage == DetailPage.ABOUT -> AboutScreen(vm)
+                vm.detailPage == DetailPage.GUIDELINES -> GuidelinesScreen()
+                else -> when (vm.selectedTab) {
+                    Tab.OVERVIEW -> OverviewScreen(vm)
+                    Tab.NEW_ANALYSIS -> NewAnalysisScreen(vm)
+                    Tab.HISTORY -> HistoryScreen(vm)
+                    Tab.SETTINGS -> SettingsScreen(vm, dark, onDarkChange, onShowOnboarding)
+                }
             }
         }
     }

@@ -52,10 +52,8 @@ private val categories = listOf(
 fun GuidelinesScreen() {
     LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            Text("Prompt Guidelines & Baseline", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(4.dp))
             Text("Reference catalog of UI elements, required attributes, annotation rules and risk bands evaluated by Prompt Linter.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
         }
         items(categories) { cat ->
             var expanded by remember { mutableStateOf(cat.title == "Supported UI Elements") }

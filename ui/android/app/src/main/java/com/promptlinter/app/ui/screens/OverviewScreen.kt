@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.promptlinter.app.data.model.HistoryItem
 import com.promptlinter.app.ui.components.PlLogo
 import com.promptlinter.app.ui.theme.*
+import com.promptlinter.app.ui.viewmodel.DetailPage
 import com.promptlinter.app.ui.viewmodel.MainViewModel
 import com.promptlinter.app.ui.viewmodel.Tab
 
@@ -73,7 +74,7 @@ fun OverviewScreen(vm: MainViewModel) {
                         PlLogo(modifier = Modifier.size(32.dp))
                     }
                     Spacer(Modifier.height(14.dp))
-                    Text("Prompt Linter", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, color = Color.White))
+                    Text("Prompt Linter", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = Color.White, fontSize = 22.sp))
                     Spacer(Modifier.height(4.dp))
                     Text(
                         "Identify missing labels, colours, placement and actions before your prompt reaches a UI generator.",
@@ -92,7 +93,7 @@ fun OverviewScreen(vm: MainViewModel) {
                             Text("New Analysis", fontWeight = FontWeight.Bold)
                         }
                         OutlinedButton(
-                            onClick = { vm.selectedTab = Tab.ABOUT },
+                            onClick = { vm.openDetail(DetailPage.ABOUT) },
                             modifier = Modifier.weight(1f).height(48.dp),
                             shape = RoundedCornerShape(12.dp),
                             border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),

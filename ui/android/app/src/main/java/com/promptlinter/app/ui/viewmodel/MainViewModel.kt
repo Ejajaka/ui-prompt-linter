@@ -34,6 +34,15 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var historySort by mutableStateOf("date_desc")
 
     var selectedTab by mutableStateOf(Tab.OVERVIEW)
+    var detailPage by mutableStateOf<DetailPage?>(null)
+
+    fun openDetail(page: DetailPage) {
+        detailPage = page
+    }
+
+    fun closeDetail() {
+        detailPage = null
+    }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -105,6 +114,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun openFromHistory(item: HistoryItem) {
         promptText = item.prompt
+        detailPage = null
         selectedTab = Tab.NEW_ANALYSIS
         // re-analyze to get full payload view
         answers.clear(); clarifyRound = 1
@@ -123,7 +133,10 @@ enum class Tab(val label: String) {
     OVERVIEW("Overview"),
     NEW_ANALYSIS("Analyze"),
     HISTORY("History"),
-    GUIDELINES("Guidelines"),
-    ABOUT("About"),
     SETTINGS("Settings")
+}
+
+enum class DetailPage(val label: String) {
+    GUIDELINES("Prompt Guidelines"),
+    ABOUT("About")
 }
