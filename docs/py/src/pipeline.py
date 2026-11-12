@@ -15,6 +15,7 @@ from .llm_backend import (
     LLMResponseError,
     explain_and_recommend,
     extract_elements,
+    _token_range,
 )
 from .messages import suggestion
 from .risk import compute_risk
@@ -314,17 +315,18 @@ def _route_and_run(text: str, method: str, allow_llm: bool, client: LLMClient | 
     return chosen, router_meta, llm_error
 
 
-def _run_full(
+def _finish_full(
     text: str,
-    method: str = "auto",
-    allow_llm: bool = True,
-    answers: dict[str, str] | None = None,
-    finalize: bool = False,
-    client: LLMClient | None = None,
-    explain: bool = True,
+    analysis: dict,
+    router_meta: dict,
+    llm_error: str | None,
+    allow_llm: bool,
+    answers: dict[str, str] | None,
+    finalize: bool,
+    explain: bool,
+    client: LLMClient | None,
 ) -> tuple[dict, list]:
-    """Internal pipeline returning the JSON payload and Element objects."""
-    analysis, router_meta, llm_error = _route_and_run(text, method, allow_llm, client)
+    """Clarification + risk + finalisation on an already-detected analysis."""
     tokens = analysis["tokens"]
     elements = analysis["elements"]
 
@@ -426,6 +428,87 @@ def _run_full(
         "recommendations": recommendations,
     }
     return payload, elements
+
+
+def _run_full(
+    text: str,
+    method: str = "auto",
+    allow_llm: bool = True,
+    answers: dict[str, str] | None = None,
+    finalize: bool = False,
+    client: LLMClient | None = None,
+    explain: bool = True,
+) -> tuple[dict, list]:
+    """Internal pipeline returning the JSON payload and Element objects."""
+    analysis, router_meta, llm_error = _route_and_run(text, method, allow_llm, client)
+    return _finish_full(
+        text, analysis, router_meta, llm_error, allow_llm, answers, finalize,
+        explain, client,
+    )
+
+
+def analyze_full_from_spans(
+    text: str,
+    spans: list[dict],
+    confidence: float,
+    engine: str,
+    answers: dict[str, str] | None = None,
+    finalize: bool = False,
+) -> dict:
+    """Run the full pipeline on spans detected outside Python (in-browser BERT/LLM).
+
+    ``spans`` is a list of ``{"label": str, "char_start": int, "char_end": int}``.
+    The tokenizer, linking, checker, clarification and risk score all run here so
+    the result matches the in-Python backends exactly.
+    """
+    tokens_with_offsets = tokenize_with_offsets(text)
+    span_objs: list[Span] = []
+    for raw in spans:
+        label = raw.get("label")
+        if label is None:
+            continue
+        char_start = int(raw.get("char_start", 0))
+        char_end = int(raw.get("char_end", 0))
+        token_range = _token_range(tokens_with_offsets, char_start, char_end)
+        if token_range is None:
+            continue
+        span_objs.append(
+            Span(
+                label=str(label),
+                start=token_range[0],
+                end=token_range[1],
+                text=text[char_start:char_end],
+                char_start=char_start,
+                char_end=char_end,
+                source=raw.get("source", "prompt"),
+            )
+        )
+
+    elements = link_spans_to_elements(span_objs, tokens_with_offsets, text)
+    annotate_vague(elements, tokens_with_offsets, text)
+    result = check_elements(elements)
+    tags = _spans_to_bio(span_objs, len(tokens_with_offsets))
+    unknown_spans = [
+        span for span in span_objs
+        if span.label == "ELEMENT" and NOUN_TO_TYPE(span.text) is None
+    ]
+    analysis = {
+        "tokens": tokens_with_offsets,
+        "tags": tags,
+        "spans": span_objs,
+        "elements": elements,
+        "result": result,
+        "confidence": confidence,
+        "unknown_spans": unknown_spans,
+        "engine": engine,
+        "llm_meta": {},
+    }
+    router_meta = {"method": engine, "reason": "in-browser detector", "scores": {}}
+    payload, _ = _finish_full(
+        text, analysis, router_meta, None, allow_llm=False, answers=answers,
+        finalize=finalize, explain=False, client=None,
+    )
+    return payload
 
 
 def analyze_full(

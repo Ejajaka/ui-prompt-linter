@@ -10,6 +10,7 @@ import {
   ChevronRight, 
   ExternalLink,
   Shield,
+  ShieldCheck,
   X
 } from 'lucide-react';
 import type { ActiveTab } from '../../types/analysis.ts';
@@ -39,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'history' as ActiveTab, label: 'Analysis History', icon: History },
     { id: 'guidelines' as ActiveTab, label: 'Prompt Guidelines', icon: BookOpen },
     { id: 'settings' as ActiveTab, label: 'Settings', icon: Settings },
+    { id: 'privacy' as ActiveTab, label: 'Privacy', icon: ShieldCheck },
   ];
 
   const handleNavClick = (id: ActiveTab) => {

@@ -41,6 +41,10 @@ export const Header: React.FC<HeaderProps> = ({
     settings: {
       title: 'System Settings',
       subtitle: 'Preferences & Engine'
+    },
+    privacy: {
+      title: 'Privacy Policy',
+      subtitle: 'Data & Processing'
     }
   };
 

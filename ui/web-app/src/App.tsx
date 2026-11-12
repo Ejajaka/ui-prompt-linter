@@ -10,6 +10,7 @@ import { HistoryPage } from './pages/HistoryPage.tsx';
 import { GuidelinesPage } from './pages/GuidelinesPage.tsx';
 import { SettingsPage } from './pages/SettingsPage.tsx';
 import { AboutPage } from './pages/AboutPage.tsx';
+import { PrivacyPage } from './pages/PrivacyPage.tsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('about');
@@ -91,6 +92,8 @@ export default function App() {
             {activeTab === 'guidelines' && <GuidelinesPage />}
 
             {activeTab === 'settings' && <SettingsPage />}
+
+            {activeTab === 'privacy' && <PrivacyPage />}
           </main>
         </div>
       </div>

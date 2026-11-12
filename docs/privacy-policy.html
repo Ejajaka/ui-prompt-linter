@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Privacy Policy — Prompt Linter</title>
-    <meta name="description" content="Privacy policy for the Prompt Linter browser extension." />
+    <meta name="description" content="Privacy policy for the Prompt Linter web app, browser extension and Android app." />
     <link rel="icon" type="image/svg+xml" href="logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -53,9 +53,9 @@
         </div>
 
         <h1>Privacy Policy</h1>
-        <div class="updated">Last updated: November 11, 2026</div>
+        <div class="updated">Last updated: November 12, 2026</div>
 
-        <p>Prompt Linter is a browser extension that reviews natural-language UI prompts for missing details before they are sent to a UI generator.</p>
+        <p>Prompt Linter is a UI prompt review tool available as a web app, a browser extension and a native Android app. It reviews natural-language UI prompts for missing details before they are sent to a UI generator.</p>
 
         <h2>Data collection</h2>
         <p>Prompt Linter collects <strong>no data</strong>. It does not:</p>
@@ -64,20 +64,22 @@
           <li>use analytics, trackers, or cookies;</li>
           <li>require an account or sign-in.</li>
         </ul>
+        <p>Your prompt history and preferences are stored only in your device's local storage (or the app's local database on Android). You can clear them at any time in Settings.</p>
 
         <h2>How it works</h2>
-        <p>All analysis runs locally in your browser using a deterministic rule engine. Your prompt never leaves your device. The extension requests no special permissions.</p>
+        <p>The deterministic <strong>Rules</strong> engine runs entirely on your device — in the browser via Pyodide, in the extension popup, and on-device in the Android app. The optional <strong>BERT</strong> engine loads a quantized DistilBERT model in your browser and also runs locally. Neither uploads your prompt.</p>
+        <p>The optional <strong>LLM</strong> engine only runs if you add an OpenAI-compatible endpoint and API key in Settings. When you use it, your prompt is sent to that endpoint and to no other third party.</p>
 
         <h2>Clipboard</h2>
-        <p>The popup writes to the clipboard only when you explicitly click “Copy prompt”, using the standard Clipboard API on that click.</p>
+        <p>The web app and extension write to the clipboard only when you explicitly click “Copy prompt”, using the standard Clipboard API on that click.</p>
 
         <h2>Third parties</h2>
-        <p>No data is shared with any third party.</p>
+        <p>No data is shared with any third party. The only exception is the LLM endpoint you choose to configure yourself in Settings.</p>
 
         <h2>Contact</h2>
         <p>For questions or issues, open an issue on the project repository: <a href="https://github.com/Ejajaka/ui-prompt-linter">github.com/Ejajaka/ui-prompt-linter</a>.</p>
 
-        <div class="note">This policy applies to the Prompt Linter browser extension and the Prompt Linter website.</div>
+        <div class="note">This policy applies to the Prompt Linter web app, browser extension and Android app. It does not cover the separate Streamlit full engine, which runs BERT and LLM features server-side.</div>
       </div>
     </div>
   </body>

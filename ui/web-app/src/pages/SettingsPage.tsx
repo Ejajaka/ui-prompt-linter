@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Palette,
   Cpu,
@@ -10,8 +10,10 @@ import {
   Sun,
   Moon,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 import { historyStorage } from '../services/historyStorage.ts';
+import { loadSettings, saveSettings, type AppSettings } from '../services/settings.ts';
 import { useToast } from '../components/ui/Toast.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { ENGINE_URL } from '../config.ts';
@@ -23,6 +25,16 @@ interface SettingsPageProps {
 export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+
+  const [llm, setLlm] = useState<AppSettings>(() => loadSettings());
+  const [llmSaved, setLlmSaved] = useState(false);
+
+  const handleSaveLlm = () => {
+    saveSettings(llm);
+    setLlmSaved(true);
+    toast('LLM settings saved', 'info');
+    window.setTimeout(() => setLlmSaved(false), 1500);
+  };
 
   const handleClearData = () => {
     if (window.confirm('Clear all local prompt history?')) {
@@ -138,26 +150,30 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
         </div>
 
         <div className="p-3.5 rounded-lg bg-[#FAFAF8] border border-[#E5E2D8] text-xs text-[#737A72] leading-relaxed">
-          <b className="text-[#283638]">In this web UI</b> the Rules engine runs entirely in your browser via Pyodide.
-          BERT and the grounded LLM run in the{' '}
+          <b className="text-[#283638]">In this web app</b> all three engines run on your device: Rules via
+          Pyodide, BERT via a quantized ONNX model (≈67 MB, downloaded once and cached by your browser), and the
+          LLM through the endpoint you configure below. You can also use the{' '}
           <a href={ENGINE_URL} target="_blank" rel="noreferrer" className="underline text-[#49686C]">
             full Streamlit engine
-          </a>
-          .
+          </a>{' '}
+          for the Python-side implementations.
         </div>
 
         <div className="space-y-2">
           <div className="text-xs font-bold text-[#283638]">LLM layer (optional)</div>
           <p className="text-xs text-[#737A72] leading-relaxed">
-            For plain-language explanations and low-confidence fallback, the full engine defaults to a local Ollama server (free, no API key). Any OpenAI-compatible endpoint can be used instead — configured server-side, never in the browser:
+            The LLM is grounded: it may only return elements and attribute values that appear verbatim in the
+            prompt, and it cannot change the deterministic risk score. The separately deployed Streamlit engine
+            defaults to a local Ollama server; in this web app you bring your own OpenAI-compatible endpoint.
           </p>
           <ul className="text-xs text-[#737A72] space-y-1.5 leading-relaxed list-disc pl-4">
-            <li><b className="text-[#283638]">Local Ollama</b> (default) — <code className="font-mono text-[#49686C]">qwen2.5:3b-instruct</code> at <code className="font-mono text-[#49686C]">localhost:11434</code></li>
-            <li><b className="text-[#283638]">OpenCode Go</b> — <code className="font-mono text-[#49686C]">deepseek-v4.1-flash</code></li>
-            <li><b className="text-[#283638]">Groq</b> — <code className="font-mono text-[#49686C]">llama-3.1-8b-instant</code></li>
+            <li><b className="text-[#283638]">Groq</b> — <code className="font-mono text-[#49686C]">llama-3.1-8b-instant</code> at <code className="font-mono text-[#49686C]">https://api.groq.com/openai/v1</code></li>
+            <li><b className="text-[#283638]">OpenRouter</b> — any tool-capable model at <code className="font-mono text-[#49686C]">https://openrouter.ai/api/v1</code></li>
+            <li><b className="text-[#283638]">Ollama</b> — <code className="font-mono text-[#49686C]">qwen2.5:3b-instruct</code> at <code className="font-mono text-[#49686C]">http://localhost:11434/v1</code></li>
           </ul>
           <p className="text-xs text-[#737A72]">
-            If no model is reachable, the engine falls back to deterministic explanations — nothing is fabricated.
+            If the endpoint is not reachable or returns nothing grounded, the app falls back to deterministic
+            explanations — nothing is fabricated.
           </p>
           <a
             href={ENGINE_URL}
@@ -168,6 +184,65 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
             <ExternalLink className="w-3.5 h-3.5" />
             Open the full engine
           </a>
+        </div>
+      </div>
+
+      {/* LLM Engine (optional) */}
+      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-4">
+        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
+          <Sparkles className="w-4 h-4 text-[#49686C]" />
+          <h2 className="text-base font-bold text-[#283638]">LLM Engine (optional)</h2>
+        </div>
+
+        <p className="text-xs text-[#737A72] leading-relaxed">
+          Add an OpenAI-compatible endpoint to run grounded LLM extraction on the New Analysis page. The key is
+          stored only in this browser (localStorage) and is sent only to the endpoint you enter. The provider must
+          allow browser (CORS) calls — Groq, OpenRouter and Gemini do.
+        </p>
+
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-bold text-[#283638] block mb-1">Base URL</label>
+            <input
+              type="text"
+              value={llm.baseUrl}
+              onChange={(e) => setLlm((p) => ({ ...p, baseUrl: e.target.value }))}
+              placeholder="https://api.groq.com/openai/v1"
+              className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-[#283638] block mb-1">Model</label>
+            <input
+              type="text"
+              value={llm.model}
+              onChange={(e) => setLlm((p) => ({ ...p, model: e.target.value }))}
+              placeholder="llama-3.1-8b-instant"
+              className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-[#283638] block mb-1">API key</label>
+            <input
+              type="password"
+              value={llm.apiKey}
+              onChange={(e) => setLlm((p) => ({ ...p, apiKey: e.target.value }))}
+              placeholder="your-api-key"
+              className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 pt-1">
+          <button
+            type="button"
+            onClick={handleSaveLlm}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#49686C] hover:bg-[#30494B] text-white text-xs font-bold transition-colors"
+          >
+            {llmSaved ? <Check className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+            <span>{llmSaved ? 'Saved' : 'Save LLM settings'}</span>
+          </button>
+          <span className="text-[11px] text-[#737A72]">Stored locally in your browser only — never committed.</span>
         </div>
       </div>
 
@@ -194,6 +269,27 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
         </div>
       </div>
 
+      {/* Privacy */}
+      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-3">
+        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
+          <ShieldCheck className="w-4 h-4 text-[#49686C]" />
+          <h2 className="text-base font-bold text-[#283638]">Privacy</h2>
+        </div>
+        <p className="text-xs text-[#737A72] leading-relaxed">
+          No analytics, trackers or accounts. Prompts stay in your browser unless you explicitly run the optional
+          LLM engine, which sends them to the endpoint you configured. Read the full policy:
+        </p>
+        <a
+          href="./privacy-policy.html"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#49686C] hover:text-[#30494B]"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          Privacy Policy
+        </a>
+      </div>
+
       {/* Application Information */}
       <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-3">
         <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
@@ -216,7 +312,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           </div>
           <div>
             <span className="text-[#737A72] block">Execution Context</span>
-            <span className="font-bold text-[#283638]">Rules in-browser; BERT + LLM via the full engine</span>
+            <span className="font-bold text-[#283638]">All three in-browser (Rules · BERT · LLM)</span>
           </div>
         </div>
       </div>

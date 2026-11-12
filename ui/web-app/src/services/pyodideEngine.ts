@@ -68,7 +68,17 @@ export interface AnalysisPayload {
   recommendations: string[] | null;
 }
 
-type Runner = (text: string, answersJson: string, finalize: boolean) => string;
+type Runner = {
+  runAnalysis: (text: string, answersJson: string, finalize: boolean) => string;
+  runAnalysisFromSpans: (
+    text: string,
+    spansJson: string,
+    confidence: number,
+    engine: string,
+    answersJson: string,
+    finalize: boolean,
+  ) => string;
+};
 
 const PYODIDE_VERSION = '0.28.3';
 const PYODIDE_URL = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
@@ -93,7 +103,7 @@ const PY_FILES = [
 const BOOTSTRAP = `
 import sys, json
 sys.path.insert(0, '/home/pyodide')
-from src.pipeline import analyze_full
+from src.pipeline import analyze_full, analyze_full_from_spans
 
 def run_analysis(text, answers_json, finalize):
     answers = json.loads(answers_json) if answers_json else None
@@ -101,6 +111,19 @@ def run_analysis(text, answers_json, finalize):
         text,
         method="rules",
         allow_llm=False,
+        answers=answers,
+        finalize=bool(finalize),
+    )
+    return json.dumps(payload, ensure_ascii=False)
+
+def run_analysis_from_spans(text, spans_json, confidence, engine, answers_json, finalize):
+    answers = json.loads(answers_json) if answers_json else None
+    spans = json.loads(spans_json) if spans_json else []
+    payload = analyze_full_from_spans(
+        text,
+        spans,
+        float(confidence),
+        engine,
         answers=answers,
         finalize=bool(finalize),
     )
@@ -150,10 +173,24 @@ async function boot(): Promise<Runner> {
 
   await pyodide.runPythonAsync(BOOTSTRAP);
   const runAnalysis = pyodide.globals.get('run_analysis');
-  if (!runAnalysis) throw new Error('run_analysis was not defined by the Python bootstrap.');
+  const runAnalysisFromSpans = pyodide.globals.get('run_analysis_from_spans');
+  if (!runAnalysis || !runAnalysisFromSpans) {
+    throw new Error('The Python bootstrap did not define the analysis entry points.');
+  }
 
-  return (text: string, answersJson: string, finalize: boolean): string =>
-    String(runAnalysis(text, answersJson, finalize));
+  return {
+    runAnalysis: (text: string, answersJson: string, finalize: boolean): string =>
+      String(runAnalysis(text, answersJson, finalize)),
+    runAnalysisFromSpans: (
+      text: string,
+      spansJson: string,
+      confidence: number,
+      engine: string,
+      answersJson: string,
+      finalize: boolean,
+    ): string =>
+      String(runAnalysisFromSpans(text, spansJson, confidence, engine, answersJson, finalize)),
+  };
 }
 
 export function getRunner(): Promise<Runner> {
@@ -172,7 +209,30 @@ export async function runAnalysis(
   finalize = false
 ): Promise<AnalysisPayload> {
   const runner = await getRunner();
-  const raw = runner(text, JSON.stringify(answers), finalize);
+  const raw = runner.runAnalysis(text, JSON.stringify(answers), finalize);
+  return JSON.parse(raw) as AnalysisPayload;
+}
+
+/**
+ * Run the downstream pipeline on spans detected outside Python (BERT / LLM).
+ */
+export async function runAnalysisFromSpans(
+  text: string,
+  spans: { label: string; char_start: number; char_end: number }[],
+  confidence: number,
+  engine: string,
+  answers: Record<string, string> = {},
+  finalize = false
+): Promise<AnalysisPayload> {
+  const runner = await getRunner();
+  const raw = runner.runAnalysisFromSpans(
+    text,
+    JSON.stringify(spans),
+    confidence,
+    engine,
+    JSON.stringify(answers),
+    finalize,
+  );
   return JSON.parse(raw) as AnalysisPayload;
 }
 

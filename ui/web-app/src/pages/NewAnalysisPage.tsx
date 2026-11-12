@@ -15,11 +15,15 @@ import {
 } from 'lucide-react';
 import {
   runAnalysis,
+  runAnalysisFromSpans,
   getRunner,
   type AnalysisPayload,
   type Span,
   type ClarificationQuestion,
 } from '../services/pyodideEngine.ts';
+import { runBERT } from '../services/bertEngine.ts';
+import { extractSpans, isLLMConfigured } from '../services/llmEngine.ts';
+import { loadSettings } from '../services/settings.ts';
 import { CircularScoreGauge } from '../components/ui/CircularScoreGauge.tsx';
 import { historyStorage } from '../services/historyStorage.ts';
 import type { AnalysisResult, RiskLevel } from '../types/analysis.ts';
@@ -294,6 +298,7 @@ function ClarificationForm({
 export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult, onViewHistory }) => {
   const [engineState, setEngineState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engineError, setEngineError] = useState('');
+  const [engine, setEngine] = useState<'rules' | 'bert' | 'llm'>('rules');
   const [text, setText] = useState('');
   const [selectedExample, setSelectedExample] = useState<string | null>(null);
   const [payload, setPayload] = useState<AnalysisPayload | null>(null);
@@ -301,7 +306,10 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [round, setRound] = useState(1);
   const [copied, setCopied] = useState(false);
+  const [analysisError, setAnalysisError] = useState('');
+  const [bertProgress, setBertProgress] = useState<number | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const detectionRef = useRef<{ spans: { label: string; char_start: number; char_end: number }[]; confidence: number; engine: string } | null>(null);
 
   // Boot Pyodide on mount.
   useEffect(() => {
@@ -326,24 +334,52 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
     if (initialResult?.prompt) setText(initialResult.prompt);
   }, [initialResult]);
 
+  const runEngine = useCallback(
+    async (input: string, mergedAnswers: Record<string, string>, finalize: boolean): Promise<AnalysisPayload> => {
+      if (engine === 'rules') {
+        return runAnalysis(input, mergedAnswers, finalize);
+      }
+      if (!detectionRef.current || detectionRef.current.engine !== engine) {
+        if (engine === 'bert') {
+          setBertProgress(0);
+          const r = await runBERT(input, (p) => setBertProgress(p.percent));
+          setBertProgress(null);
+          detectionRef.current = { spans: r.spans, confidence: r.confidence, engine: 'bert' };
+        } else {
+          const s = loadSettings();
+          if (!isLLMConfigured(s)) {
+            throw new Error('Add a base URL, model and API key in Settings to use the LLM engine.');
+          }
+          const r = await extractSpans(input);
+          detectionRef.current = { spans: r.spans, confidence: r.confidence, engine: 'llm' };
+        }
+      }
+      const d = detectionRef.current!;
+      return runAnalysisFromSpans(input, d.spans, d.confidence, d.engine, mergedAnswers, finalize);
+    },
+    [engine]
+  );
+
   const analyze = useCallback(async (input: string, mergedAnswers: Record<string, string>, finalize: boolean) => {
     setAnalyzing(true);
+    setAnalysisError('');
     try {
-      const p = await runAnalysis(input, mergedAnswers, finalize);
+      const p = await runEngine(input, mergedAnswers, finalize);
       setPayload(p);
       historyStorage.save(toHistoryResult(input, p));
     } catch (e: any) {
-      setEngineState('error');
-      setEngineError(e?.message || String(e));
+      setAnalysisError(e?.message || String(e));
+      setBertProgress(null);
     } finally {
       setAnalyzing(false);
     }
-  }, []);
+  }, [runEngine]);
 
   const handleAnalyze = () => {
     if (!text.trim()) return;
     setAnswers({});
     setRound(1);
+    detectionRef.current = null;
     analyze(text.trim(), {}, false);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   };
@@ -356,21 +392,22 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
     setAnswers(merged);
     setRound(nextRound);
     setAnalyzing(true);
+    setAnalysisError('');
     try {
-      let p = await runAnalysis(text.trim(), merged, false);
+      let p = await runEngine(text.trim(), merged, false);
       if (p.needs_clarification && !stop && nextRound <= 3) {
         setPayload(p);
         historyStorage.save(toHistoryResult(text.trim(), p));
         return;
       }
       if (p.needs_clarification) {
-        p = await runAnalysis(text.trim(), merged, true);
+        p = await runEngine(text.trim(), merged, true);
       }
       setPayload(p);
       historyStorage.save(toHistoryResult(text.trim(), p));
     } catch (e: any) {
-      setEngineState('error');
-      setEngineError(e?.message || String(e));
+      setAnalysisError(e?.message || String(e));
+      setBertProgress(null);
     } finally {
       setAnalyzing(false);
     }
@@ -488,7 +525,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
       {engineState === 'loading' && (
         <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-10 text-center shadow-xs">
           <Loader2 className="w-7 h-7 text-[#49686C] animate-spin mx-auto mb-3" />
-          <div className="text-sm font-bold text-[#283638]">Loading the Python rules engine…</div>
+          <div className="text-sm font-bold text-[#283638]">Loading the in-browser engine…</div>
           <p className="text-xs text-[#737A72] mt-1 max-w-md mx-auto">
             First load downloads the Pyodide runtime (~10 MB) and runs the real rules backend in your browser. This takes a few seconds.
           </p>
@@ -543,6 +580,46 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             </div>
           </div>
 
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <span className="text-xs font-semibold text-[#737A72]">Engine:</span>
+            {[
+              { id: 'rules' as const, label: 'Rules', hint: 'Offline, deterministic' },
+              { id: 'bert' as const, label: 'BERT', hint: 'DistilBERT in-browser (~67 MB, loads once)' },
+              { id: 'llm' as const, label: 'LLM', hint: 'Grounded extraction via your API key' },
+            ].map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  setEngine(opt.id);
+                  detectionRef.current = null;
+                  setPayload(null);
+                }}
+                title={opt.hint}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                  engine === opt.id
+                    ? 'bg-[#49686C] border-[#49686C] text-white'
+                    : 'bg-white border-[#E5E2D8] text-[#283638] hover:border-[#49686C]'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {engine === 'bert' && (
+            <p className="text-[11px] text-[#737A72] mt-2">
+              {bertProgress !== null
+                ? `Downloading DistilBERT… ${bertProgress}% (one time; your browser caches it afterwards)`
+                : 'First run downloads the quantized model (~67 MB), then runs fully on-device.'}
+            </p>
+          )}
+          {engine === 'llm' && (
+            <p className="text-[11px] text-[#737A72] mt-2">
+              Sends the prompt to the OpenAI-compatible endpoint configured in Settings.
+            </p>
+          )}
+
           <textarea
             id="prompt-input"
             value={text}
@@ -595,7 +672,11 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-5 pt-4 border-t border-[#E5E2D8]">
             <div className="flex items-center gap-2 text-xs text-[#737A72]">
               <Sparkles className="w-4 h-4 text-[#D1B653] shrink-0" />
-              <span>Runs offline in your browser · Rules engine via Pyodide</span>
+              <span>
+                {engine === 'rules' && 'Runs offline in your browser · Rules engine via Pyodide'}
+                {engine === 'bert' && 'Runs on-device · DistilBERT model (loads once, then offline)'}
+                {engine === 'llm' && 'Calls your configured OpenAI-compatible endpoint (Settings)'}
+              </span>
             </div>
             <div className="flex items-center gap-2.5 self-end sm:self-auto">
               <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-[#737A72] font-mono">
@@ -627,6 +708,27 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Analysis error (engine-specific; the editor stays usable) */}
+      {analysisError && (
+        <div className="bg-[#FDF2F0] border border-[#F0C4BF] rounded-xl p-4 shadow-xs">
+          <div className="flex items-center gap-2 text-[#B94D42] font-bold text-sm">
+            <AlertTriangle className="w-4 h-4" />
+            {engine.toUpperCase()} analysis failed
+          </div>
+          <p className="text-xs text-[#B94D42] mt-1">{analysisError}</p>
+          {engine === 'llm' && (
+            <p className="text-xs text-[#737A72] mt-2">
+              Open Settings and enter a browser-accessible (CORS-enabled) base URL, model and API key.
+            </p>
+          )}
+          {engine === 'bert' && (
+            <p className="text-xs text-[#737A72] mt-2">
+              Check that <code className="font-mono">models/bert_tagger/onnx/model_quantized.onnx</code> loads, then try again.
+            </p>
+          )}
         </div>
       )}
 
@@ -750,7 +852,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             <div className="lg:col-span-7 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-base font-bold text-[#283638]">Detected elements ({payload.result.elements.length})</div>
-                <div className="text-[11px] text-[#737A72]">Extracted by the Rules engine</div>
+                <div className="text-[11px] text-[#737A72]">Extracted by the {payload.engine === 'llm' ? 'LLM' : payload.engine === 'bert' ? 'BERT' : 'Rules'} engine</div>
               </div>
               {payload.result.elements.length === 0 ? (
                 <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-8 text-center text-xs text-[#737A72]">
@@ -830,12 +932,9 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
               <p><b className="text-[#283638]">Router:</b> {payload.router?.reason || 'manual selection'}</p>
               <p><b className="text-[#283638]">Detector confidence:</b> {(payload.confidence ?? 0).toFixed(2)}</p>
               <p className="pt-1">
-                The browser demo runs the deterministic <b>Rules</b> backend. The BERT tagger and grounded LLM
-                fallback are available in the{' '}
-                <a className="underline text-[#49686C]" href={ENGINE_URL} target="_blank" rel="noreferrer">
-                  full Streamlit engine
-                </a>
-                .
+                Rules, BERT and the grounded LLM all run right here in the browser — Rules via Pyodide, BERT via
+                a quantized ONNX model, and the LLM via your configured endpoint. Everything downstream (linking,
+                checker, clarification and the shared risk score) is identical across engines.
               </p>
             </div>
           </details>

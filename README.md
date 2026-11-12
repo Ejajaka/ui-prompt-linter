@@ -1,13 +1,13 @@
 # UI Prompt Linter
 
 **Vector-style UI (React, permanent):** <https://ejajaka.github.io/ui-prompt-linter/>  
-The home page is the advertising/overview UI; **New Analysis** runs the Rules engine in-browser via Pyodide.
+The home page is the advertising/overview UI; **New Analysis** runs all three engines in the browser — Rules via Pyodide, BERT via a quantized ONNX model (transformers.js), and the optional grounded LLM through your own OpenAI-compatible endpoint.
 
 **Rules-only demo (Pyodide):** <https://ejajaka.github.io/ui-prompt-linter/rules/>  
 Runs the actual Python rules engine in your browser with no server.
 
-**Full Streamlit engine (BERT + LLM):** <https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/>  
-Hosts the BERT tagger and the optional LLM layer; the React UI links to it for those backends.
+**Full Streamlit engine (server-side BERT + LLM):** <https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/>  
+The Python-side deployment; the React app now runs BERT and the optional LLM on-device too.
 
 **Browser extension (Manifest V3):** [`ui/extension/`](ui/extension/)  
 Fully offline popup with the same branding and Rules engine; no permissions, no network.  
@@ -39,7 +39,7 @@ them.
 
 | Surface | Stack | Engine | Distribution |
 |---|---|---|---|
-| Web app | React + TypeScript (`ui/web-app/`) | Rules via Pyodide in the browser | GitHub Pages |
+| Web app | React + TypeScript (`ui/web-app/`) | Rules + BERT + LLM in the browser | GitHub Pages |
 | Web demo | Static page (`docs/rules/`) | Rules via Pyodide | GitHub Pages |
 | Browser extension | Manifest V3 (`ui/extension/`) | `ui/extension/engine.js` (JS port of Rules) | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf) (live) / Chrome Web Store |
 | Android app | Jetpack Compose (`ui/android/`) | Same `engine.js` in an on-device WebView | Debug APK / sideload |
@@ -98,6 +98,10 @@ The app and CLI use local Ollama by default. If it is not running, LLM features
 are skipped and deterministic explanations are used. An OpenAI-compatible
 endpoint can be selected with `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY`.
 
+In the web app, open **Settings → LLM Engine** and enter a CORS-enabled endpoint
+(Groq, OpenRouter, a local Ollama with CORS) plus a key. It is stored in
+`localStorage` and sent only to that endpoint.
+
 Train and evaluate BERT (optional; the app disables BERT without the model):
 
 ```bash
@@ -113,11 +117,31 @@ python engine/eval/evaluate_router.py
 if one is available. `engine/eval/evaluate.py` writes `results/metrics_*.json`,
 `results/errors_*.jsonl` and `results/RESULTS.md`.
 
-Regenerate the browser-demo Python mirror after changing `engine/src/`:
+Regenerate the browser mirrors after changing `engine/src/`:
 
 ```bash
 python tools/sync_docs.py
 ```
+
+This updates `docs/py`, `docs/rules/py` and `ui/web-app/public/py` in one pass
+(`--check` verifies them in CI).
+
+Export the in-browser BERT model (once, or after retraining):
+
+```bash
+python tools/export_onnx.py --model models/bert_tagger --out models/bert_tagger_onnx
+# quantized weights -> docs/models/bert_tagger/onnx/model_quantized.onnx
+```
+
+Build and publish the React app to GitHub Pages:
+
+```bash
+python tools/build_web.py
+```
+
+`docs/models/bert_tagger/` is committed (GitHub Pages serves it);
+`ui/web-app/public/models/` is generated from it and gitignored. Hand-written
+pages (`docs/rules/`, `docs/privacy-policy.html`, `.nojekyll`) are preserved.
 
 Run the tests:
 
