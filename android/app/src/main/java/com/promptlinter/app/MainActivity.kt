@@ -7,6 +7,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +41,15 @@ class MainActivity : ComponentActivity() {
             val prefs = remember { ctx.getSharedPreferences("prompt_linter", Context.MODE_PRIVATE) }
             var dark by remember { mutableStateOf(prefs.getBoolean("theme_dark", false)) }
             var showOnboarding by remember { mutableStateOf(!prefs.getBoolean("onboarding_done", false)) }
+
+            // Keep the system bar icons legible against the current in-app theme,
+            // since the app's dark mode is controlled here rather than by the system.
+            SideEffect {
+                val activity = ctx as? android.app.Activity ?: return@SideEffect
+                val insets = WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+                insets.isAppearanceLightStatusBars = !dark
+                insets.isAppearanceLightNavigationBars = !dark
+            }
 
             PromptLinterTheme(darkTheme = dark) {
                 if (showOnboarding) {

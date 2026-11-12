@@ -142,14 +142,14 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             Spacer(Modifier.height(8.dp))
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = PlDarkTeal,
-                border = BorderStroke(1.dp, PlMustard.copy(alpha = 0.4f))
+                color = LocalPlColors.current.darkTeal,
+                border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.4f))
             ) {
                 Text(
                     step.badge,
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        color = PlMustard,
+                        color = LocalPlColors.current.mustard,
                         letterSpacing = 1.sp
                     ),
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -222,7 +222,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     onClick = onFinish,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PlMustard, contentColor = PlDarkTeal)
+                    colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
                 ) {
                     Icon(Icons.Default.RocketLaunch, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
@@ -242,7 +242,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                         onClick = { index++ },
                         modifier = Modifier.weight(if (index > 0) 1.5f else 1f).height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = Color.White)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
                     ) {
                         Text("Next", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         Spacer(Modifier.width(6.dp))

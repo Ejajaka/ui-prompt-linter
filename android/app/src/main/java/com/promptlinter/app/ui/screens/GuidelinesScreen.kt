@@ -54,7 +54,7 @@ fun GuidelinesScreen() {
         item {
             Text("Prompt Guidelines & Baseline", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
-            Text("Reference catalog of UI elements, required attributes, annotation rules and risk bands evaluated by Prompt Linter.", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+            Text("Reference catalog of UI elements, required attributes, annotation rules and risk bands evaluated by Prompt Linter.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.height(8.dp))
         }
         items(categories) { cat ->
@@ -64,22 +64,33 @@ fun GuidelinesScreen() {
                     TextButton(onClick = { expanded = !expanded }, modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.weight(1f)) {
                             Text(cat.title, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-                            Text(cat.desc, style = MaterialTheme.typography.bodySmall, color = PlSecondaryText, maxLines = if (expanded) 5 else 1)
+                            Text(cat.desc, style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary, maxLines = if (expanded) 5 else 1)
                         }
-                        Text(if (expanded) "▲" else "▼", color = PlSecondaryText)
+                        Text(if (expanded) "▲" else "▼", color = LocalPlColors.current.textSecondary)
                     }
                     if (expanded) {
                         cat.items.forEach { c ->
                             Spacer(Modifier.height(8.dp))
-                            Card(colors = CardDefaults.cardColors(containerColor = PlBackground)) {
+                            Card(colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.background)) {
                                 Column(Modifier.padding(12.dp)) {
                                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                         Text(c.name, fontWeight = FontWeight.Bold)
-                                        AssistChip(onClick = {}, label = { Text(c.badge, style = MaterialTheme.typography.labelSmall) })
+                                        Surface(
+                                            shape = MaterialTheme.shapes.small,
+                                            color = MaterialTheme.colorScheme.primaryContainer
+                                        ) {
+                                            Text(
+                                                c.badge,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                            )
+                                        }
                                     }
-                                    Text(c.desc, style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
+                                    Text(c.desc, style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                                     Spacer(Modifier.height(4.dp))
-                                    Text("${cat.detailLabel}: ${c.detail}", style = MaterialTheme.typography.bodySmall, color = PlDarkTeal)
+                                    Text("${cat.detailLabel}: ${c.detail}", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.darkTeal)
                                 }
                             }
                         }

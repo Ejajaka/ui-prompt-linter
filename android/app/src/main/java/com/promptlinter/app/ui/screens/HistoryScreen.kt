@@ -5,7 +5,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,7 +24,7 @@ fun HistoryScreen(vm: MainViewModel) {
     LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
             Text("Analysis History", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("Review, reopen, and manage previous UI prompt evaluations.", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+            Text("Review, reopen, and manage previous UI prompt evaluations.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = vm.historySearch, onValueChange = { vm.historySearch = it },
@@ -51,7 +53,7 @@ fun HistoryScreen(vm: MainViewModel) {
             }
             if (items.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
-                TextButton(onClick = { vm.historyRepo.clear(); refresh++ }, colors = ButtonDefaults.textButtonColors(contentColor = PlCritical)) {
+                TextButton(onClick = { vm.historyRepo.clear(); refresh++ }, colors = ButtonDefaults.textButtonColors(contentColor = LocalPlColors.current.critical)) {
                     Text("Clear All")
                 }
             }
@@ -62,7 +64,7 @@ fun HistoryScreen(vm: MainViewModel) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(24.dp)) {
                         Text("No analysis history", fontWeight = FontWeight.Bold)
-                        Text("Evaluate a UI prompt to see it here.", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+                        Text("Evaluate a UI prompt to see it here.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -71,18 +73,29 @@ fun HistoryScreen(vm: MainViewModel) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(item.prompt, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            AssistChip(onClick = {}, label = { Text(item.riskLevel) })
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Surface(
+                                shape = MaterialTheme.shapes.small,
+                                color = riskColor(item.riskLevel).copy(alpha = 0.14f)
+                            ) {
+                                Text(
+                                    item.riskLevel,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = riskColor(item.riskLevel),
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                )
+                            }
                             Text("${item.riskScore}/100", fontWeight = FontWeight.Bold, color = riskColor(item.riskLevel))
-                            Text("· ${item.coverageScore}% complete", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+                            Text("· ${item.coverageScore}% complete", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
                         }
                         if (item.elements.isNotEmpty()) {
-                            Text(item.elements.joinToString(", "), style = MaterialTheme.typography.bodySmall, color = PlPrimaryTeal, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(item.elements.joinToString(", "), style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.teal, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
-                        Text(item.createdAt.take(10), style = MaterialTheme.typography.labelSmall, color = PlSecondaryText)
+                        Text(item.createdAt.take(10), style = MaterialTheme.typography.labelSmall, color = LocalPlColors.current.textSecondary)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { vm.openFromHistory(item) }, colors = ButtonDefaults.buttonColors(containerColor = PlPrimaryTeal)) { Text("Reopen") }
-                            OutlinedButton(onClick = { vm.historyRepo.delete(item.id); refresh++ }, colors = ButtonDefaults.outlinedButtonColors(contentColor = PlCritical)) { Text("Delete") }
+                            Button(onClick = { vm.openFromHistory(item) }, colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.teal)) { Text("Reopen") }
+                            OutlinedButton(onClick = { vm.historyRepo.delete(item.id); refresh++ }, colors = ButtonDefaults.outlinedButtonColors(contentColor = LocalPlColors.current.critical)) { Text("Delete") }
                         }
                     }
                 }
@@ -92,9 +105,10 @@ fun HistoryScreen(vm: MainViewModel) {
     }
 }
 
-fun riskColor(level: String) = when (level) {
-    "CRITICAL" -> PlCritical
-    "HIGH" -> PlHigh
-    "MEDIUM" -> PlMedium
-    else -> PlLow
+@Composable
+fun riskColor(level: String): Color = when (level) {
+    "CRITICAL" -> LocalPlColors.current.critical
+    "HIGH" -> LocalPlColors.current.high
+    "MEDIUM" -> LocalPlColors.current.medium
+    else -> LocalPlColors.current.low
 }

@@ -27,7 +27,7 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text("System Settings", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Text("Theme, engine information and local data for Prompt Linter.", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+        Text("Theme, engine information and local data for Prompt Linter.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
 
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -36,7 +36,7 @@ fun SettingsScreen(
                     FilterChip(selected = !dark, onClick = { onDarkChange(false) }, label = { Text("Light") })
                     FilterChip(selected = dark, onClick = { onDarkChange(true) }, label = { Text("Dark") })
                 }
-                Text("Both themes preserve Prompt Linter's teal and mustard accents.", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+                Text("Both themes preserve Prompt Linter's teal and mustard accents.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = onShowOnboarding) { Text("Replay onboarding guide") }
             }
         }
@@ -44,11 +44,11 @@ fun SettingsScreen(
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Analysis Engine", fontWeight = FontWeight.Bold)
-                Text("Active on mobile: Rules (deterministic, runs fully on-device via embedded JS engine).", fontWeight = FontWeight.SemiBold, color = PlDarkTeal)
-                Text("• Auto — chooses Rules, BERT or LLM from prompt features (web full engine).", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
-                Text("• Rules — deterministic lexicons, regexes and heuristics (default, on-device).", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
-                Text("• BERT — fine-tuned DistilBERT BIO token classifier (full engine).", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
-                Text("BERT and the grounded LLM run in the full Streamlit engine. The mobile app runs the same Rules engine locally for parity and offline use.", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
+                Text("Active on mobile: Rules (deterministic, runs fully on-device via embedded JS engine).", fontWeight = FontWeight.SemiBold, color = LocalPlColors.current.darkTeal)
+                Text("• Auto — chooses Rules, BERT or LLM from prompt features (web full engine).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("• Rules — deterministic lexicons, regexes and heuristics (default, on-device).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("• BERT — fine-tuned DistilBERT BIO token classifier (full engine).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("BERT and the grounded LLM run in the full Streamlit engine. The mobile app runs the same Rules engine locally for parity and offline use.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                 OutlinedButton(onClick = {
                     ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/")))
                 }) { Text("Open full engine (BERT + LLM)") }
@@ -58,10 +58,10 @@ fun SettingsScreen(
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Local Data & Storage", fontWeight = FontWeight.Bold)
-                Text("All prompt history is stored locally on this device. No data is sent to remote servers by the Rules engine.", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+                Text("All prompt history is stored locally on this device. No data is sent to remote servers by the Rules engine.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(
                     onClick = { vm.historyRepo.clear() },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = PlCritical)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LocalPlColors.current.critical)
                 ) { Text("Clear Local Storage") }
             }
         }
@@ -81,7 +81,7 @@ fun SettingsScreen(
 
 @Composable private fun InfoRow(label: String, value: String) {
     Column {
-        Text(label, color = PlSecondaryText, style = MaterialTheme.typography.labelSmall)
+        Text(label, color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.labelSmall)
         Text(value, fontWeight = FontWeight.SemiBold)
     }
 }

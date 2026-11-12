@@ -52,7 +52,7 @@ fun AboutScreen(vm: MainViewModel) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(containerColor = PlDarkTeal),
+            colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.darkTeal),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
         ) {
             Column(Modifier.padding(22.dp)) {
@@ -63,14 +63,14 @@ fun AboutScreen(vm: MainViewModel) {
                 ) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = PlMustard.copy(alpha = 0.2f),
-                        border = BorderStroke(1.dp, PlMustard.copy(alpha = 0.45f))
+                        color = LocalPlColors.current.mustard.copy(alpha = 0.2f),
+                        border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.45f))
                     ) {
                         Text(
                             "UI PROMPT REVIEW",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = PlMustard,
+                                color = LocalPlColors.current.mustard,
                                 letterSpacing = 1.sp
                             ),
                             modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
@@ -103,7 +103,7 @@ fun AboutScreen(vm: MainViewModel) {
                     onClick = { vm.selectedTab = Tab.NEW_ANALYSIS },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PlMustard, contentColor = PlDarkTeal)
+                    colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
                 ) {
                     Icon(Icons.Default.Analytics, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
@@ -122,10 +122,10 @@ fun AboutScreen(vm: MainViewModel) {
             Column(Modifier.padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(PlCritical.copy(alpha = 0.12f)),
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalPlColors.current.critical.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.ReportProblem, contentDescription = null, tint = PlCritical, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.ReportProblem, contentDescription = null, tint = LocalPlColors.current.critical, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.width(10.dp))
                     Text(
@@ -158,10 +158,10 @@ fun AboutScreen(vm: MainViewModel) {
             Column(Modifier.padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(PlPrimaryTeal.copy(alpha = 0.12f)),
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalPlColors.current.teal.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Tune, contentDescription = null, tint = PlPrimaryTeal, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Tune, contentDescription = null, tint = LocalPlColors.current.teal, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.width(10.dp))
                     Text("How Prompt Linter Works", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
@@ -274,10 +274,10 @@ fun AboutScreen(vm: MainViewModel) {
             Column(Modifier.padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(PlMustard.copy(alpha = 0.2f)),
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalPlColors.current.mustard.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Security, contentDescription = null, tint = PlDarkTeal, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Security, contentDescription = null, tint = LocalPlColors.current.darkTeal, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.width(10.dp))
                     Text(
@@ -299,7 +299,7 @@ fun AboutScreen(vm: MainViewModel) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = PlDarkTeal),
+            colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.darkTeal),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
         ) {
             Column(Modifier.padding(22.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -317,7 +317,7 @@ fun AboutScreen(vm: MainViewModel) {
                 Button(
                     onClick = { vm.selectedTab = Tab.NEW_ANALYSIS },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PlMustard, contentColor = PlDarkTeal)
+                    colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
                 ) {
                     Text("Analyze a Prompt", fontWeight = FontWeight.Bold)
                     Spacer(Modifier.width(6.dp))
@@ -363,7 +363,7 @@ private fun PromptExaminationVisual() {
     Surface(
         shape = RoundedCornerShape(14.dp),
         color = Color(0xFF1E2E30),
-        border = BorderStroke(1.dp, PlMustard.copy(alpha = 0.35f))
+        border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.35f))
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(14.dp),
@@ -371,10 +371,10 @@ private fun PromptExaminationVisual() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Stage(Icons.Default.EditNote, "Prompt", Color.White, Color.White.copy(alpha = 0.12f))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = PlMustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
-            Stage(Icons.Default.Analytics, "Rules", PlMustard, PlMustard.copy(alpha = 0.25f))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = PlMustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
-            Stage(Icons.Default.CheckCircle, "Validated", Color.White, PlPrimaryTeal.copy(alpha = 0.4f))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = LocalPlColors.current.mustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
+            Stage(Icons.Default.Analytics, "Rules", LocalPlColors.current.mustard, LocalPlColors.current.mustard.copy(alpha = 0.25f))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = LocalPlColors.current.mustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
+            Stage(Icons.Default.CheckCircle, "Validated", Color.White, LocalPlColors.current.teal.copy(alpha = 0.4f))
         }
     }
 }

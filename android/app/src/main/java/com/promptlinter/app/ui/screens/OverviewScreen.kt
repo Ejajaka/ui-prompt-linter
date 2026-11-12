@@ -46,7 +46,7 @@ fun OverviewScreen(vm: MainViewModel) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
-                colors = CardDefaults.cardColors(containerColor = PlDarkTeal),
+                colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.darkTeal),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
             ) {
                 Column(Modifier.padding(20.dp)) {
@@ -57,14 +57,14 @@ fun OverviewScreen(vm: MainViewModel) {
                     ) {
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = PlMustard.copy(alpha = 0.2f),
-                            border = BorderStroke(1.dp, PlMustard.copy(alpha = 0.45f))
+                            color = LocalPlColors.current.mustard.copy(alpha = 0.2f),
+                            border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.45f))
                         ) {
                             Text(
                                 "UI/UX PROMPT REVIEW",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = PlMustard,
+                                    color = LocalPlColors.current.mustard,
                                     letterSpacing = 1.sp
                                 ),
                                 modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
@@ -85,7 +85,7 @@ fun OverviewScreen(vm: MainViewModel) {
                             onClick = { vm.selectedTab = Tab.NEW_ANALYSIS },
                             modifier = Modifier.weight(1.5f).height(48.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = PlMustard, contentColor = PlDarkTeal)
+                            colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
                         ) {
                             Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
@@ -125,12 +125,12 @@ fun OverviewScreen(vm: MainViewModel) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    MetricCard("Total Analyses", if (total > 0) total.toString() else "0", "Prompts evaluated", Icons.Default.Layers, PlPrimaryTeal, Modifier.weight(1f))
-                    MetricCard("Avg Risk", if (total > 0) "$avgRisk/100" else "—", "Across all prompts", Icons.Default.Warning, PlMustard, Modifier.weight(1f))
+                    MetricCard("Total Analyses", if (total > 0) total.toString() else "0", "Prompts evaluated", Icons.Default.Layers, LocalPlColors.current.teal, Modifier.weight(1f))
+                    MetricCard("Avg Risk", if (total > 0) "$avgRisk/100" else "—", "Across all prompts", Icons.Default.Warning, LocalPlColors.current.mustard, Modifier.weight(1f))
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    MetricCard("Avg Completeness", if (total > 0) "$avgCoverage%" else "—", "Required details stated", Icons.Default.TaskAlt, PlLow, Modifier.weight(1f))
-                    MetricCard("High Risk", highRisk.toString(), "High or Critical", Icons.Default.Shield, PlCritical, Modifier.weight(1f))
+                    MetricCard("Avg Completeness", if (total > 0) "$avgCoverage%" else "—", "Required details stated", Icons.Default.TaskAlt, LocalPlColors.current.low, Modifier.weight(1f))
+                    MetricCard("High Risk", highRisk.toString(), "High or Critical", Icons.Default.Shield, LocalPlColors.current.critical, Modifier.weight(1f))
                 }
             }
         }
@@ -148,9 +148,9 @@ fun OverviewScreen(vm: MainViewModel) {
                 ) {
                     Column(Modifier.padding(18.dp)) {
                         Text("No analyses found", fontWeight = FontWeight.SemiBold)
-                        Text("Start your first UI prompt completeness review.", color = PlSecondaryText, style = MaterialTheme.typography.bodySmall)
+                        Text("Start your first UI prompt completeness review.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = { vm.selectedTab = Tab.NEW_ANALYSIS }, colors = ButtonDefaults.buttonColors(containerColor = PlPrimaryTeal)) {
+                        Button(onClick = { vm.selectedTab = Tab.NEW_ANALYSIS }, colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.teal)) {
                             Text("Start first analysis")
                         }
                     }
@@ -179,15 +179,15 @@ private fun RiskDistributionCard(all: List<HistoryItem>, distribution: Map<Strin
                     Spacer(Modifier.width(8.dp))
                     Text("Risk Distribution", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
                 }
-                Text("$total saved", style = MaterialTheme.typography.labelSmall, color = PlSecondaryText)
+                Text("$total saved", style = MaterialTheme.typography.labelSmall, color = LocalPlColors.current.textSecondary)
             }
             Spacer(Modifier.height(4.dp))
-            Text("Severity categorization across all stored analysis records.", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
+            Text("Severity categorization across all stored analysis records.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
             Spacer(Modifier.height(12.dp))
             if (total == 0) {
-                Text("No analysis data. Evaluate a prompt to visualize risk distribution.", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
+                Text("No analysis data. Evaluate a prompt to visualize risk distribution.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
             } else {
-                Row(Modifier.fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp)).background(PlBorder)) {
+                Row(Modifier.fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp)).background(LocalPlColors.current.border)) {
                     distribution.forEach { (level, count) ->
                         if (count > 0) {
                             Box(Modifier.weight(count.toFloat()).fillMaxHeight().background(riskColor(level)))
@@ -203,7 +203,7 @@ private fun RiskDistributionCard(all: List<HistoryItem>, distribution: Map<Strin
                             Spacer(Modifier.width(8.dp))
                             Text(level.lowercase().replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
                         }
-                        Text("$count ($pct%)", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
+                        Text("$count ($pct%)", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                     }
                 }
             }
@@ -221,14 +221,14 @@ private fun MetricCard(title: String, value: String, subtitle: String, icon: Ima
     ) {
         Column(Modifier.padding(14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(title, style = MaterialTheme.typography.labelSmall, color = PlSecondaryText, modifier = Modifier.weight(1f))
+                Text(title, style = MaterialTheme.typography.labelSmall, color = LocalPlColors.current.textSecondary, modifier = Modifier.weight(1f))
                 Box(Modifier.size(28.dp).clip(CircleShape).background(accent.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
                     Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
                 }
             }
             Spacer(Modifier.height(8.dp))
             Text(value, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), fontSize = 24.sp)
-            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = PlSecondaryText)
+            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = LocalPlColors.current.textSecondary)
         }
     }
 }
@@ -256,12 +256,12 @@ private fun RecentItem(item: HistoryItem, onClick: () -> Unit) {
             }
             Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("${item.riskScore}/100 risk · ${item.coverageScore}% complete", style = MaterialTheme.typography.bodySmall, color = PlSecondaryText)
+                Text("${item.riskScore}/100 risk · ${item.coverageScore}% complete", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                 Text("Reopen", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
             }
             if (item.elements.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
-                Text(item.elements.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = PlPrimaryTeal, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(item.elements.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = LocalPlColors.current.teal, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }

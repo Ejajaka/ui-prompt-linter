@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import com.promptlinter.app.ui.theme.PlMustard
-import com.promptlinter.app.ui.theme.PlPrimaryTeal
+import com.promptlinter.app.ui.theme.PlBrandMustard
+import com.promptlinter.app.ui.theme.PlBrandTeal
 
 /**
  * Prompt Linter mark: a teal tile with a white outline chat bubble and a
@@ -23,7 +23,7 @@ import com.promptlinter.app.ui.theme.PlPrimaryTeal
 @Composable
 fun PlLogo(
     modifier: Modifier = Modifier.size(28.dp),
-    tileColor: Color = PlPrimaryTeal
+    tileColor: Color = PlBrandTeal
 ) {
     Canvas(modifier = modifier) {
         val w = size.width
@@ -73,14 +73,14 @@ fun PlLogo(
         // checkmark
         val lw = w * 0.07f
         drawLine(
-            color = PlMustard,
+            color = PlBrandMustard,
             start = Offset(w * 0.36f, h * 0.40f),
             end = Offset(w * 0.46f, h * 0.50f),
             strokeWidth = lw,
             cap = StrokeCap.Round
         )
         drawLine(
-            color = PlMustard,
+            color = PlBrandMustard,
             start = Offset(w * 0.46f, h * 0.50f),
             end = Offset(w * 0.64f, h * 0.32f),
             strokeWidth = lw,
