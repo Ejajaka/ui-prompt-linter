@@ -167,7 +167,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
             defaults to a local Ollama server; in this web app you bring your own OpenAI-compatible endpoint.
           </p>
           <ul className="text-xs text-[#737A72] space-y-1.5 leading-relaxed list-disc pl-4">
-            <li><b className="text-[#283638]">Groq</b> — <code className="font-mono text-[#49686C]">llama-3.1-8b-instant</code> at <code className="font-mono text-[#49686C]">https://api.groq.com/openai/v1</code></li>
+            <li><b className="text-[#283638]">Groq</b> — <code className="font-mono text-[#49686C]">openai/gpt-oss-120b</code> at <code className="font-mono text-[#49686C]">https://api.groq.com/openai/v1</code></li>
             <li><b className="text-[#283638]">OpenRouter</b> — any tool-capable model at <code className="font-mono text-[#49686C]">https://openrouter.ai/api/v1</code></li>
             <li><b className="text-[#283638]">Ollama</b> — <code className="font-mono text-[#49686C]">qwen2.5:3b-instruct</code> at <code className="font-mono text-[#49686C]">http://localhost:11434/v1</code></li>
           </ul>
@@ -217,7 +217,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
               type="text"
               value={llm.model}
               onChange={(e) => setLlm((p) => ({ ...p, model: e.target.value }))}
-              placeholder="llama-3.1-8b-instant"
+              placeholder="openai/gpt-oss-120b"
               className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
             />
           </div>
@@ -227,7 +227,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
               type="password"
               value={llm.apiKey}
               onChange={(e) => setLlm((p) => ({ ...p, apiKey: e.target.value }))}
-              placeholder="your-api-key"
+              placeholder="gsk_..."
               className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
             />
           </div>
