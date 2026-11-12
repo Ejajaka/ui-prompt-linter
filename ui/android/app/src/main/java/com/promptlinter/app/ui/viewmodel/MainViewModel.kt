@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.promptlinter.app.BuildConfig
 import com.promptlinter.app.data.engine.JsEngine
 import com.promptlinter.app.data.model.AnalysisPayload
 import com.promptlinter.app.data.model.HistoryItem
@@ -19,6 +20,25 @@ import kotlinx.coroutines.withContext
 class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val engine = JsEngine(app)
     val historyRepo = HistoryRepository(app)
+    private val prefs = app.getSharedPreferences("prompt_linter_ai", android.content.Context.MODE_PRIVATE)
+
+    var aiEngine by mutableStateOf(prefs.getString("engine", if (BuildConfig.PROMPT_LINTER_API_KEY.isNotBlank()) "api" else "rules") ?: "rules")
+    var aiBaseUrl by mutableStateOf(prefs.getString("base_url", "https://api.groq.com/openai/v1") ?: "https://api.groq.com/openai/v1")
+    var aiModel by mutableStateOf(prefs.getString("model", "openai/gpt-oss-120b") ?: "openai/gpt-oss-120b")
+    var aiApiKey by mutableStateOf(prefs.getString("api_key", BuildConfig.PROMPT_LINTER_API_KEY) ?: BuildConfig.PROMPT_LINTER_API_KEY)
+
+    fun saveAiSettings(engineName: String, baseUrl: String, model: String, apiKey: String) {
+        aiEngine = engineName
+        aiBaseUrl = baseUrl
+        aiModel = model
+        aiApiKey = apiKey
+        prefs.edit().putString("engine", engineName).putString("base_url", baseUrl)
+            .putString("model", model).putString("api_key", apiKey).apply()
+    }
+
+    private fun aiSettings(): Map<String, String> = mapOf(
+        "baseUrl" to aiBaseUrl, "model" to aiModel, "apiKey" to aiApiKey
+    )
 
     var engineReady by mutableStateOf(false)
     var engineError by mutableStateOf<String?>(null)
@@ -73,7 +93,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { analyzing = true }
             try {
-                var p = engine.analyze(promptText.trim(), merged, false)
+                var p = engine.analyze(promptText.trim(), merged, false, aiEngine, aiSettings())
                 if (p.needsClarification && !stop && nextRound <= 3) {
                     withContext(Dispatchers.Main) {
                         payload = p
@@ -83,7 +103,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     return@launch
                 }
                 if (p.needsClarification) {
-                    p = engine.analyze(promptText.trim(), merged, true)
+                    p = engine.analyze(promptText.trim(), merged, true, aiEngine, aiSettings())
                 }
                 withContext(Dispatchers.Main) {
                     payload = p
@@ -100,7 +120,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { analyzing = true }
             try {
-                val p = engine.analyze(text, ans, finalize)
+                val p = engine.analyze(text, ans, finalize, aiEngine, aiSettings())
                 withContext(Dispatchers.Main) {
                     payload = p
                     if (p.error == null) historyRepo.save(text, p)

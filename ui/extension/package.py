@@ -25,6 +25,10 @@ SHIP_FILES = [
     "popup.css",
     "popup.js",
     "engine.js",
+    "ai-config.js",
+    "ai.js",
+    "transformers.web.min.js",
+    "ort.webgpu.min.js",
     "icons/icon16.png",
     "icons/icon32.png",
     "icons/icon48.png",
@@ -74,11 +78,23 @@ def main() -> None:
     make_logo(300).save(store_dir / "store-logo-300.png")
     print("wrote store/store-logo-300.png")
 
+    # Optional build-time key injection for friends-only artifacts.
+    key = os.environ.get("VECTOR_TEST_API_KEY", "").strip()
+    config_body = (ROOT / "ai-config.js").read_text(encoding="utf-8")
+    if key:
+        config_body = config_body.replace("__PROMPT_LINTER_API_KEY__", key)
+        config_body = config_body.replace("engine: 'rules'", "engine: 'api'")
+
     # Upload zip
     zip_path = dist_dir / "prompt-linter-extension.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for name in SHIP_FILES:
-            zf.write(ROOT / name, arcname=name)
+            if name == "ai-config.js":
+                zf.writestr(name, config_body)
+            else:
+                zf.write(ROOT / name, arcname=name)
+        for path in (ROOT / "ort-common").rglob("*.js"):
+            zf.write(path, arcname=str(path.relative_to(ROOT)))
     print(f"wrote {zip_path.relative_to(ROOT.parent)}")
 
 

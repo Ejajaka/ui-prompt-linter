@@ -1,8 +1,12 @@
 # Prompt Linter - browser extension
 
-A Manifest V3 Chrome/Edge extension that runs the Prompt Linter Rules engine
-entirely in the browser (no server, no network, no permissions). The UI matches
-the main web app (teal/mustard, the chat-bubble + checkmark logo).
+A Manifest V3 Chrome/Edge extension for the Prompt Linter. It supports:
+
+- **Rules** - offline deterministic engine.
+- **BERT** - the fine-tuned DistilBERT tagger, downloaded once from GitHub Pages.
+- **API** - grounded extraction through a Groq/OpenAI-compatible endpoint.
+
+The UI matches the main web app (teal/mustard, the chat-bubble + checkmark logo).
 
 ## Install
 
@@ -21,8 +25,12 @@ the main web app (teal/mustard, the chat-bubble + checkmark logo).
 
 | File | Purpose |
 |---|---|
-| `manifest.json` | Manifest V3 config (popup + icons, no permissions) |
+| `manifest.json` | Manifest V3 config (popup + icons; storage + API/model hosts) |
 | `engine.js` | JavaScript port of the Rules engine (`engine/src/`) |
+| `ai.js` | BERT + API extraction bridge |
+| `ai-config.js` | Build-time API defaults (key placeholder) |
+| `transformers.web.min.js` | Transformers.js runtime |
+| `ort.webgpu.min.js`, `ort-common/` | ONNX Runtime Web modules |
 | `popup.html` / `popup.css` / `popup.js` | Popup UI |
 | `icons/` | Extension icons (16/32/48/128) |
 | `store/` | Chrome Web Store / Edge submission text and logo |
@@ -35,7 +43,8 @@ python package.py
 ```
 
 Produces `dist/prompt-linter-extension.zip` (upload this to the store) and
-`store/store-logo-300.png`.
+`store/store-logo-300.png`. Set `VECTOR_TEST_API_KEY` before packaging to
+pre-fill the API key in the artifact; the key is not written to the source tree.
 
 ## Publish
 

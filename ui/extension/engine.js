@@ -764,8 +764,95 @@
     };
   }
 
+  // --------------------------------------------------- detector-supplied spans
+  // Used by BERT and the grounded LLM. They only supply character spans; the
+  // same linking, checking, clarification and risk code runs afterwards.
+  function analyzeFromSpans(text, detectedSpans, confidence, engine, answers, finalize, llmMeta) {
+    answers = answers || {};
+    finalize = !!finalize;
+    var tokensWithOffsets = tokenizeWithOffsets(text);
+    var tokens = tokensWithOffsets.map(function (t) { return t.token; });
+
+    function rangeFor(cs, ce) {
+      var start = -1, end = -1;
+      for (var i = 0; i < tokensWithOffsets.length; i++) {
+        if (tokensWithOffsets[i].end > cs && tokensWithOffsets[i].start < ce) {
+          if (start < 0) start = i;
+          end = i + 1;
+        }
+      }
+      return start >= 0 ? [start, end] : null;
+    }
+
+    var spans = [];
+    (detectedSpans || []).forEach(function (d) {
+      var label = String(d.label || '').toUpperCase();
+      if (ATTRIBUTES.indexOf(label) === -1) return;
+      var cs = Number(d.char_start != null ? d.char_start : d.charStart);
+      var ce = Number(d.char_end != null ? d.char_end : d.charEnd);
+      if (!isFinite(cs) || !isFinite(ce) || ce <= cs || cs < 0 || ce > text.length) return;
+      var range = rangeFor(cs, ce);
+      if (!range) return;
+      spans.push({
+        label: label, start: range[0], end: range[1],
+        text: text.slice(cs, ce), charStart: cs, charEnd: ce, source: 'detector',
+      });
+    });
+
+    var elements = linkSpansToElements(spans, tokensWithOffsets);
+    annotateVague(elements, tokensWithOffsets, text);
+    var result = checkElements(elements);
+    var conf = Math.max(0, Math.min(1, Number(confidence) || 0));
+
+    var initialQuestions = buildQuestions(elements, result, null);
+    var initialUnresolved = unresolvedQuestions(initialQuestions, {});
+    var initialRisk = computeRisk(result, conf, initialQuestions.length, initialUnresolved.length);
+
+    if (Object.keys(answers).length) {
+      mergeAnswers(elements, initialQuestions, answers);
+      annotateVague(elements, tokensWithOffsets, text);
+      result = checkElements(elements);
+      spans = flattenSpans(elements);
+    }
+
+    var questions = buildQuestions(elements, result, answers);
+    var unresolved = unresolvedQuestions(questions, answers);
+    var finalRisk = computeRisk(result, conf, questions.length, unresolved.length);
+    var needsClarification = !!questions.length && !finalize;
+    var finalPrompt = null, explanation = null, recommendations = null;
+    var deterministicPrompt = deterministicFinalPrompt(elements);
+
+    if (!needsClarification) {
+      finalPrompt = deterministicPrompt;
+      explanation = finalRisk.explanation || '';
+      if (unresolved.length) {
+        explanation += ' Unresolved: ' + unresolved.map(function (q) { return q.prompt; }).join('; ');
+      }
+      recommendations = result.elements.map(function (el) { return el.suggestion; });
+    }
+
+    return {
+      tokens: tokens,
+      tags: [],
+      spans: spans,
+      result: result,
+      engine: engine || 'bert',
+      router: { method: engine || 'bert', reason: 'manual selection', scores: {} },
+      confidence: round3(conf),
+      llm_meta: llmMeta || {}, llm_error: null, llm_used: engine === 'llm',
+      risk: { initial: initialRisk, final: finalRisk },
+      clarification: { questions: questions, answers: answers, unresolved: unresolved },
+      needs_clarification: needsClarification,
+      final_prompt: finalPrompt,
+      deterministic_prompt: deterministicPrompt,
+      explanation: explanation,
+      recommendations: recommendations,
+    };
+  }
+
   global.PromptLinterEngine = {
     analyze: analyzeFull,
+    analyzeFromSpans: analyzeFromSpans,
     tokenize: tokenizeWithOffsets,
     suggest: suggestion,
   };

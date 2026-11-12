@@ -5,13 +5,17 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import android.webkit.WebViewClient
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewClientCompat
 import com.google.gson.Gson
 import com.promptlinter.app.data.model.AnalysisPayload
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 
 class JsEngine(context: Context) {
     private val appContext = context.applicationContext
@@ -20,6 +24,14 @@ class JsEngine(context: Context) {
     @Volatile private var ready = false
     private val readyLatch = CountDownLatch(1)
     private var webView: WebView? = null
+    private val pending = ConcurrentHashMap<String, CompletableFuture<String>>()
+
+    private inner class Bridge {
+        @JavascriptInterface
+        fun onResult(id: String, json: String) {
+            pending.remove(id)?.complete(json)
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     fun ensureReady() {
@@ -29,34 +41,55 @@ class JsEngine(context: Context) {
             if (webView == null) {
                 val wv = WebView(appContext)
                 wv.settings.javaScriptEnabled = true
-                wv.settings.domStorageEnabled = false
-                wv.webViewClient = object : WebViewClient() {
+                wv.settings.domStorageEnabled = true
+                val loader = WebViewAssetLoader.Builder()
+                    .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(appContext))
+                    .build()
+                wv.addJavascriptInterface(Bridge(), "PromptLinterBridge")
+                wv.webViewClient = object : WebViewClientCompat() {
+                    override fun shouldInterceptRequest(
+                        view: WebView,
+                        request: android.webkit.WebResourceRequest
+                    ): WebResourceResponse? = loader.shouldInterceptRequest(request.url)
+
                     override fun onPageFinished(view: WebView?, url: String?) {
                         ready = true
                         latch.countDown()
                     }
                 }
-                wv.loadUrl("file:///android_asset/engine.html")
+                wv.loadUrl("https://appassets.androidplatform.net/assets/engine.html")
                 webView = wv
             }
         }
         latch.await(10, TimeUnit.SECONDS)
     }
 
-    fun analyze(text: String, answers: Map<String, String>, finalize: Boolean): AnalysisPayload {
+    fun analyze(
+        text: String,
+        answers: Map<String, String>,
+        finalize: Boolean,
+        engineName: String = "rules",
+        settings: Map<String, String> = emptyMap()
+    ): AnalysisPayload {
         ensureReady()
         val answersJson = gson.toJson(answers)
-        val ref = AtomicReference<String?>()
-        val done = CountDownLatch(1)
-        val js = "window.runAnalyze(${jsonQuote(text)}, ${jsonQuote(answersJson)}, ${if (finalize) "true" else "false"})"
+        val settingsJson = gson.toJson(settings)
+        val id = UUID.randomUUID().toString()
+        val future = CompletableFuture<String>()
+        pending[id] = future
+        val js = "window.runAnalyzeAsync(${jsonQuote(text)}, ${jsonQuote(answersJson)}, " +
+            "${if (finalize) "true" else "false"}, ${jsonQuote(engineName)}, " +
+            "${jsonQuote(settingsJson)}, ${jsonQuote(id)})"
         mainHandler.post {
-            webView?.evaluateJavascript(js) { value ->
-                ref.set(unquoteJsString(value))
-                done.countDown()
-            } ?: done.countDown()
+            webView?.evaluateJavascript(js, null)
         }
-        done.await(10, TimeUnit.SECONDS)
-        val json = ref.get() ?: "{\"error\":\"Engine returned no result\"}"
+        val json = try {
+            future.get(180, TimeUnit.SECONDS)
+        } catch (e: Exception) {
+            "{\"error\":${gson.toJson(e.message ?: "Engine timed out")}}"
+        } finally {
+            pending.remove(id)
+        }
         return try {
             gson.fromJson(json, AnalysisPayload::class.java) ?: AnalysisPayload(error = "Parse error")
         } catch (e: Exception) {

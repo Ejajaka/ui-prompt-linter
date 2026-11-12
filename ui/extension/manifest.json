@@ -3,6 +3,15 @@
   "name": "Prompt Linter",
   "version": "1.0.0",
   "description": "Pre-generation completeness review for UI prompts. Detect missing labels, colours, placement and actions before you generate UI.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://api.groq.com/*",
+    "https://ejajaka.github.io/ui-prompt-linter/*",
+    "https://cdn.jsdelivr.net/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self' blob:"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_title": "Prompt Linter",

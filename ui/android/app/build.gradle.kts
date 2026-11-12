@@ -13,6 +13,12 @@ android {
         targetSdk = 36
         versionCode = 2
         versionName = "1.1"
+
+        buildConfigField(
+            "String",
+            "PROMPT_LINTER_API_KEY",
+            "\"${System.getenv("VECTOR_TEST_API_KEY") ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -47,5 +53,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.gson)
+    implementation(libs.androidx.webkit)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

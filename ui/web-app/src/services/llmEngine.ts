@@ -66,8 +66,8 @@ function stripCodeFences(content: string): string {
   return c.trim();
 }
 
-async function chatJson(system: string, user: string): Promise<any> {
-  const settings = loadSettings();
+async function chatJson(system: string, user: string, settingsOverride?: AppSettings): Promise<any> {
+  const settings = settingsOverride || loadSettings();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${settings.apiKey}`,
@@ -112,8 +112,8 @@ function findValue(
 }
 
 /** Run grounded LLM extraction and return spans + grounding confidence. */
-export async function extractSpans(text: string): Promise<LLMSpansResult> {
-  const data = await chatJson(SYSTEM_EXTRACT, JSON.stringify({ prompt: text }));
+export async function extractSpans(text: string, settingsOverride?: AppSettings): Promise<LLMSpansResult> {
+  const data = await chatJson(SYSTEM_EXTRACT, JSON.stringify({ prompt: text }), settingsOverride);
   const rawElements: any[] = Array.isArray(data?.elements) ? data.elements : [];
   const spans: DetectedSpan[] = [];
   const usedStarts = new Set<number>();

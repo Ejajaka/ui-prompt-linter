@@ -149,3 +149,12 @@ textarea:focus { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 
 
 .foot { text-align: center; font-size: 10px; color: var(--text-2); padding: 4px 0 8px; }
 .foot a { color: var(--teal); text-decoration: none; }
+
+/* AI settings */
+.ai-settings{margin:0 0 10px;border:1px solid #E5E2D8;border-radius:10px;background:#FFFFFF;overflow:hidden}
+.ai-settings summary{cursor:pointer;padding:10px 12px;font-size:12px;font-weight:700;color:#283638;background:#F6F4EC}
+.ai-body{padding:10px 12px;display:grid;gap:8px}
+.ai-body label{display:grid;gap:4px;font-size:11px;color:#737A72;font-weight:600}
+.ai-body input,.ai-body select{width:100%;box-sizing:border-box;border:1px solid #E5E2D8;border-radius:8px;background:#FAFAF8;padding:7px 8px;color:#283638;font-size:12px}
+.ai-actions{display:flex;align-items:center;gap:8px}
+.ai-actions .hint{margin-left:auto}

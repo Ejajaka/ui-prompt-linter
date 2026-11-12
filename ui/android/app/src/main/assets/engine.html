@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><script src="engine.js"></script></head>
+<head><meta charset="utf-8">
+<script src="engine.js"></script><script type="module" src="ai.js"></script></head>
 <body>
 <script>
   window.runAnalyze = function(text, answersJson, finalize) {
@@ -10,6 +11,42 @@
       return JSON.stringify(result);
     } catch (e) {
       return JSON.stringify({ error: String(e) });
+    }
+  };
+
+  window.runAnalyzeAsync = function(text, answersJson, finalize, engineName, settingsJson, callbackId) {
+    var answers = answersJson ? JSON.parse(answersJson) : {};
+    var settings = settingsJson ? JSON.parse(settingsJson) : {};
+    var engineName = engineName || 'rules';
+    var done = function(result) {
+      PromptLinterBridge.onResult(callbackId, JSON.stringify(result));
+    };
+    try {
+      var run = Promise.resolve();
+      if (engineName === 'rules') {
+        run = Promise.resolve(PromptLinterEngine.analyze(text || '', answers, !!finalize));
+      } else {
+        run = new Promise(function(resolve, reject) {
+          if (window.PromptLinterAI) return resolve(window.PromptLinterAI);
+          var start = Date.now();
+          var timer = setInterval(function() {
+            if (window.PromptLinterAI) { clearInterval(timer); resolve(window.PromptLinterAI); }
+            else if (Date.now() - start > 20000) { clearInterval(timer); reject(new Error('AI module failed to load.')); }
+          }, 100);
+        }).then(function(ai) {
+          if (engineName === 'bert') {
+            return ai.runBert(text).then(function(r) {
+              return PromptLinterEngine.analyzeFromSpans(text, r.spans, r.confidence, 'bert', answers, !!finalize);
+            });
+          }
+          return ai.extractSpansApi(text, settings).then(function(r) {
+            return PromptLinterEngine.analyzeFromSpans(text, r.spans, r.confidence, 'llm', answers, !!finalize, r.meta || null);
+          });
+        });
+      }
+      run.then(done).catch(function(e) { done({ error: String(e && e.message ? e.message : e) }); });
+    } catch (e) {
+      done({ error: String(e) });
     }
   };
 </script>

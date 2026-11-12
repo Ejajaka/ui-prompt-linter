@@ -75,7 +75,20 @@ fun NewAnalysisScreen(vm: MainViewModel) {
                             OutlinedButton(onClick = { vm.clearAnalysis() }) { Text("Clear") }
                         }
                     }
-                    Text("Runs offline on-device · Rules engine", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.labelSmall)
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf("rules" to "Rules", "bert" to "BERT", "api" to "API").forEach { (id, label) ->
+                            FilterChip(selected = vm.aiEngine == id, onClick = { vm.aiEngine = id; vm.payload = null }, label = { Text(label) })
+                        }
+                    }
+                    Text(
+                        when (vm.aiEngine) {
+                            "bert" -> "BERT downloads the 67 MB model once, then runs on-device."
+                            "api" -> "API sends the prompt to the endpoint configured in Settings."
+                            else -> "Runs offline on-device - Rules engine"
+                        },
+                        color = LocalPlColors.current.textSecondary,
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
             }
         }

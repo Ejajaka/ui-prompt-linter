@@ -22,7 +22,12 @@
   var $ = function (id) { return document.getElementById(id); };
   var promptEl = $('prompt'), analyzeBtn = $('analyze'), resultsEl = $('results');
 
-  var state = { text: '', answers: {}, round: 1, payload: null };
+  var AI_DEFAULTS = Object.assign({
+    engine: 'rules', baseUrl: 'https://api.groq.com/openai/v1',
+    model: 'openai/gpt-oss-120b', apiKey: ''
+  }, window.PROMPT_LINTER_AI_DEFAULTS || {});
+  if (AI_DEFAULTS.apiKey === '__PROMPT_LINTER_API_KEY__') AI_DEFAULTS.apiKey = '';
+  var state = { text: '', answers: {}, round: 1, payload: null, engine: 'rules', settings: AI_DEFAULTS, detection: null };
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -181,18 +186,106 @@
   }
 
   // ----------------------------------------------------------------- actions
-  function analyze(text, answers, finalize) {
-    var p = engine.analyze(text, answers || {}, !!finalize);
-    state.payload = p;
-    render(p);
+  function setStatus(text) {
+    var el = $('ai-status');
+    if (el) el.textContent = text || '';
+  }
+
+  function aiReady() {
+    return new Promise(function (resolve, reject) {
+      if (window.PromptLinterAI) return resolve(window.PromptLinterAI);
+      var started = Date.now();
+      var timer = setInterval(function () {
+        if (window.PromptLinterAI) { clearInterval(timer); resolve(window.PromptLinterAI); }
+        else if (Date.now() - started > 20000) { clearInterval(timer); reject(new Error('AI module failed to load.')); }
+      }, 100);
+    });
+  }
+
+  async function analyzeWithEngine(text, answers, finalize) {
+    if (state.engine === 'rules') return engine.analyze(text, answers || {}, !!finalize);
+    var ai = await aiReady();
+    if (!state.detection) {
+      if (state.engine === 'bert') {
+        state.detection = await ai.runBert(text, function (p) {
+          setStatus('Downloading BERT ' + p.percent + '% (one time)');
+        });
+      } else {
+        if (!state.settings.apiKey) throw new Error('Add an API key in the settings above.');
+        state.detection = await ai.extractSpansApi(text, state.settings);
+      }
+      setStatus('');
+    }
+    return engine.analyzeFromSpans(
+      text, state.detection.spans, state.detection.confidence,
+      state.engine === 'bert' ? 'bert' : 'llm', answers || {}, !!finalize,
+      state.detection.meta || null
+    );
+  }
+
+  async function analyze(text, answers, finalize) {
+    resultsEl.classList.remove('hidden');
+    resultsEl.innerHTML = '<div class="card empty">Running ' + esc(state.engine.toUpperCase()) + ' engine...</div>';
+    try {
+      var p = await analyzeWithEngine(text, answers, finalize);
+      state.payload = p;
+      render(p);
+    } catch (e) {
+      resultsEl.innerHTML = '<div class="card empty">' + esc(e.message || String(e)) + '</div>';
+      setStatus(e.message || String(e));
+    }
   }
 
   function handleAnalyze() {
     var text = promptEl.value.trim();
     if (!text) return;
-    state.text = text; state.answers = {}; state.round = 1;
+    state.text = text; state.answers = {}; state.round = 1; state.detection = null;
     analyze(text, {}, false);
   }
+
+  function renderSettings(s) {
+    $('#ai-engine').value = s.engine || 'rules';
+    $('#ai-base-url').value = s.baseUrl || '';
+    $('#ai-model').value = s.model || '';
+    $('#ai-api-key').value = s.apiKey || '';
+    state.engine = s.engine || 'rules';
+    state.settings = s;
+  }
+
+  function loadAiSettings() {
+    return new Promise(function (resolve) {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get(['promptLinterAI'], function (d) {
+          resolve(Object.assign({}, AI_DEFAULTS, (d && d.promptLinterAI) || {}));
+        });
+      } else {
+        try { resolve(Object.assign({}, AI_DEFAULTS, JSON.parse(localStorage.getItem('promptLinterAI') || '{}'))); }
+        catch (e) { resolve(Object.assign({}, AI_DEFAULTS)); }
+      }
+    });
+  }
+
+  $('#ai-save').addEventListener('click', function () {
+    var s = {
+      engine: $('#ai-engine').value,
+      baseUrl: $('#ai-base-url').value.trim() || AI_DEFAULTS.baseUrl,
+      model: $('#ai-model').value.trim() || AI_DEFAULTS.model,
+      apiKey: $('#ai-api-key').value.trim(),
+    };
+    state.engine = s.engine; state.settings = s; state.detection = null;
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ promptLinterAI: s });
+    } else {
+      try { localStorage.setItem('promptLinterAI', JSON.stringify(s)); } catch (e) {}
+    }
+    setStatus('Saved');
+    setTimeout(function () { setStatus(''); }, 1200);
+  });
+
+  $('#ai-engine').addEventListener('change', function () {
+    state.engine = $('#ai-engine').value;
+    state.detection = null;
+  });
 
   function collectAnswers() {
     var values = {};
@@ -207,7 +300,7 @@
     return values;
   }
 
-  function submitAnswers(usePlaceholders) {
+  async function submitAnswers(usePlaceholders) {
     var values = collectAnswers();
     var allUnknown = Object.keys(values).every(function (k) { return values[k] === 'unknown'; });
     var stop = usePlaceholders || allUnknown;
@@ -217,16 +310,21 @@
     state.answers = merged;
     state.round += 1;
 
-    var p = engine.analyze(state.text, merged, false);
-    if (p.needs_clarification && !stop && state.round <= 3) { state.payload = p; render(p); return; }
-    if (p.needs_clarification) p = engine.analyze(state.text, merged, true);
-    state.payload = p;
-    render(p);
+    try {
+      var p = await analyzeWithEngine(state.text, merged, false);
+      if (p.needs_clarification && !stop && state.round <= 3) { state.payload = p; render(p); return; }
+      if (p.needs_clarification) p = await analyzeWithEngine(state.text, merged, true);
+      state.payload = p;
+      render(p);
+    } catch (e) {
+      resultsEl.innerHTML = '<div class="card empty">' + esc(e.message || String(e)) + '</div>';
+    }
   }
 
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   // ------------------------------------------------------------------- wiring
+  loadAiSettings().then(renderSettings);
   analyzeBtn.addEventListener('click', handleAnalyze);
 
   promptEl.addEventListener('keydown', function (e) {

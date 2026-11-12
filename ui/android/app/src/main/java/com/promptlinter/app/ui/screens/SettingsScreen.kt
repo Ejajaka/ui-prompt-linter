@@ -12,6 +12,10 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,12 +52,33 @@ fun SettingsScreen(
 
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Rules, BERT or API", fontWeight = FontWeight.Bold)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf("rules" to "Rules", "bert" to "BERT", "api" to "API").forEach { (id, label) ->
+                        FilterChip(selected = vm.aiEngine == id, onClick = { vm.aiEngine = id }, label = { Text(label) })
+                    }
+                }
+                var base by remember(vm.aiBaseUrl) { mutableStateOf(vm.aiBaseUrl) }
+                var model by remember(vm.aiModel) { mutableStateOf(vm.aiModel) }
+                var key by remember(vm.aiApiKey) { mutableStateOf(vm.aiApiKey) }
+                OutlinedTextField(value = base, onValueChange = { base = it }, label = { Text("Base URL") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = model, onValueChange = { model = it }, label = { Text("Model") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = key, onValueChange = { key = it }, label = { Text("API key") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                Button(onClick = { vm.saveAiSettings(vm.aiEngine, base.trim(), model.trim(), key.trim()) }) {
+                    Text("Save AI settings")
+                }
+                Text("BERT downloads the 67 MB DistilBERT model from GitHub Pages once. API mode calls the endpoint above.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+            }
+        }
+
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Analysis Engine", fontWeight = FontWeight.Bold)
-                Text("Active on mobile: Rules (deterministic, runs fully on-device via embedded JS engine).", fontWeight = FontWeight.SemiBold, color = LocalPlColors.current.darkTeal)
+                Text("Active: " + vm.aiEngine.uppercase() + ". Rules is offline; BERT and API need network for the first load or the request.", fontWeight = FontWeight.SemiBold, color = LocalPlColors.current.darkTeal)
                 Text("• Auto — chooses Rules, BERT or LLM from prompt features (web full engine).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                 Text("• Rules — deterministic lexicons, regexes and heuristics (default, on-device).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                 Text("• BERT — fine-tuned DistilBERT BIO token classifier (full engine).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
-                Text("BERT and the grounded LLM run in the full Streamlit engine. The mobile app runs the same Rules engine locally for parity and offline use.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("All three engines share the same checker, clarification loop and risk score.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                 OutlinedButton(onClick = {
                     ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/")))
                 }) { Text("Open full engine (BERT + LLM)") }

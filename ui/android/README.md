@@ -2,7 +2,7 @@
 
 Native Jetpack Compose app that mirrors the Prompt Linter web app
 (`ui/web-app/`) and browser extension (`ui/extension/`): same branding, logo,
-content, pages, and the same deterministic Rules engine.
+content, pages, and Rules/BERT/API analysis.
 
 ## What is included
 
@@ -26,8 +26,12 @@ Branding uses the same teal/mustard palette and the chat-bubble + check logo
   `PromptLinterEngine.analyze(text, answers, finalize)`.
 - Analysis, clarification, scoring and the final prompt therefore match the
   Rules behaviour of the website and extension.
-- BERT and the grounded LLM are **not** run in-app; they remain available in
-  the full Streamlit engine, linked from Settings.
+- **BERT** loads the fine-tuned DistilBERT model from GitHub Pages once and runs
+  through Transformers.js/ONNX in the WebView.
+- **API** calls an OpenAI-compatible endpoint (Groq by default) with the key
+  stored in Settings. The APK can also pre-fill the key at build time with
+  `VECTOR_TEST_API_KEY`.
+- All three engines share the same checker, clarification loop and risk score.
 
 ## Build
 

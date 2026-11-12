@@ -37,7 +37,7 @@ const ID2LABEL = [
 
 const MAX_LENGTH = 128;
 
-const MODEL_PATH = `${import.meta.env.BASE_URL || './'}models/bert_tagger/`;
+const LOCAL_MODEL_PATH = `${import.meta.env.BASE_URL || './'}models/bert_tagger/`;
 
 let modelPromise: Promise<{
   tokenizer: any;
@@ -81,12 +81,18 @@ function load(onProgress?: BERTProgressHandler): Promise<any> {
       progressHandler({ percent: Math.round((p.loaded / p.total) * 100), file: String(p.file ?? '') });
     };
     modelPromise = (async () => {
-      // The weights live next to the app in `models/bert_tagger/` (self-hosted),
-      // never on the Hugging Face Hub.
-      env.allowLocalModels = true;
-      env.allowRemoteModels = false;
-      const tokenizer = await AutoTokenizer.from_pretrained(MODEL_PATH);
-      const model = await AutoModelForTokenClassification.from_pretrained(MODEL_PATH, {
+      // Web app loads the weights next to the page. The extension/Android
+      // bundle points at the same GitHub Pages copy and caches it in-browser.
+      const remoteHost = (globalThis as any).PROMPT_LINTER_BERT_REMOTE as string | undefined;
+      const modelPath = remoteHost ? 'models/bert_tagger' : LOCAL_MODEL_PATH;
+      env.allowLocalModels = !remoteHost;
+      env.allowRemoteModels = !!remoteHost;
+      if (remoteHost) {
+        env.remoteHost = remoteHost.replace(/\/$/, '');
+        env.remotePathTemplate = '{model}/';
+      }
+      const tokenizer = await AutoTokenizer.from_pretrained(modelPath);
+      const model = await AutoModelForTokenClassification.from_pretrained(modelPath, {
         dtype: 'q8',
         progress_callback: report,
       });
