@@ -108,7 +108,6 @@ def main() -> None:
         config_body = config_body.replace("openai/gpt-oss-120b", model)
     if key:
         config_body = config_body.replace("__PROMPT_LINTER_API_KEY__", key)
-        config_body = config_body.replace("engine: 'rules'", "engine: 'auto'")
 
     # Keys are personal: keep keyed builds out of the tracked store artifact.
     output_dir = dist_dir if not key else ROOT / "dist-local"
