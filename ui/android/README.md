@@ -15,7 +15,7 @@ content, pages, and Rules/BERT/API analysis.
 | About | Hero, problem, workflow, advantages, analysis approach, responsible use |
 | Settings | Theme, engine information, local storage, replay onboarding |
 
-Branding uses the same teal/mustard palette and the chat-bubble + check logo
+Branding uses the same teal/mustard palette and the dark-green "PL" monogram
 (`ui/components/PlLogo.kt`) as `ui/web-app/src/components/ui/Logo.tsx`.
 
 ## Engine parity

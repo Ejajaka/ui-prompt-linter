@@ -10,81 +10,72 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import com.promptlinter.app.ui.theme.PlBrandMustard
-import com.promptlinter.app.ui.theme.PlBrandTeal
+import com.promptlinter.app.ui.theme.PlBrandGreen
+import com.promptlinter.app.ui.theme.PlBrandYellow
 
 /**
- * Prompt Linter mark: a teal tile with a white outline chat bubble and a
- * mustard checkmark. Mirrors frontend/src/components/ui/Logo.tsx and the
- * store icon used by the web app and extension.
+ * Prompt Linter mark: a dark-green rounded tile with a bold yellow "PL"
+ * monogram. Geometry is taken from the source artwork and mirrors
+ * `ui/web-app/public/logo.svg`, `ui/web-app/src/components/ui/Logo.tsx` and
+ * the extension icon set.
  */
 @Composable
 fun PlLogo(
     modifier: Modifier = Modifier.size(28.dp),
-    tileColor: Color = PlBrandTeal
+    tileColor: Color = PlBrandGreen
 ) {
     Canvas(modifier = modifier) {
         val w = size.width
         val h = size.height
+        val s = minOf(w, h)
+
         drawRoundRect(
             color = tileColor,
-            cornerRadius = CornerRadius(w * 0.22f, h * 0.22f)
+            cornerRadius = CornerRadius(s * 0.2105f, s * 0.2105f)
         )
 
-        val stroke = w * 0.055f
-        val left = w * 0.16f
-        val top = h * 0.14f
-        val right = w * 0.84f
-        val bottom = h * 0.62f
-        val radius = w * 0.10f
-
-        // bubble outline
-        drawRoundRect(
-            color = Color.White,
-            topLeft = Offset(left, top),
-            size = Size(right - left, bottom - top),
-            cornerRadius = CornerRadius(radius, radius)
+        val glyphStroke = Stroke(
+            width = s * 0.1085f,
+            cap = StrokeCap.Round,
+            join = StrokeJoin.Round
         )
-        val tail = Path().apply {
-            moveTo(w * 0.40f, bottom)
-            lineTo(w * 0.20f, h * 0.80f)
-            lineTo(w * 0.20f, bottom)
-            close()
-        }
-        drawPath(tail, Color.White)
 
-        // bubble interior
+        // P stem.
+        drawLine(
+            color = PlBrandYellow,
+            start = Offset(s * 0.2464f, s * 0.3429f),
+            end = Offset(s * 0.2464f, s * 0.6571f),
+            strokeWidth = glyphStroke.width,
+            cap = StrokeCap.Round
+        )
+
+        // P bowl.
+        drawCircle(
+            color = PlBrandYellow,
+            radius = s * 0.1396f,
+            center = Offset(s * 0.3717f, s * 0.4283f)
+        )
         drawRoundRect(
             color = tileColor,
-            topLeft = Offset(left + stroke, top + stroke),
-            size = Size(right - left - stroke * 2, bottom - top - stroke * 2),
-            cornerRadius = CornerRadius((radius - stroke).coerceAtLeast(1f), (radius - stroke).coerceAtLeast(1f))
+            topLeft = Offset(s * 0.3006f, s * 0.3804f),
+            size = Size(s * 0.0996f, s * 0.0933f),
+            cornerRadius = CornerRadius(s * 0.0335f, s * 0.0335f)
         )
-        val innerTail = Path().apply {
-            moveTo(w * 0.40f - stroke, bottom - stroke)
-            lineTo(w * 0.20f + stroke, h * 0.80f - stroke)
-            lineTo(w * 0.20f + stroke, bottom - stroke)
-            close()
-        }
-        drawPath(innerTail, tileColor)
 
-        // checkmark
-        val lw = w * 0.07f
-        drawLine(
-            color = PlBrandMustard,
-            start = Offset(w * 0.36f, h * 0.40f),
-            end = Offset(w * 0.46f, h * 0.50f),
-            strokeWidth = lw,
-            cap = StrokeCap.Round
+        // L stem and foot.
+        val lStroke = Stroke(
+            width = s * 0.1157f,
+            cap = StrokeCap.Round,
+            join = StrokeJoin.Round
         )
-        drawLine(
-            color = PlBrandMustard,
-            start = Offset(w * 0.46f, h * 0.50f),
-            end = Offset(w * 0.64f, h * 0.32f),
-            strokeWidth = lw,
-            cap = StrokeCap.Round
-        )
+        val lPath = Path().apply {
+            moveTo(s * 0.5929f, s * 0.3466f)
+            lineTo(s * 0.5929f, s * 0.6516f)
+            lineTo(s * 0.7601f, s * 0.6516f)
+        }
+        drawPath(path = lPath, color = PlBrandYellow, style = lStroke)
     }
 }

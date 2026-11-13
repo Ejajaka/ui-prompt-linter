@@ -6,7 +6,7 @@ A Manifest V3 Chrome/Edge extension for the Prompt Linter. It supports:
 - **BERT** - the fine-tuned DistilBERT tagger, downloaded once from GitHub Pages.
 - **API** - grounded extraction through a Groq/OpenAI-compatible endpoint.
 
-The UI matches the main web app (teal/mustard, the chat-bubble + checkmark logo).
+The UI matches the main web app (teal/mustard, the dark-green "PL" monogram logo).
 
 ## Install
 

@@ -88,18 +88,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={() => setIsCollapsed(false)}
-              className="w-10 h-10 rounded-lg bg-[#49686C] hover:bg-[#30494B] flex items-center justify-center text-white shrink-0 shadow-xs transition-all cursor-pointer"
+              className="w-10 h-10 rounded-lg hover:bg-[#F0EDE3] flex items-center justify-center shrink-0 transition-all cursor-pointer"
               title="Prompt Linter - Click to expand sidebar"
               aria-label="Prompt Linter - Click to expand sidebar"
             >
-              <Logo size={20} />
+              <Logo size={28} />
             </button>
           ) : (
             /* Expanded: Logo + Typography + Collapse button */
             <>
               <div className="flex items-center gap-2.5 overflow-hidden">
-                <div className="w-8 h-8 rounded-lg bg-[#49686C] flex items-center justify-center text-white shrink-0 shadow-xs">
-                  <Logo size={20} />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
+                  <Logo size={30} />
                 </div>
                 <div className="flex flex-col truncate">
                   <span className="font-bold text-base tracking-tight text-[#283638]">

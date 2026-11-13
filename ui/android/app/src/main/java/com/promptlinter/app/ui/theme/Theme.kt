@@ -15,8 +15,8 @@ private val LightColors = lightColorScheme(
     onPrimaryContainer = LightPlColors.darkTeal,
     secondary = LightPlColors.mustard,
     onSecondary = LightPlColors.darkTeal,
-    secondaryContainer = LightPlColors.softGreen,
-    onSecondaryContainer = LightPlColors.darkTeal,
+    secondaryContainer = Color(0xFFFBF8EE),
+    onSecondaryContainer = LightPlColors.textMain,
     tertiary = LightPlColors.high,
     onTertiary = Color.White,
     background = LightPlColors.background,
@@ -26,7 +26,7 @@ private val LightColors = lightColorScheme(
     surfaceVariant = Color(0xFFEFECE2),
     onSurfaceVariant = LightPlColors.textSecondary,
     outline = LightPlColors.border,
-    outlineVariant = LightPlColors.border,
+    outlineVariant = Color(0xFFECE9DF),
     error = LightPlColors.critical,
     onError = Color.White,
 )
@@ -34,22 +34,22 @@ private val LightColors = lightColorScheme(
 private val DarkColors = darkColorScheme(
     primary = DarkPlColors.teal,
     onPrimary = Color(0xFF0E1617),
-    primaryContainer = Color(0xFF26383A),
-    onPrimaryContainer = DarkPlColors.textMain,
+    primaryContainer = DarkPlColors.darkTeal,
+    onPrimaryContainer = Color(0xFFE6EFE6),
     secondary = DarkPlColors.mustard,
     onSecondary = Color(0xFF241F0A),
-    secondaryContainer = Color(0xFF2A2B1C),
-    onSecondaryContainer = DarkPlColors.mustard,
-    tertiary = DarkPlColors.high,
-    onTertiary = Color(0xFF24130A),
+    secondaryContainer = Color(0xFF33301E),
+    onSecondaryContainer = Color(0xFFF9ECA8),
+    tertiary = DarkPlColors.mustard,
+    onTertiary = DarkPlColors.background,
     background = DarkPlColors.background,
     onBackground = DarkPlColors.textMain,
     surface = DarkPlColors.card,
     onSurface = DarkPlColors.textMain,
-    surfaceVariant = Color(0xFF243234),
+    surfaceVariant = Color(0xFF263538),
     onSurfaceVariant = DarkPlColors.textSecondary,
     outline = DarkPlColors.border,
-    outlineVariant = DarkPlColors.borderStrong,
+    outlineVariant = Color(0xFF3B4B4F),
     error = DarkPlColors.critical,
     onError = Color(0xFF2A0E0B),
 )
@@ -63,6 +63,7 @@ fun PromptLinterTheme(
     CompositionLocalProvider(LocalPlColors provides colors) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColors else LightColors,
+            typography = Typography,
             content = content
         )
     }

@@ -8,17 +8,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -27,9 +31,9 @@ import androidx.compose.ui.unit.sp
 import com.promptlinter.app.ui.components.PlLogo
 import com.promptlinter.app.ui.screens.*
 import com.promptlinter.app.ui.theme.PromptLinterTheme
+import com.promptlinter.app.ui.viewmodel.DetailPage
 import com.promptlinter.app.ui.viewmodel.MainViewModel
 import com.promptlinter.app.ui.viewmodel.Tab
-import com.promptlinter.app.ui.viewmodel.DetailPage
 
 class MainActivity : ComponentActivity() {
     private val vm: MainViewModel by viewModels()
@@ -81,10 +85,28 @@ private val tabTitles = mapOf(
     Tab.SETTINGS to "Settings"
 )
 
+private val tabSubtitles = mapOf(
+    Tab.OVERVIEW to "Prompt completeness dashboard",
+    Tab.NEW_ANALYSIS to "Pre-generation UI prompt review",
+    Tab.HISTORY to "Saved prompt evaluations",
+    Tab.SETTINGS to "Engine, appearance & local data"
+)
+
+private val detailTitles = mapOf(
+    DetailPage.ABOUT to "About Prompt Linter",
+    DetailPage.GUIDELINES to "Prompt Guidelines"
+)
+
+private val detailSubtitles = mapOf(
+    DetailPage.ABOUT to "Product overview & responsible use",
+    DetailPage.GUIDELINES to "Elements, attributes & risk bands"
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Unit, onShowOnboarding: () -> Unit) {
-    val title = vm.detailPage?.label ?: tabTitles[vm.selectedTab] ?: "Overview"
+    val title = vm.detailPage?.let { detailTitles[it] } ?: tabTitles[vm.selectedTab] ?: "Overview"
+    val subtitle = vm.detailPage?.let { detailSubtitles[it] } ?: tabSubtitles[vm.selectedTab]
 
     BackHandler(enabled = vm.detailPage != null || vm.selectedTab != Tab.OVERVIEW) {
         if (vm.detailPage != null) vm.closeDetail() else vm.selectedTab = Tab.OVERVIEW
@@ -98,39 +120,46 @@ fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Uni
                         IconButton(onClick = { vm.closeDetail() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
-                    } else {
-                        PlLogo(modifier = Modifier.padding(start = 16.dp).size(24.dp))
                     }
                 },
                 title = {
-                    Text(
-                        title,
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        maxLines = 1
-                    )
-                },
-                actions = {
-                    Surface(
-                        shape = MaterialTheme.shapes.small,
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Text(
-                            "Router · auto",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (vm.detailPage == null) {
+                            PlLogo(modifier = Modifier.size(28.dp))
+                            Spacer(Modifier.width(10.dp))
+                        }
+                        Column {
+                            Text(
+                                title,
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                ),
+                                maxLines = 1
+                            )
+                            if (subtitle != null) {
+                                Text(
+                                    subtitle,
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontSize = 11.sp
+                                    ),
+                                    maxLines = 1
+                                )
+                            }
+                        }
                     }
-                    Spacer(Modifier.width(12.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
                 listOf(
-                    Triple(Tab.OVERVIEW, "Overview", Icons.Filled.Dashboard),
-                    Triple(Tab.NEW_ANALYSIS, "Analyze", Icons.Filled.EditNote),
+                    Triple(Tab.OVERVIEW, "Overview", Icons.Filled.Home),
+                    Triple(Tab.NEW_ANALYSIS, "Analyze", Icons.Filled.Analytics),
                     Triple(Tab.HISTORY, "History", Icons.Filled.History),
                     Triple(Tab.SETTINGS, "Settings", Icons.Filled.Settings)
                 ).forEach { (tab, label, icon) ->
@@ -141,11 +170,13 @@ fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Uni
                             vm.selectedTab = tab
                         },
                         icon = { Icon(icon, contentDescription = label) },
-                        label = { Text(label, maxLines = 1, fontSize = 10.sp) },
+                        label = { Text(label, maxLines = 1) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.onPrimary,
                             selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primary
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
                 }

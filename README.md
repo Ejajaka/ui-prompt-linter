@@ -568,7 +568,7 @@ A Chrome/Edge extension that runs the Prompt Linter Rules engine entirely in the
 popup. It requests **no permissions**, makes **no network calls** and collects
 **no data**, so it works offline and declares no remote code.
 
-It mirrors the web app: same teal/mustard palette, same chat-bubble + checkmark
+It mirrors the web app: same teal/mustard palette, same dark-green "PL" monogram
 logo, same 4-step analysis flow. The popup detects the 10 element types, links
 colour/location/action/label to each element, flags missing and vague details,
 asks clarification questions, shows the 0–100 risk score and produces a
@@ -618,7 +618,7 @@ The native app in `ui/android/` is a separate Jetpack Compose project (package
 `com.promptlinter.app`, `minSdk` 24, `compileSdk`/`targetSdk` 36) that recreates
 the web product rather than embedding it in a browser. It uses the same teal
 `#49686C` / mustard `#D1B653` / warm ivory `#F6F4EC` branding and a drawn
-chat-bubble + checkmark logo.
+dark-green `#185345` tile with the yellow `#FAD237` "PL" monogram.
 
 | Screen | Matches web page |
 |---|---|

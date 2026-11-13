@@ -39,7 +39,7 @@ code, pre, .mono { font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo
 }
 .logo {
   width: 32px; height: 32px; border-radius: 8px;
-  background: var(--teal); display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+  background: transparent; display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
 }
 .brand-name { font-weight: 800; font-size: 14px; line-height: 1.1; letter-spacing: -0.02em; }
 .brand-sub { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-2); font-weight: 700; margin-top: 2px; }

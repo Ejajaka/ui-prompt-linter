@@ -3,9 +3,9 @@ package com.promptlinter.app.ui.theme
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// Brand mark colours — constant across light/dark (used by the logo tile).
-val PlBrandTeal = Color(0xFF49686C)
-val PlBrandMustard = Color(0xFFD1B653)
+// Brand mark colours - constant across light/dark (used by the logo tile).
+val PlBrandGreen = Color(0xFF185345)
+val PlBrandYellow = Color(0xFFFAD237)
 
 /**
  * Semantic palette for the whole app. Mirrors `frontend/src/index.css` so the
@@ -51,36 +51,36 @@ val LightPlColors = PlColors(
     border = Color(0xFFE5E2D8),
     borderStrong = Color(0xFFCDC9BC),
     critical = Color(0xFFB94D42),
-    high = Color(0xFFC96839),
-    medium = Color(0xFFD1B653),
-    low = Color(0xFF688E5E),
+    high = Color(0xFFC05621),
+    medium = Color(0xFF9E7D1B),
+    low = Color(0xFF2E6F40),
     minimal = Color(0xFF49686C),
     warningText = Color(0xFF856C16),
     warningBg = Color(0xFFFEFCE8),
 )
 
 val DarkPlColors = PlColors(
-    background = Color(0xFF131A1B),
-    card = Color(0xFF1B2426),
-    subtle = Color(0xFF172022),
-    hover = Color(0xFF222E30),
-    teal = Color(0xFF5A8084),
-    darkTeal = Color(0xFF3B575A),
-    mustard = Color(0xFFE2C768),
+    background = Color(0xFF141C1E),
+    card = Color(0xFF1D282A),
+    subtle = Color(0xFF182123),
+    hover = Color(0xFF263538),
+    teal = Color(0xFF6F999D),
+    darkTeal = Color(0xFF49686C),
+    mustard = Color(0xFFE2C969),
     mustardHover = Color(0xFFD1B653),
-    softGreen = Color(0xFF1F2D21),
+    softGreen = Color(0xFF33463E),
     softGreenText = Color(0xFF8AE07E),
-    textMain = Color(0xFFF2F5F3),
-    textSecondary = Color(0xFF9AA6A2),
-    border = Color(0xFF29383A),
-    borderStrong = Color(0xFF384C4F),
-    critical = Color(0xFFDE5B50),
-    high = Color(0xFFDE7B4A),
-    medium = Color(0xFFE2C768),
-    low = Color(0xFF7BB071),
-    minimal = Color(0xFF5A8084),
-    warningText = Color(0xFFE2C768),
-    warningBg = Color(0xFF2D2A17),
+    textMain = Color(0xFFF4F6F4),
+    textSecondary = Color(0xFFA6AEA8),
+    border = Color(0xFF2E3E42),
+    borderStrong = Color(0xFF3B4B4F),
+    critical = Color(0xFFE57368),
+    high = Color(0xFFED8936),
+    medium = Color(0xFFECC94B),
+    low = Color(0xFF68D391),
+    minimal = Color(0xFF6F999D),
+    warningText = Color(0xFFE2C969),
+    warningBg = Color(0xFF33301E),
 )
 
 val LocalPlColors = staticCompositionLocalOf { LightPlColors }

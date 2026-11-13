@@ -16,9 +16,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent
-TEAL = (73, 104, 108, 255)      # #49686C
-WHITE = (255, 255, 255, 255)
-MUSTARD = (209, 182, 83, 255)   # #D1B653
+BRAND_GREEN = (24, 83, 69, 255)   # #185345
+BRAND_YELLOW = (250, 210, 55, 255)  # #FAD237
 
 # Files that ship inside the extension zip (manifest.json must be at the root).
 SHIP_FILES = [
@@ -39,34 +38,38 @@ SHIP_FILES = [
 
 
 def make_logo(size_px: int) -> Image.Image:
-    S = 8
+    """Render the Prompt Linter mark: a dark-green rounded tile with a bold
+    yellow "PL" monogram. Coordinates are expressed in the source artwork's
+    1254 px space so the PNG icons, store logo and in-app mark stay identical.
+    """
+    S = max(1, round(8 * 1254 / size_px))
     W = size_px * S
+    u = W / 1254.0
+
+    def px(value: float) -> int:
+        return round(value * u)
+
     img = Image.new("RGBA", (W, W), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    stroke = int(W * 0.055)
-    d.rounded_rectangle([0, 0, W - 1, W - 1], radius=int(W * 0.22), fill=TEAL)
-    bx0, by0, bx1, by1 = int(W * 0.16), int(W * 0.14), int(W * 0.84), int(W * 0.62)
-    r = int(W * 0.10)
-    d.rounded_rectangle([bx0, by0, bx1, by1], radius=r, fill=WHITE)
-    d.polygon([(int(W * 0.40), by1), (int(W * 0.20), int(W * 0.80)), (int(W * 0.20), by1)], fill=WHITE)
-    d.rounded_rectangle([bx0 + stroke, by0 + stroke, bx1 - stroke, by1 - stroke], radius=max(1, r - stroke), fill=TEAL)
-    d.polygon(
-        [
-            (int(W * 0.40) - stroke, by1 - stroke),
-            (int(W * 0.20) + stroke, int(W * 0.80) - stroke),
-            (int(W * 0.20) + stroke, by1 - stroke),
-        ],
-        fill=TEAL,
-    )
-    lw = int(W * 0.07)
-    p1 = (int(W * 0.36), int(W * 0.40))
-    p2 = (int(W * 0.46), int(W * 0.50))
-    p3 = (int(W * 0.64), int(W * 0.32))
-    d.line([p1, p2], fill=MUSTARD, width=lw, joint="curve")
-    d.line([p2, p3], fill=MUSTARD, width=lw, joint="curve")
-    for p in (p1, p3):
-        rr = lw // 2
-        d.ellipse([p[0] - rr, p[1] - rr, p[0] + rr, p[1] + rr], fill=MUSTARD)
+
+    # Rounded square tile.
+    d.rounded_rectangle([0, 0, W - 1, W - 1], radius=px(264), fill=BRAND_GREEN)
+
+    def rounded_line(x0, y0, x1, y1, width):
+        d.line([(px(x0), px(y0)), (px(x1), px(y1))], fill=BRAND_YELLOW, width=px(width))
+        r = px(width) / 2
+        for x, y in ((x0, y0), (x1, y1)):
+            d.ellipse([px(x) - r, px(y) - r, px(x) + r, px(y) + r], fill=BRAND_YELLOW)
+
+    # P: vertical stem and circular bowl with a rounded counter.
+    rounded_line(309, 430, 309, 825, 136)
+    d.ellipse([px(291), px(362), px(641), px(712)], fill=BRAND_YELLOW)
+    d.rounded_rectangle([px(377), px(477), px(502), px(594)], radius=px(42), fill=BRAND_GREEN)
+
+    # L: vertical stem and foot.
+    rounded_line(743, 435, 743, 817, 146)
+    rounded_line(743, 817, 954, 817, 148)
+
     return img.resize((size_px, size_px), Image.LANCZOS)
 
 
@@ -90,9 +93,14 @@ def main() -> None:
     store_dir.mkdir(exist_ok=True)
     dist_dir.mkdir(exist_ok=True)
 
-    # Store logo
+    # Store logo + extension toolbar/store icons.
     make_logo(300).save(store_dir / "store-logo-300.png")
     print("wrote store/store-logo-300.png")
+    icons_dir = ROOT / "icons"
+    icons_dir.mkdir(exist_ok=True)
+    for size in (16, 32, 48, 128):
+        make_logo(size).save(icons_dir / f"icon{size}.png")
+    print("wrote icons/icon16.png ... icons/icon128.png")
 
     # Optional build-time key injection for friends-only artifacts.
     local = {} if args.public else local_ai_config()
