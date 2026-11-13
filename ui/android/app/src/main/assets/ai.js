@@ -85,6 +85,10 @@ function loadBert(onProgress) {
     try {
       env.backends.onnx.wasm.wasmPaths =
         'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/';
+      // MV3 extension pages cannot use blob: workers, so keep ORT
+      // single-threaded and on the main thread.
+      env.backends.onnx.wasm.numThreads = 1;
+      env.backends.onnx.wasm.proxy = false;
     } catch (ignored) {}
     const report = (p) => {
       if (!onProgress || p?.status !== 'progress' || !p.total) return;
