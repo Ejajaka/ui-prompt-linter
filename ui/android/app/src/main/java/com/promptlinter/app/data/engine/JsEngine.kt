@@ -84,7 +84,7 @@ class JsEngine(context: Context) {
             webView?.evaluateJavascript(js, null)
         }
         val json = try {
-            future.get(180, TimeUnit.SECONDS)
+            future.get(300, TimeUnit.SECONDS)
         } catch (e: Exception) {
             "{\"error\":${gson.toJson(e.message ?: "Engine timed out")}}"
         } finally {

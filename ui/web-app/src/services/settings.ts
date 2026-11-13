@@ -12,13 +12,15 @@ const STORAGE_KEY = 'prompt_linter_settings_v2';
 // public/engine/demo-config.js exposing window.VECTOR_DEMO_SETTINGS. The
 // build-time VITE key still wins when both are present. Never commit a key.
 const DEMO = (typeof window !== 'undefined' && (window as any).VECTOR_DEMO_SETTINGS) || {};
-const TEST_API_KEY =
-  ((import.meta as any).env?.VITE_VECTOR_TEST_API_KEY as string) || DEMO.apiKey || '';
+const ENV = (import.meta as any).env || {};
+const TEST_API_KEY: string = ENV.VITE_VECTOR_TEST_API_KEY || DEMO.apiKey || '';
+const TEST_BASE_URL: string = ENV.VITE_VECTOR_BASE_URL || DEMO.baseUrl || '';
+const TEST_MODEL: string = ENV.VITE_VECTOR_MODEL || DEMO.model || '';
 
 export const DEFAULT_SETTINGS: AppSettings = {
   apiKey: TEST_API_KEY,
-  baseUrl: DEMO.baseUrl || 'https://api.groq.com/openai/v1',
-  model: DEMO.model || 'openai/gpt-oss-120b',
+  baseUrl: TEST_BASE_URL || 'https://api.groq.com/openai/v1',
+  model: TEST_MODEL || 'openai/gpt-oss-120b',
   autoDeepScan: true
 };
 

@@ -22,9 +22,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val historyRepo = HistoryRepository(app)
     private val prefs = app.getSharedPreferences("prompt_linter_ai", android.content.Context.MODE_PRIVATE)
 
-    var aiEngine by mutableStateOf(prefs.getString("engine", if (BuildConfig.PROMPT_LINTER_API_KEY.isNotBlank()) "api" else "rules") ?: "rules")
-    var aiBaseUrl by mutableStateOf(prefs.getString("base_url", "https://api.groq.com/openai/v1") ?: "https://api.groq.com/openai/v1")
-    var aiModel by mutableStateOf(prefs.getString("model", "openai/gpt-oss-120b") ?: "openai/gpt-oss-120b")
+    var aiEngine by mutableStateOf(prefs.getString("engine_v2", "auto") ?: "auto")
+    var aiBaseUrl by mutableStateOf(prefs.getString("base_url", BuildConfig.PROMPT_LINTER_BASE_URL) ?: BuildConfig.PROMPT_LINTER_BASE_URL)
+    var aiModel by mutableStateOf(prefs.getString("model", BuildConfig.PROMPT_LINTER_MODEL) ?: BuildConfig.PROMPT_LINTER_MODEL)
     var aiApiKey by mutableStateOf(prefs.getString("api_key", BuildConfig.PROMPT_LINTER_API_KEY) ?: BuildConfig.PROMPT_LINTER_API_KEY)
 
     fun saveAiSettings(engineName: String, baseUrl: String, model: String, apiKey: String) {
@@ -32,7 +32,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         aiBaseUrl = baseUrl
         aiModel = model
         aiApiKey = apiKey
-        prefs.edit().putString("engine", engineName).putString("base_url", baseUrl)
+        prefs.edit().putString("engine_v2", engineName).putString("base_url", baseUrl)
             .putString("model", model).putString("api_key", apiKey).apply()
     }
 
@@ -94,7 +94,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             withContext(Dispatchers.Main) { analyzing = true }
             try {
                 var p = engine.analyze(promptText.trim(), merged, false, aiEngine, aiSettings())
-                if (p.needsClarification && !stop && nextRound <= 3) {
+                if (p.needsClarification && !stop && nextRound <= 4) {
                     withContext(Dispatchers.Main) {
                         payload = p
                         historyRepo.save(promptText.trim(), p)

@@ -599,6 +599,26 @@ def render_action_bar(text: str, payload: dict) -> None:
 def render_risk_overview(payload: dict) -> None:
     initial = payload["risk"]["initial"]
     final = payload["risk"]["final"]
+    if payload.get("needs_clarification"):
+        st.markdown(
+            compact_html(
+            f"""
+            <div class="card">
+              <div class="risk-head">
+                <div>
+                  <div class="risk-title">Evaluation paused — clarification required</div>
+                  <div class="risk-sub">Router selected <b>{esc(payload.get('engine', 'rules'))}</b>.</div>
+                </div>
+                <div class="pill">{len(payload['clarification']['questions'])} open question(s)</div>
+              </div>
+              <div class="banner-note"><b>Score withheld.</b> Answer the clarification questions below.
+              The analyser re-runs after each round and only then computes the risk score and LLM explanation.</div>
+            </div>
+            """
+            ),
+            unsafe_allow_html=True,
+        )
+        return
     components = final["components"]
     counts = final["counts"]
     completeness = round(100 * (1 - components.get("completeness", 1)))
@@ -608,12 +628,8 @@ def render_risk_overview(payload: dict) -> None:
     risk_color = RISK_COLORS.get(level, "#49686C")
     coverage_color = "#30494B" if completeness >= 75 else "#49686C" if completeness >= 50 else "#D1B653"
     explanation = payload.get("explanation") or final.get("explanation", "")
-    initial_note = (
-        f'<div class="banner-note"><b>Initial assessment.</b> Answer the clarification '
-        f"questions to unlock the final recommendation. Initial risk: {initial['score']}/100.</div>"
-        if payload.get("needs_clarification")
-        else ""
-    )
+    initial_note = ""
+    explanation_label = "LLM explanation" if payload.get("explanation_source") == "llm" else "Deterministic explanation"
     st.markdown(
         compact_html(
         f"""
@@ -648,7 +664,7 @@ def render_risk_overview(payload: dict) -> None:
           <div class="assessment">
             <div class="assessment-icon">i</div>
             <div>
-              <div class="assessment-title">Evaluation assessment</div>
+              <div class="assessment-title">{explanation_label}</div>
               <div class="assessment-text">{esc(explanation)}</div>
             </div>
           </div>

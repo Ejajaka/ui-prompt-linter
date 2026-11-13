@@ -115,7 +115,7 @@ fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Uni
                         color = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Text(
-                            "Rules · on-device",
+                            "Router · auto",
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

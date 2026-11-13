@@ -240,78 +240,108 @@ def _llm_is_better(llm: dict, other: dict) -> bool:
     return False
 
 
+def selection_score(analysis: dict) -> float:
+    """Rank a detector run by confidence *and* grounded detail.
+
+    The router predicts which detector should win for a prompt; this score is
+    used afterwards to verify that prediction against what each detector
+    actually produced.  A detector that finds nothing scores zero regardless of
+    how confident it claims to be.
+    """
+    elements = analysis.get("elements", [])
+    if not elements:
+        return 0.0
+    details = sum(len(element.attributes) for element in elements)
+    completeness = min(details / (3.0 * len(elements)), 1.0)
+    return round(0.7 * float(analysis.get("confidence") or 0.0) + 0.3 * completeness, 4)
+
+
 def _route_and_run(text: str, method: str, allow_llm: bool, client: LLMClient | None) -> tuple[dict, dict, str | None]:
-    router_meta: dict = {"method": method, "reason": "manual selection", "scores": {}}
+    """Run the requested/auto-selected detectors and keep the strongest result.
+
+    In ``auto`` mode the router's prompt features pick the candidates, then the
+    candidates are actually executed and ranked by :func:`selection_score` so a
+    detector that "works better" on this specific prompt wins even when the
+    router's prior pointed elsewhere.
+    """
+    requested = method
     if method == "auto":
-        router_meta = route(text, allow_llm=allow_llm)
+        router_meta: dict = route(text, allow_llm=allow_llm)
         method = router_meta["method"]
+    else:
+        router_meta = {"method": method, "reason": "manual selection", "scores": {}}
+    router_meta["requested"] = requested
 
     llm_error: str | None = None
-    chosen: dict | None = None
+    candidates: dict[str, dict] = {}
 
-    if method == "llm":
-        if allow_llm:
-            try:
-                chosen = _analyse_llm(text, client or LLMClient())
-            except (LLMNotAvailable, LLMResponseError, Exception) as exc:  # noqa: BLE001
-                llm_error = str(exc)
-        if chosen is not None:
-            # The local LLMs are small; only accept their extraction if it
-            # actually adds grounded detail over Rules.
-            rules_alt = _try_tagger("rules", text)
-            if rules_alt is not None and not _llm_is_better(chosen, rules_alt):
-                llm_meta = dict(chosen.get("llm_meta", {}))
-                rules_alt["llm_meta"] = {
-                    "overridden_by": "rules",
-                    "llm_raw": llm_meta,
-                }
-                chosen = rules_alt
-        if chosen is None:
-            # Fall back to the best tagger available.
-            order = sorted(
-                (("rules", router_meta.get("scores", {}).get("rules", 1.0)),
-                 ("bert", router_meta.get("scores", {}).get("bert", 0.0))),
-                key=lambda item: item[1], reverse=True,
-            )
-            for name, _ in order:
-                chosen = _try_tagger(name, text)
-                if chosen is not None:
-                    break
-            if chosen is None:
-                raise BackendNotAvailable("No backend could analyse this prompt.")
-    else:
-        chosen = _try_tagger(method, text)
-        if chosen is None:
-            other = "bert" if method == "rules" else "rules"
-            chosen = _try_tagger(other, text)
-        if chosen is None and allow_llm:
-            try:
-                chosen = _analyse_llm(text, client or LLMClient())
-                method = "llm"
-            except (LLMNotAvailable, LLMResponseError, Exception) as exc:  # noqa: BLE001
-                llm_error = str(exc)
-        if chosen is None:
-            raise BackendNotAvailable("No backend could analyse this prompt.")
+    def consider(analysis: dict | None, name: str | None = None) -> None:
+        if analysis is None:
+            return
+        candidates[name or analysis["engine"]] = analysis
 
-    # Low-confidence escalation to the LLM (unless we already used it).
-    if (
-        allow_llm
-        and chosen["engine"] != "llm"
-        and chosen["confidence"] < LOW_CONFIDENCE
-    ):
+    # Rules is cheap, so it is always available as a baseline/fallback.
+    consider(_try_tagger("rules", text))
+    if method == "bert":
+        consider(_try_tagger("bert", text))
+
+    if method == "llm" and allow_llm:
         try:
-            llm_result = _analyse_llm(text, client or LLMClient())
-            if llm_result["result"]["summary"]["n_elements"] > 0 and _llm_is_better(
-                llm_result, chosen
-            ):
-                llm_result["llm_meta"]["fallback_from"] = chosen["engine"]
-                chosen = llm_result
-            else:
-                chosen.setdefault("llm_meta", {})["rejected_llm"] = True
+            consider(_analyse_llm(text, client or LLMClient()))
         except (LLMNotAvailable, LLMResponseError, Exception) as exc:  # noqa: BLE001
             llm_error = str(exc)
 
+    baseline = candidates.get("rules")
+    best = max(candidates.values(), key=selection_score, default=None)
+
+    # Escalate to the LLM when the router asked for it, or when the best
+    # detector so far is weak (unless the LLM was already tried).
+    if allow_llm and "llm" not in candidates and (
+        method == "llm" or best is None or best["confidence"] < LOW_CONFIDENCE
+    ):
+        try:
+            consider(_analyse_llm(text, client or LLMClient()))
+        except (LLMNotAvailable, LLMResponseError, Exception) as exc:  # noqa: BLE001
+            llm_error = str(exc)
+
+    # A small local LLM may hallucinate: only accept it when it adds grounded
+    # detail over the deterministic baseline.
+    llm_candidate = candidates.get("llm")
+    if llm_candidate is not None and baseline is not None and not _llm_is_better(
+        llm_candidate, baseline
+    ):
+        llm_candidate["llm_meta"] = dict(llm_candidate.get("llm_meta", {}))
+        llm_candidate["llm_meta"]["rejected_by"] = "rules"
+        candidates.pop("llm", None)
+
+    if not candidates:
+        raise BackendNotAvailable("No backend could analyse this prompt.")
+
+    scores = {name: selection_score(run) for name, run in candidates.items()}
+    preferred = method if method in candidates else None
+    chosen = max(
+        candidates.values(),
+        key=lambda run: (
+            scores[run["engine"]],
+            # Tie-break: keep the router/manual preference, then rules.
+            run["engine"] == preferred,
+            run["engine"] == "rules",
+        ),
+    )
+    if chosen["engine"] != method:
+        chosen.setdefault("llm_meta", {})["fallback_from"] = method
+        router_meta["fallback_from"] = method
+
     router_meta["selected"] = chosen["engine"]
+    router_meta["selected_by"] = "manual" if requested != "auto" else "router+confidence"
+    router_meta["candidates"] = scores
+    router_meta["selection_score"] = scores.get(chosen["engine"], 0.0)
+    if chosen["engine"] != method and requested == "auto":
+        router_meta["reason"] = (
+            f"{method.upper()} was predicted, but {chosen['engine'].upper()} scored "
+            f"higher on this prompt ({scores.get(chosen['engine'], 0.0):.2f} vs "
+            f"{scores.get(method, 0.0):.2f})."
+        )
     return chosen, router_meta, llm_error
 
 
@@ -372,11 +402,13 @@ def _finish_full(
     final_prompt = None
     explanation = None
     recommendations = None
+    explanation_source = "deterministic"
     llm_used = False
     deterministic_prompt = _deterministic_final_prompt(elements)
 
     if not needs_clarification:
         final_prompt = deterministic_prompt
+        llm_explanation = None
         if allow_llm and explain:
             try:
                 llm_data = explain_and_recommend(
@@ -386,15 +418,18 @@ def _finish_full(
                     [question.to_dict() for question in unresolved],
                     client or LLMClient(),
                 )
-                explanation = llm_data["explanation"]
+                llm_explanation = llm_data["explanation"]
                 recommendations = llm_data["recommendations"]
                 if llm_data.get("polished_prompt") and _validate_polished(
                     llm_data["polished_prompt"], elements
                 ):
                     final_prompt = llm_data["polished_prompt"]
-                llm_used = True
             except (LLMNotAvailable, LLMResponseError, Exception):  # noqa: BLE001
-                llm_used = False
+                llm_explanation = None
+        if llm_explanation:
+            explanation = llm_explanation
+            llm_used = True
+            explanation_source = "llm"
         if not explanation:
             explanation = final_risk.get("explanation", "")
             if unresolved:
@@ -415,6 +450,7 @@ def _finish_full(
         "llm_meta": analysis.get("llm_meta", {}),
         "llm_error": llm_error,
         "llm_used": llm_used,
+        "explanation_source": explanation_source,
         "risk": {"initial": initial_risk, "final": final_risk},
         "clarification": {
             "questions": [question.to_dict() for question in questions],

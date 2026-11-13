@@ -53,11 +53,16 @@ Three detection methods share the same checker and UI:
 | **BERT** | Fine-tuned `distilbert-base-uncased` BIO token classifier | Free-form/repeated-noun cases where it beats Rules |
 | **LLM** | Grounded JSON extraction via local Ollama | Free-form prompts with no known UI noun, or when Rules/BERT are uncertain |
 
-The **Auto** router chooses one of the three from prompt features. After detection,
-a blocking clarification loop asks about missing/unknown/vague/low-confidence
-details. A shared deterministic **risk score** (0–100) is shown before and after
-clarification. Finally, the LLM can explain the score and recommend next steps;
-if it is unavailable, deterministic templates are used.
+The **Auto** router chooses one of the three from prompt features. The chosen
+detector is then validated against what each candidate actually produced:
+the pipeline ranks runs by a shared `selection_score` (detector confidence plus
+grounded detail), so a detector that works better on that specific prompt wins
+even if the router's prior pointed elsewhere. After detection a blocking
+clarification loop asks about missing/unknown/vague/low-confidence details and
+re-runs the analysis after every round; the risk score is withheld until the
+prompt is unambiguous. Once resolved, the shared deterministic **risk score**
+(0–100) is shown and the **final explanation is always written by the LLM**
+(the deterministic template is a labelled fallback when no key is configured).
 
 ---
 
@@ -125,6 +130,27 @@ python tools/sync_docs.py
 
 This updates `docs/py`, `docs/rules/py` and `ui/web-app/public/py` in one pass
 (`--check` verifies them in CI).
+
+The extension's `engine.js` / `ai.js` are the canonical browser copies; sync them
+into the Android WebView assets after editing either client:
+
+```bash
+python tools/sync_engines.py          # copy extension -> Android assets
+python tools/sync_engines.py --check  # verify (used by CI)
+```
+
+### Embedding AI credentials for local builds
+
+No key is committed to git. Each client reads a gitignored local config:
+
+| Client | Source |
+|---|---|
+| Web app | `ui/web-app/.env.local` (`VITE_VECTOR_TEST_API_KEY`, `VITE_VECTOR_BASE_URL`, `VITE_VECTOR_MODEL`) |
+| Extension | `ui/extension/ai-config.local.js`; `package.py` also injects `tools/local_ai_config.json` into the zip |
+| Android | `ui/android/local.properties` (`promptLinter.apiKey`, `.baseUrl`, `.model`) |
+
+`tools/local_ai_config.json` holds the same values for the extension packager.
+Keyed builds must not be pushed to a public repo — rotate the key if one leaks.
 
 Export the in-browser BERT model (once, or after retraining):
 

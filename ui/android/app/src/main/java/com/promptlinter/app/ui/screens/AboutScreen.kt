@@ -258,7 +258,7 @@ fun AboutScreen(vm: MainViewModel) {
                 Spacer(Modifier.height(12.dp))
                 Text(
                     "The core analysis is deterministic and explainable. Rules and BERT only label words that exist in the prompt. The LLM layer is grounded: values that cannot be found in the prompt or in the user’s answers are rejected.\n\n" +
-                            "On mobile, the Rules engine runs fully on-device inside the app for offline use and parity with the website and browser extension. BERT and the grounded LLM are available in the full Streamlit engine; nothing is fabricated when a model is unreachable.",
+                            "On mobile the router scores the prompt, runs the Rules, BERT or LLM detector that is expected to perform best, and verifies that choice against the confidence each detector actually produced. Rules runs fully on-device; BERT downloads its model once and then runs on-device; the LLM uses the endpoint configured in Settings and always writes the final explanation. Clarification questions block the risk score until the prompt is unambiguous, and nothing is fabricated when a model is unreachable.",
                     style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 19.sp)
                 )
             }

@@ -52,9 +52,9 @@ fun SettingsScreen(
 
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Rules, BERT or API", fontWeight = FontWeight.Bold)
+                Text("Router & engine", fontWeight = FontWeight.Bold)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf("rules" to "Rules", "bert" to "BERT", "api" to "API").forEach { (id, label) ->
+                    listOf("auto" to "Auto", "rules" to "Rules", "bert" to "BERT", "api" to "LLM").forEach { (id, label) ->
                         FilterChip(selected = vm.aiEngine == id, onClick = { vm.aiEngine = id }, label = { Text(label) })
                     }
                 }
@@ -67,17 +67,18 @@ fun SettingsScreen(
                 Button(onClick = { vm.saveAiSettings(vm.aiEngine, base.trim(), model.trim(), key.trim()) }) {
                     Text("Save AI settings")
                 }
-                Text("BERT downloads the 67 MB DistilBERT model from GitHub Pages once. API mode calls the endpoint above.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("BERT downloads the 67 MB DistilBERT model from GitHub Pages once. LLM mode calls the endpoint above and also writes the final explanation.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
             }
         }
 
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Analysis Engine", fontWeight = FontWeight.Bold)
-                Text("Active: " + vm.aiEngine.uppercase() + ". Rules is offline; BERT and API need network for the first load or the request.", fontWeight = FontWeight.SemiBold, color = LocalPlColors.current.darkTeal)
-                Text("• Auto — chooses Rules, BERT or LLM from prompt features (web full engine).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
-                Text("• Rules — deterministic lexicons, regexes and heuristics (default, on-device).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
-                Text("• BERT — fine-tuned DistilBERT BIO token classifier (full engine).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("Active: " + vm.aiEngine.uppercase() + ". Rules is offline; BERT and LLM need network for the first load or the request.", fontWeight = FontWeight.SemiBold, color = LocalPlColors.current.darkTeal)
+                Text("• Auto — the router scores the prompt, runs the strongest detector and keeps the best confidence.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("• Rules — deterministic lexicons, regexes and heuristics (offline).", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("• BERT — fine-tuned DistilBERT BIO token classifier.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("• LLM — grounded extraction; always used for the final explanation when a key is set.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                 Text("All three engines share the same checker, clarification loop and risk score.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
                 OutlinedButton(onClick = {
                     ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://ui-prompt-linte-ecdeszwu2gpoaebpkgus3y.streamlit.app/")))

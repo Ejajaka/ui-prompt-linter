@@ -243,6 +243,67 @@ export async function extractSpansApi(text, settings) {
   };
 }
 
-const AI = { runBert, extractSpansApi };
+const SYSTEM_EXPLAIN = `You explain a deterministic risk score for a UI prompt and give recommendations.
+You receive the already-computed score, its components, detected elements, missing details,
+unresolved clarification questions, and deterministic suggestions.
+Rules:
+- Do not recompute or change the score.
+- Do not invent elements, attributes, colours, locations, actions or labels.
+- Use placeholders for anything unresolved.
+- Do not claim the prompt is complete when the score is above 25.
+- Mention any unresolved questions.
+Return ONLY valid JSON with this shape:
+{"explanation":"...", "recommendations":["..."], "polished_prompt":"..."}`;
+
+function isConfigured(settings) {
+  return !!(settings && settings.baseUrl && settings.model && settings.apiKey);
+}
+
+async function explainResult(text, result, risk, unresolved, settings) {
+  if (!isConfigured(settings)) throw new Error('Add a base URL, model and API key in Settings.');
+  const base = String(settings.baseUrl || '').replace(/\/+$/, '');
+  const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${settings.apiKey}` };
+  if (base.includes('opencode.ai')) headers['x-opencode-session'] = 'ui-prompt-linter';
+  const res = await fetch(`${base}/chat/completions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: settings.model,
+      messages: [
+        { role: 'system', content: SYSTEM_EXPLAIN },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            prompt: text,
+            risk,
+            elements: (result && result.elements) || [],
+            unresolved_questions: unresolved || [],
+          }),
+        },
+      ],
+      temperature: 0,
+      response_format: { type: 'json_object' },
+    }),
+  });
+  if (!res.ok) throw new Error(`LLM request failed (${res.status}).`);
+  const body = await res.json();
+  const content = body?.choices?.[0]?.message?.content ?? '';
+  let data;
+  try { data = JSON.parse(stripCodeFences(content)); } catch { throw new Error('LLM returned invalid JSON.'); }
+  const explanation = String(data?.explanation || '').trim();
+  if (!explanation) throw new Error('The LLM returned an empty explanation.');
+  if ((risk?.score || 0) > 25 && /\b(is|looks|seems)\s+complete\b/i.test(explanation)) {
+    throw new Error('The LLM explanation contradicted the score.');
+  }
+  return {
+    explanation,
+    recommendations: Array.isArray(data?.recommendations)
+      ? data.recommendations.map((r) => String(r).trim()).filter(Boolean)
+      : [],
+    polished_prompt: String(data?.polished_prompt || '').trim(),
+  };
+}
+
+const AI = { runBert, extractSpansApi, explainResult, isConfigured };
 if (typeof window !== 'undefined') window.PromptLinterAI = AI;
 export default AI;

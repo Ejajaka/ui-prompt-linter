@@ -7,6 +7,8 @@ Produces:
 """
 from __future__ import annotations
 
+import argparse
+import json
 import os
 import zipfile
 from pathlib import Path
@@ -68,7 +70,21 @@ def make_logo(size_px: int) -> Image.Image:
     return img.resize((size_px, size_px), Image.LANCZOS)
 
 
+def local_ai_config() -> dict:
+    """Read the gitignored local AI config (tools/local_ai_config.json)."""
+    path = ROOT.parent.parent / "tools" / "local_ai_config.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Package the Prompt Linter extension.")
+    parser.add_argument("--public", action="store_true",
+                        help="build the keyless artifact for the tracked dist/ folder")
+    args = parser.parse_args()
+
     store_dir = ROOT / "store"
     dist_dir = ROOT / "dist"
     store_dir.mkdir(exist_ok=True)
@@ -79,20 +95,35 @@ def main() -> None:
     print("wrote store/store-logo-300.png")
 
     # Optional build-time key injection for friends-only artifacts.
-    key = os.environ.get("VECTOR_TEST_API_KEY", "").strip()
+    local = {} if args.public else local_ai_config()
+    key = "" if args.public else (
+        os.environ.get("VECTOR_TEST_API_KEY", "").strip() or str(local.get("apiKey", "")).strip()
+    )
+    base_url = str(local.get("baseUrl", "")).strip()
+    model = str(local.get("model", "")).strip()
     config_body = (ROOT / "ai-config.js").read_text(encoding="utf-8")
+    if base_url:
+        config_body = config_body.replace("https://api.groq.com/openai/v1", base_url)
+    if model:
+        config_body = config_body.replace("openai/gpt-oss-120b", model)
     if key:
         config_body = config_body.replace("__PROMPT_LINTER_API_KEY__", key)
-        config_body = config_body.replace("engine: 'rules'", "engine: 'api'")
+        config_body = config_body.replace("engine: 'rules'", "engine: 'auto'")
+
+    # Keys are personal: keep keyed builds out of the tracked store artifact.
+    output_dir = dist_dir if not key else ROOT / "dist-local"
+    output_dir.mkdir(exist_ok=True)
 
     # Upload zip
-    zip_path = dist_dir / "prompt-linter-extension.zip"
+    zip_path = output_dir / "prompt-linter-extension.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for name in SHIP_FILES:
             if name == "ai-config.js":
                 zf.writestr(name, config_body)
             else:
                 zf.write(ROOT / name, arcname=name)
+        # Placeholder so popup.html's optional local override never 404s.
+        zf.writestr("ai-config.local.js", "/* defaults are baked into ai-config.js */\n")
         for path in (ROOT / "ort-common").rglob("*.js"):
             zf.write(path, arcname=str(path.relative_to(ROOT)))
     print(f"wrote {zip_path.relative_to(ROOT.parent)}")

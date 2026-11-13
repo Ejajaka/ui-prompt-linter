@@ -13,7 +13,7 @@ import { AboutPage } from './pages/AboutPage.tsx';
 import { PrivacyPage } from './pages/PrivacyPage.tsx';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('about');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [analysisToInspect, setAnalysisToInspect] = useState<AnalysisResult | null>(null);

@@ -4,6 +4,40 @@
 <script src="engine.js"></script><script type="module" src="ai.js"></script></head>
 <body>
 <script>
+  function plAiReady() {
+    return new Promise(function(resolve, reject) {
+      if (window.PromptLinterAI) return resolve(window.PromptLinterAI);
+      var start = Date.now();
+      var timer = setInterval(function() {
+        if (window.PromptLinterAI) { clearInterval(timer); resolve(window.PromptLinterAI); }
+        else if (Date.now() - start > 20000) { clearInterval(timer); reject(new Error('AI module failed to load.')); }
+      }, 100);
+    });
+  }
+
+  function plAttachRouter(p, plan) {
+    p.router = {
+      method: plan.mode,
+      selected: plan.selected,
+      selected_by: plan.mode === 'auto' ? 'router+confidence' : 'manual',
+      reason: plan.reason,
+      scores: plan.route.scores,
+      candidates: plan.compared,
+      fallback: plan.fallback || null
+    };
+    return p;
+  }
+
+  function plRunPlan(text, plan, answers, finalize) {
+    if (plan.selected !== 'rules' && plan.spans && plan.spans.length) {
+      return PromptLinterEngine.analyzeFromSpans(
+        text, plan.spans, plan.confidence, plan.selected, answers, !!finalize, plan.meta || null
+      );
+    }
+    if (!Object.keys(answers || {}).length && !finalize && plan.baseline) return plan.baseline;
+    return PromptLinterEngine.analyze(text, answers || {}, !!finalize);
+  }
+
   window.runAnalyze = function(text, answersJson, finalize) {
     try {
       var answers = answersJson ? JSON.parse(answersJson) : {};
@@ -15,36 +49,106 @@
   };
 
   window.runAnalyzeAsync = function(text, answersJson, finalize, engineName, settingsJson, callbackId) {
+    text = text || '';
     var answers = answersJson ? JSON.parse(answersJson) : {};
     var settings = settingsJson ? JSON.parse(settingsJson) : {};
-    var engineName = engineName || 'rules';
+    engineName = engineName || 'auto';
     var done = function(result) {
       PromptLinterBridge.onResult(callbackId, JSON.stringify(result));
     };
     try {
-      var run = Promise.resolve();
-      if (engineName === 'rules') {
-        run = Promise.resolve(PromptLinterEngine.analyze(text || '', answers, !!finalize));
+      var allowLlm = !!(settings.baseUrl && settings.model && settings.apiKey);
+      // Detection is cached per prompt so clarification rounds only re-run the
+      // cheap deterministic stages instead of BERT / the LLM every time.
+      var cached = window.__plPlanCache;
+      var route, baseline, compared, target, plan, prepare;
+
+      if (cached && cached.text === text && cached.engine === engineName) {
+        plan = cached.plan;
+        prepare = Promise.resolve();
       } else {
-        run = new Promise(function(resolve, reject) {
-          if (window.PromptLinterAI) return resolve(window.PromptLinterAI);
-          var start = Date.now();
-          var timer = setInterval(function() {
-            if (window.PromptLinterAI) { clearInterval(timer); resolve(window.PromptLinterAI); }
-            else if (Date.now() - start > 20000) { clearInterval(timer); reject(new Error('AI module failed to load.')); }
-          }, 100);
-        }).then(function(ai) {
-          if (engineName === 'bert') {
+        route = PromptLinterEngine.routePrompt(text, allowLlm);
+        baseline = PromptLinterEngine.analyze(text, {}, false);
+        compared = { rules: PromptLinterEngine.selectionScore(baseline) };
+        target = engineName === 'auto' ? route.method : (engineName === 'api' ? 'llm' : engineName);
+        plan = {
+          mode: engineName, selected: 'rules', route: route, compared: compared,
+          reason: route.reason, fallback: null, baseline: baseline
+        };
+        prepare = Promise.resolve();
+
+        if (target === 'bert') {
+          prepare = plAiReady().then(function(ai) {
             return ai.runBert(text).then(function(r) {
-              return PromptLinterEngine.analyzeFromSpans(text, r.spans, r.confidence, 'bert', answers, !!finalize);
+              var cand = PromptLinterEngine.analyzeFromSpans(text, r.spans, r.confidence, 'bert', {}, false);
+              compared.bert = PromptLinterEngine.selectionScore(cand);
+              plan.spans = r.spans; plan.confidence = r.confidence; plan.selected = 'bert';
+              plan.reason = route.reason + ' BERT detected ' + cand.result.elements.length + ' element(s).';
+              if (engineName === 'auto' && compared.bert + 0.02 < compared.rules) {
+                plan.selected = 'rules'; plan.spans = null; plan.fallback = 'rules-over-bert';
+                plan.reason = 'Router predicted BERT, but Rules scored higher (' +
+                  compared.rules.toFixed(2) + ' vs ' + compared.bert.toFixed(2) + ').';
+              }
+            });
+          }).catch(function(e) {
+            plan.fallback = 'BERT unavailable: ' + (e && e.message ? e.message : e);
+            plan.reason = route.reason + ' Falling back to Rules.';
+          });
+        } else if (target === 'llm') {
+          if (!allowLlm) {
+            plan.fallback = 'LLM not configured — add a base URL, model and key in Settings.';
+            plan.reason = route.reason + ' Falling back to Rules.';
+          } else {
+            prepare = plAiReady().then(function(ai) {
+              return ai.extractSpansApi(text, settings).then(function(r) {
+                var cand = PromptLinterEngine.analyzeFromSpans(
+                  text, r.spans, r.confidence, 'llm', {}, false, r.meta || null
+                );
+                compared.llm = PromptLinterEngine.selectionScore(cand);
+                plan.spans = r.spans; plan.confidence = r.confidence; plan.selected = 'llm';
+                plan.meta = r.meta || null;
+                plan.reason = route.reason + ' The LLM grounded ' + r.spans.length + ' span(s).';
+                if (engineName === 'auto' && (
+                  compared.llm + 0.02 < compared.rules ||
+                  cand.result.elements.length < baseline.result.elements.length
+                )) {
+                  plan.selected = 'rules'; plan.spans = null; plan.fallback = 'rules-over-llm';
+                  plan.reason = 'Router predicted the LLM, but it covered fewer elements than Rules (' +
+                    cand.result.elements.length + ' vs ' + baseline.result.elements.length +
+                    ') or scored lower (' + compared.rules.toFixed(2) + ' vs ' + compared.llm.toFixed(2) + ').';
+                }
+              });
+            }).catch(function(e) {
+              plan.fallback = 'LLM unavailable: ' + (e && e.message ? e.message : e);
+              plan.reason = route.reason + ' Falling back to Rules.';
             });
           }
-          return ai.extractSpansApi(text, settings).then(function(r) {
-            return PromptLinterEngine.analyzeFromSpans(text, r.spans, r.confidence, 'llm', answers, !!finalize, r.meta || null);
-          });
-        });
+        }
       }
-      run.then(done).catch(function(e) { done({ error: String(e && e.message ? e.message : e) }); });
+
+      prepare.then(function() {
+        window.__plPlanCache = { text: text, engine: engineName, plan: plan };
+        var payload = plAttachRouter(plRunPlan(text, plan, answers, finalize), plan);
+        payload.explanation_source = payload.explanation_source || 'deterministic';
+        if (payload.needs_clarification || !allowLlm) return done(payload);
+        // The final explanation always comes from the LLM.
+        return plAiReady().then(function(ai) {
+          return ai.explainResult(
+            text, payload.result, payload.risk.final, payload.clarification.unresolved, settings
+          ).then(function(out) {
+            payload.explanation = out.explanation || payload.explanation;
+            if (out.recommendations && out.recommendations.length) payload.recommendations = out.recommendations;
+            payload.llm_used = true;
+            payload.explanation_source = 'llm';
+            done(payload);
+          });
+        }).catch(function() {
+          payload.explanation_source = 'deterministic';
+          done(payload);
+        });
+      }).catch(function(e) {
+        done({ error: String(e && e.message ? e.message : e) });
+      });
     } catch (e) {
       done({ error: String(e) });
     }

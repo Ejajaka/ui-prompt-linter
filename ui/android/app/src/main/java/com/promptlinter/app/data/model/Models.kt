@@ -15,10 +15,19 @@ data class AnalysisPayload(
     @SerializedName("final_prompt") val finalPrompt: String? = null,
     val recommendations: List<String> = emptyList(),
     @SerializedName("llm_used") val llmUsed: Boolean = false,
+    @SerializedName("explanation_source") val explanationSource: String? = null,
     val error: String? = null
 )
 
-data class RouterInfo(val reason: String? = null)
+data class RouterInfo(
+    val method: String? = null,
+    val selected: String? = null,
+    @SerializedName("selected_by") val selectedBy: String? = null,
+    val reason: String? = null,
+    val scores: Map<String, Double>? = null,
+    val candidates: Map<String, Double>? = null,
+    val fallback: String? = null
+)
 
 data class Span(
     @SerializedName("charStart") val charStart: Int = 0,

@@ -65,6 +65,7 @@ export interface AnalysisPayload {
   final_prompt: string | null;
   deterministic_prompt: string | null;
   explanation: string | null;
+  explanation_source?: 'llm' | 'deterministic';
   recommendations: string[] | null;
 }
 
@@ -78,6 +79,7 @@ type Runner = {
     answersJson: string,
     finalize: boolean,
   ) => string;
+  route: (text: string, allowLlm: boolean) => string;
 };
 
 const PYODIDE_VERSION = '0.28.3';
@@ -104,6 +106,7 @@ const BOOTSTRAP = `
 import sys, json
 sys.path.insert(0, '/home/pyodide')
 from src.pipeline import analyze_full, analyze_full_from_spans
+from src.router import route
 
 def run_analysis(text, answers_json, finalize):
     answers = json.loads(answers_json) if answers_json else None
@@ -128,6 +131,10 @@ def run_analysis_from_spans(text, spans_json, confidence, engine, answers_json, 
         finalize=bool(finalize),
     )
     return json.dumps(payload, ensure_ascii=False)
+
+def route_prompt(text, allow_llm):
+    decision = route(text, allow_llm=bool(allow_llm))
+    return json.dumps(decision, ensure_ascii=False)
 `;
 
 let runnerPromise: Promise<Runner> | null = null;
@@ -174,7 +181,8 @@ async function boot(): Promise<Runner> {
   await pyodide.runPythonAsync(BOOTSTRAP);
   const runAnalysis = pyodide.globals.get('run_analysis');
   const runAnalysisFromSpans = pyodide.globals.get('run_analysis_from_spans');
-  if (!runAnalysis || !runAnalysisFromSpans) {
+  const routePrompt = pyodide.globals.get('route_prompt');
+  if (!runAnalysis || !runAnalysisFromSpans || !routePrompt) {
     throw new Error('The Python bootstrap did not define the analysis entry points.');
   }
 
@@ -190,6 +198,7 @@ async function boot(): Promise<Runner> {
       finalize: boolean,
     ): string =>
       String(runAnalysisFromSpans(text, spansJson, confidence, engine, answersJson, finalize)),
+    route: (text: string, allowLlm: boolean): string => String(routePrompt(text, allowLlm)),
   };
 }
 
@@ -234,6 +243,21 @@ export async function runAnalysisFromSpans(
     finalize,
   );
   return JSON.parse(raw) as AnalysisPayload;
+}
+
+export interface RouterDecision {
+  method: 'rules' | 'bert' | 'llm';
+  reason: string;
+  scores: Record<string, number>;
+  margin?: number;
+  confidence?: number;
+  features?: Record<string, unknown>;
+}
+
+/** Ask the shared Python router which detector should win for this prompt. */
+export async function routePrompt(text: string, allowLlm: boolean): Promise<RouterDecision> {
+  const runner = await getRunner();
+  return JSON.parse(runner.route(text, allowLlm)) as RouterDecision;
 }
 
 export const isPyodideReady = (): boolean => runnerPromise !== null;

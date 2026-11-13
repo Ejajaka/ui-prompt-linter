@@ -54,9 +54,10 @@
         <div class="ai-body">
           <label>Engine
             <select id="ai-engine">
+              <option value="auto">Auto (router + confidence)</option>
               <option value="rules">Rules (offline)</option>
               <option value="bert">BERT (downloads model once)</option>
-              <option value="api">API (Groq / OpenAI-compatible)</option>
+              <option value="api">LLM (Groq / OpenAI-compatible)</option>
             </select>
           </label>
           <label>Base URL
@@ -77,6 +78,8 @@
 
       <!-- Results -->
       <section id="results" class="hidden">
+        <div id="stage"></div>
+        <div id="route"></div>
         <div id="risk"></div>
         <div id="highlighted"></div>
         <div id="elements"></div>
@@ -91,6 +94,7 @@
 
     <script src="engine.js"></script>
     <script src="ai-config.js"></script>
+    <script src="ai-config.local.js"></script>
     <script type="module" src="ai.js"></script>
     <script src="popup.js"></script>
   </body>

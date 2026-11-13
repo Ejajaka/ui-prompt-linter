@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,7 +50,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 cards = listOf(
                     OnboardingFeature(Icons.Default.CheckCircle, "Pre-generation review", "Catch gaps in the prompt before an AI UI generator turns them into assumptions."),
                     OnboardingFeature(Icons.Default.Layers, "Element-aware findings", "Every missing detail is linked to a specific element: button, navbar, input, card, modal and more."),
-                    OnboardingFeature(Icons.Default.CloudOff, "Offline by design", "The Rules engine runs entirely on-device with no account, no server and no data collection.")
+                    OnboardingFeature(Icons.Default.CloudOff, "Runs offline first", "The Rules engine runs entirely on-device with no account or server. BERT and the LLM are optional.")
                 )
             ),
             OnboardingStep(
@@ -59,7 +60,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 icon = Icons.Default.Tune,
                 cards = listOf(
                     OnboardingFeature(Icons.Default.EditNote, "1. Describe", "Enter the screen, elements, colours, placement and behaviour you want — or pick an example."),
-                    OnboardingFeature(Icons.Default.Biotech, "2. Detect", "The Rules engine tags UI elements and links colour, location, action and label to each one."),
+                    OnboardingFeature(Icons.Default.Biotech, "2. Detect", "The router picks Rules, BERT or LLM, then the winning detector tags elements and links colour, location, action and label."),
                     OnboardingFeature(Icons.Default.QuestionAnswer, "3. Ask", "Missing or vague details become targeted clarification questions. Answers are merged and re-checked."),
                     OnboardingFeature(Icons.Default.AutoFixHigh, "4. Improve", "Get a 0–100 risk score, recommendations and a copy-ready validated prompt.")
                 )
@@ -70,7 +71,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 subtitle = "A fixed completeness baseline keeps every platform honest and consistent.",
                 icon = Icons.Default.History,
                 cards = listOf(
-                    OnboardingFeature(Icons.Default.MenuBook, "Prompt guidelines", "Browse the 10 supported UI elements, required attributes, annotation rules and risk bands."),
+                    OnboardingFeature(Icons.AutoMirrored.Filled.MenuBook, "Prompt guidelines", "Browse the 10 supported UI elements, required attributes, annotation rules and risk bands."),
                     OnboardingFeature(Icons.Default.History, "Audit history", "Search, filter by risk, sort and reopen previous evaluations. Stored only on this device."),
                     OnboardingFeature(Icons.Default.Shield, "Honest scoring", "The score highlights missing details and uncertainty. It is a heuristic, not a guarantee.")
                 )

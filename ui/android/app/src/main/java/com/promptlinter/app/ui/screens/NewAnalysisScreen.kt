@@ -42,7 +42,7 @@ fun NewAnalysisScreen(vm: MainViewModel) {
             Spacer(Modifier.height(8.dp))
             if (!vm.engineReady && vm.engineError == null) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                Text("Loading the rules engine…", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+                Text("Loading the analysis engine…", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
             }
             vm.engineError?.let { Text("Engine error: $it", color = LocalPlColors.current.critical, style = MaterialTheme.typography.bodySmall) }
         }
@@ -76,14 +76,15 @@ fun NewAnalysisScreen(vm: MainViewModel) {
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf("rules" to "Rules", "bert" to "BERT", "api" to "API").forEach { (id, label) ->
+                        listOf("auto" to "Auto", "rules" to "Rules", "bert" to "BERT", "api" to "LLM").forEach { (id, label) ->
                             FilterChip(selected = vm.aiEngine == id, onClick = { vm.aiEngine = id; vm.payload = null }, label = { Text(label) })
                         }
                     }
                     Text(
                         when (vm.aiEngine) {
+                            "auto" -> "Router scores the prompt, runs the winning detector and verifies its confidence. The LLM writes the final explanation."
                             "bert" -> "BERT downloads the 67 MB model once, then runs on-device."
-                            "api" -> "API sends the prompt to the endpoint configured in Settings."
+                            "api" -> "LLM sends the prompt to the endpoint configured in Settings."
                             else -> "Runs offline on-device - Rules engine"
                         },
                         color = LocalPlColors.current.textSecondary,
@@ -94,7 +95,12 @@ fun NewAnalysisScreen(vm: MainViewModel) {
         }
 
         if (payload != null) {
-            item { RiskSummary(payload) }
+            item { RouterCard(payload) }
+            if (payload.needsClarification) {
+                item { ClarificationGate(payload) }
+            } else {
+                item { RiskSummary(payload) }
+            }
             item { HighlightedPromptCard(vm.promptText, payload) }
             item { Text("Detected elements (${payload.result.elements.size})", fontWeight = FontWeight.Bold) }
             if (payload.result.elements.isEmpty()) {
@@ -112,6 +118,59 @@ fun NewAnalysisScreen(vm: MainViewModel) {
             item { WhyCard(payload) }
         }
         item { Spacer(Modifier.height(24.dp)) }
+    }
+}
+
+@Composable
+private fun RouterCard(p: AnalysisPayload) {
+    val r = p.router ?: return
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("How this prompt was routed", fontWeight = FontWeight.Bold)
+                Surface(shape = MaterialTheme.shapes.small, color = LocalPlColors.current.softGreen) {
+                    Text(
+                        "${r.selected ?: p.engine ?: "rules"} · ${r.selectedBy ?: "router+confidence"}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = LocalPlColors.current.softGreenText,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                }
+            }
+            r.reason?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary) }
+            val candidates = r.candidates
+            if (!candidates.isNullOrEmpty()) {
+                Text(
+                    "Candidates: " + candidates.entries.joinToString(" · ") { "${it.key} ${String.format("%.2f", it.value)}" },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = LocalPlColors.current.textSecondary
+                )
+            }
+            r.fallback?.let {
+                Text(
+                    "Fallback: $it",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = LocalPlColors.current.warningText,
+                    modifier = Modifier.background(LocalPlColors.current.warningBg, RoundedCornerShape(6.dp)).padding(6.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClarificationGate(p: AnalysisPayload) {
+    Card(colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.warningBg)) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Score withheld until the prompt is unambiguous", fontWeight = FontWeight.Bold, color = LocalPlColors.current.warningText)
+            Text(
+                "The router picked ${p.engine ?: "rules"} and found ${p.clarification.questions.size} unresolved detail(s). " +
+                    "Answer below; the analyser re-runs after each round and only then computes the risk score and LLM explanation.",
+                style = MaterialTheme.typography.bodySmall,
+                color = LocalPlColors.current.textMain
+            )
+        }
     }
 }
 
@@ -146,7 +205,20 @@ private fun RiskSummary(p: AnalysisPayload) {
             Bar("Unresolved questions", c.unresolved, LocalPlColors.current.high)
             val expl = p.explanation ?: f.explanation
             if (!expl.isNullOrBlank()) {
+                Text(
+                    if (p.explanationSource == "llm") "LLM explanation" else "Deterministic explanation",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = LocalPlColors.current.darkTeal
+                )
                 Text(expl, style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textMain)
+                if (p.explanationSource != "llm") {
+                    Text(
+                        "Add a base URL, model and API key in Settings to have the LLM write this explanation.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = LocalPlColors.current.warningText
+                    )
+                }
             }
         }
     }
@@ -247,10 +319,10 @@ private fun ClarificationCard(p: AnalysisPayload, round: Int, disabled: Boolean,
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("A few details are still unclear", fontWeight = FontWeight.Bold)
                 Surface(shape = MaterialTheme.shapes.small, color = LocalPlColors.current.softGreen) {
-                    Text("Round $round of 3", style = MaterialTheme.typography.labelSmall, color = LocalPlColors.current.darkTeal, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
+                    Text("Round $round", style = MaterialTheme.typography.labelSmall, color = LocalPlColors.current.darkTeal, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
                 }
             }
-            Text("Answer these to unlock the final validated prompt.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
+            Text("The analyser re-runs after each round. Answer the open questions or use placeholders to finish.", color = LocalPlColors.current.textSecondary, style = MaterialTheme.typography.bodySmall)
             questions.forEach { q ->
                 QuestionField(q, values[q.id] ?: "") { values[q.id] = it }
             }
@@ -332,10 +404,25 @@ private fun WhyCard(p: AnalysisPayload) {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("Why this engine and score?", fontWeight = FontWeight.Bold)
-            Text("Engine: ${p.engine ?: "rules"}", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+            Text("Engine used: ${p.engine ?: "rules"}", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
             Text("Router: ${p.router?.reason ?: "manual selection"}", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+            p.router?.candidates?.takeIf { it.isNotEmpty() }?.let { candidates ->
+                Text(
+                    "Candidates: " + candidates.entries.joinToString(" · ") { "${it.key} ${String.format("%.2f", it.value)}" },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalPlColors.current.textSecondary
+                )
+            }
+            p.router?.fallback?.let {
+                Text("Fallback: $it", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.warningText)
+            }
             Text("Detector confidence: ${String.format("%.2f", p.confidence ?: 0.0)}", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
-            Text("This mobile app runs the deterministic Rules backend on-device for parity. BERT and grounded LLM are available in the full Streamlit engine.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
+            Text(
+                if (p.explanationSource == "llm") "Final explanation: LLM" else "Final explanation: deterministic fallback",
+                style = MaterialTheme.typography.bodySmall,
+                color = LocalPlColors.current.textSecondary
+            )
+            Text("Rules, BERT and the grounded LLM all run through the same linking, checker, clarification and risk code.", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.textSecondary)
         }
     }
 }

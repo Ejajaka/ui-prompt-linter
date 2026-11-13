@@ -1,7 +1,21 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
+
+val localProps = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+fun aiValue(property: String, env: String, fallback: String): String =
+    (System.getenv(env) ?: localProps.getProperty(property) ?: fallback)
+
+val aiBaseUrl = aiValue("promptLinter.baseUrl", "VECTOR_BASE_URL", "https://api.groq.com/openai/v1")
+val aiModel = aiValue("promptLinter.model", "VECTOR_MODEL", "openai/gpt-oss-120b")
+val aiApiKey = aiValue("promptLinter.apiKey", "VECTOR_TEST_API_KEY", "")
 
 android {
     namespace = "com.promptlinter.app"
@@ -11,14 +25,16 @@ android {
         applicationId = "com.promptlinter.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
 
         buildConfigField(
             "String",
             "PROMPT_LINTER_API_KEY",
-            "\"${System.getenv("VECTOR_TEST_API_KEY") ?: ""}\""
+            "\"${aiApiKey}\""
         )
+        buildConfigField("String", "PROMPT_LINTER_BASE_URL", "\"$aiBaseUrl\"")
+        buildConfigField("String", "PROMPT_LINTER_MODEL", "\"$aiModel\"")
     }
 
     buildTypes {

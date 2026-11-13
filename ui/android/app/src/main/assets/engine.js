@@ -850,10 +850,186 @@
     };
   }
 
+  // ------------------------------------------------------------------ router
+  // Port of src/router.py: prompt-only features predict which detector should
+  // handle the prompt. The caller then runs the candidate(s) and ranks the
+  // actual results by selectionScore().
+  var HELD_OUT_COLOURS = ['#ff5733', '#2e86c1', 'royal purple', 'off-white', 'maroon', 'sky blue'];
+  var EXPLICIT_CUES = [
+    'labelled', 'labeled', 'saying', 'titled', 'named', 'called',
+    'with links', 'with the items', 'containing', 'that reads',
+    'with the text', 'with the title', 'with the heading', 'for selecting',
+    'to choose', 'asking for', 'meant for', 'showing', 'depicting',
+  ];
+  var ROUTER_RELATIONAL_PREPS = ['below', 'under', 'above', 'beside', 'near', 'underneath', 'beneath', 'inside', 'next'];
+  var ROUTER_COMMON_WORDS = [
+    'a', 'an', 'the', 'and', 'or', 'but', 'with', 'without', 'for', 'to',
+    'of', 'in', 'on', 'at', 'by', 'from', 'as', 'is', 'are', 'be', 'it',
+    'this', 'that', 'these', 'those', 'my', 'our', 'your', 'me', 'i', 'we',
+    'you', 'add', 'create', 'make', 'build', 'place', 'put', 'insert',
+    'include', 'design', 'give', 'want', 'need', 'also', 'then', 'next',
+    'page', 'screen', 'app', 'website', 'site', 'which', 'who', 'when',
+    'where', 'what', 'how', 'should', 'would', 'can', 'will', 'some', 'any',
+    'new', 'small', 'large', 'big', 'simple', 'nice', 'main', 'another',
+    'second', 'floating', 'right', 'left', 'top', 'bottom', 'center',
+    'centre', 'middle', 'corner', 'side', 'colour', 'color',
+  ];
+  var KEYWORD_WORDS = (function () {
+    var set = {};
+    NOUN_KEYWORDS.forEach(function (entry) {
+      entry[0].split(/\s+/).forEach(function (word) { set[word] = true; });
+    });
+    return set;
+  })();
+  var KNOWN_WORDS = (function () {
+    var set = {};
+    [KEYWORD_WORDS, makeSet(BASE_COLORS), makeSet(COLOR_MODIFIERS), makeSet(ACTION_VERBS),
+      makeSet(SPATIAL_WORDS), makeSet(ROUTER_COMMON_WORDS)].forEach(function (src) {
+      Object.keys(src).forEach(function (word) { set[word] = true; });
+    });
+    return set;
+  })();
+  var ROUTER_HEX_RE = /#[0-9A-Fa-f]{3,8}\b/;
+  var ROUTER_BERT_MARGIN = 1.25;
+
+  function countPhrase(text, phrase) {
+    var re = new RegExp('\\b' + phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
+    var m = text.match(re);
+    return m ? m.length : 0;
+  }
+
+  function promptFeatures(text) {
+    var lowered = text.toLowerCase();
+    var tokens = tokenizeWithOffsets(text).map(function (t) { return t.token.toLowerCase(); });
+
+    var knownNouns = 0, repeatedNoun = false;
+    NOUN_KEYWORDS.forEach(function (entry) {
+      var c = countPhrase(lowered, entry[0]);
+      knownNouns += c;
+      if (c > 1) repeatedNoun = true;
+    });
+
+    var hasHex = ROUTER_HEX_RE.test(text);
+    var hasHeldOut = HELD_OUT_COLOURS.some(function (c) { return lowered.indexOf(c) !== -1; });
+    var hasCta = lowered.indexOf('cta') !== -1 || lowered.indexOf('call-to-action') !== -1 || lowered.indexOf('call to action') !== -1;
+    var hasExplicitCue = EXPLICIT_CUES.some(function (c) { return lowered.indexOf(c) !== -1; });
+    var hasVague = Object.keys(findVague(text)).length > 0;
+
+    var landmark = false;
+    for (var i = 0; i < tokens.length; i++) {
+      if (ROUTER_RELATIONAL_PREPS.indexOf(tokens[i]) !== -1) {
+        var window_ = tokens.slice(i + 1, i + 5);
+        if (window_.some(function (w) { return KEYWORD_WORDS[w]; })) { landmark = true; break; }
+      }
+    }
+
+    var listLike = (text.indexOf(',') !== -1 && lowered.indexOf('and') !== -1) || lowered.indexOf(' and ') !== -1;
+    var listWithoutCue = listLike && !['links', 'items', 'containing', 'listing'].some(function (c) {
+      return lowered.indexOf(c) !== -1;
+    });
+
+    var alphabet = tokens.filter(function (t) { return /^[a-z]+$/.test(t); });
+    var oov = alphabet.filter(function (t) { return !KNOWN_WORDS[t]; });
+    var oovRate = alphabet.length ? oov.length / alphabet.length : 0;
+
+    return {
+      known_nouns: knownNouns,
+      repeated_noun: repeatedNoun,
+      has_hex: hasHex,
+      has_held_out_colour: hasHeldOut,
+      has_cta: hasCta,
+      has_explicit_cue: hasExplicitCue,
+      has_vague: hasVague,
+      landmark_pattern: landmark,
+      list_without_cue: listWithoutCue,
+      oov_rate: Math.round(oovRate * 1000) / 1000,
+      n_tokens: tokens.length,
+    };
+  }
+
+  function routeReason(method, f) {
+    if (method === 'llm') {
+      if (f.known_nouns === 0) return 'No known UI noun was found; the LLM can interpret free-form wording.';
+      if (f.has_vague) return 'The prompt contains vague language; the LLM can interpret it.';
+      if (f.oov_rate >= 0.45) return 'Many words are outside the known vocabulary; the LLM is the safer choice.';
+      return 'The prompt is ambiguous for the other methods; using the LLM.';
+    }
+    if (method === 'bert') {
+      if (f.repeated_noun) return 'A UI noun is repeated (often inside a label); BERT handles this better.';
+      if (f.landmark_pattern) return 'A landmark phrase may hide a real element; BERT handles this better.';
+      if (f.list_without_cue) return 'A list-like label has no explicit cue; BERT handles this better.';
+      return "The prompt matches BERT's stronger free-form pattern handling.";
+    }
+    if (f.has_hex || f.has_held_out_colour) return 'The prompt contains a hex or held-out colour that the rule lexicon knows.';
+    if (f.has_cta) return 'The prompt contains CTA/call-to-action phrasing that BERT often splits.';
+    if (f.known_nouns) return 'The prompt contains known UI nouns and explicit cues; Rules is reliable.';
+    return 'Rules is the safe default.';
+  }
+
+  function routePrompt(text, allowLlm) {
+    var f = promptFeatures(text);
+    allowLlm = allowLlm !== false;
+    var scores = { rules: 1.0, bert: 0.0, llm: 0.0 };
+
+    if (f.has_hex || f.has_held_out_colour || f.has_cta) scores.rules += 3.0;
+    if (f.known_nouns) { scores.rules += 2.0; scores.bert += 0.5; }
+    else { scores.llm += 2.0; scores.bert += 1.0; }
+    if (f.has_explicit_cue) scores.rules += 1.0;
+    if (f.repeated_noun) { scores.bert += 3.0; scores.rules -= 1.5; }
+    if (f.landmark_pattern) scores.bert += 1.5;
+    if (f.list_without_cue) scores.bert += 3.5;
+    if (f.has_vague) scores.llm += 1.0;
+    if (f.oov_rate >= 0.45) scores.llm += 1.5;
+
+    var ordered = Object.keys(scores).map(function (k) { return [k, scores[k]]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+    var method = ordered[0][0];
+    var margin = ordered[0][1] - ordered[1][1];
+
+    if (method === 'llm' && !allowLlm) {
+      method = ordered[1][0];
+      margin = Math.abs(scores[method] - scores[ordered[2][0]]);
+    }
+    if (margin < 0.75 && allowLlm) method = 'llm';
+
+    var original = method;
+    if (method === 'bert' && margin < ROUTER_BERT_MARGIN) method = 'rules';
+
+    var confidence = Math.max(0.30, Math.min(0.95, 0.55 + margin / 4.0));
+    var reason = routeReason(method, f);
+    if (original === 'bert' && method === 'rules') {
+      reason = "BERT's advantage was not decisive; Rules is safer on this dataset.";
+    }
+    return {
+      method: method,
+      scores: { rules: round2(scores.rules), bert: round2(scores.bert), llm: round2(scores.llm) },
+      margin: round2(margin),
+      confidence: round2(confidence),
+      reason: reason,
+      features: f,
+    };
+  }
+
+  function round2(v) { return Math.round(v * 100) / 100; }
+
+  /** Rank a detector run by confidence + grounded detail (mirrors pipeline.py). */
+  function selectionScore(payload) {
+    var elements = (payload && payload.result && payload.result.elements) || [];
+    if (!elements.length) return 0;
+    var attrs = 0;
+    elements.forEach(function (el) { attrs += Object.keys(el.attributes || {}).length; });
+    var completeness = Math.min(attrs / (3 * elements.length), 1);
+    var confidence = Math.max(0, Math.min(1, Number(payload.confidence) || 0));
+    return Math.round((0.7 * confidence + 0.3 * completeness) * 10000) / 10000;
+  }
+
   global.PromptLinterEngine = {
     analyze: analyzeFull,
     analyzeFromSpans: analyzeFromSpans,
     tokenize: tokenizeWithOffsets,
     suggest: suggestion,
+    routePrompt: routePrompt,
+    selectionScore: selectionScore,
+    promptFeatures: promptFeatures,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
