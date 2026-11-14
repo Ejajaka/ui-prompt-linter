@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.promptlinter.app.ui.components.PlLogo
+import com.promptlinter.app.ui.components.VectorLogo
 import com.promptlinter.app.ui.theme.*
 import com.promptlinter.app.ui.viewmodel.MainViewModel
 import com.promptlinter.app.ui.viewmodel.Tab
@@ -52,7 +52,7 @@ fun AboutScreen(vm: MainViewModel) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.darkTeal),
+            colors = CardDefaults.cardColors(containerColor = LocalVectorColors.current.darkTeal),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
         ) {
             Column(Modifier.padding(22.dp)) {
@@ -63,20 +63,20 @@ fun AboutScreen(vm: MainViewModel) {
                 ) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = LocalPlColors.current.mustard.copy(alpha = 0.2f),
-                        border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.45f))
+                        color = LocalVectorColors.current.mustard.copy(alpha = 0.2f),
+                        border = BorderStroke(1.dp, LocalVectorColors.current.mustard.copy(alpha = 0.45f))
                     ) {
                         Text(
                             "UI PROMPT REVIEW",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = LocalPlColors.current.mustard,
+                                color = LocalVectorColors.current.mustard,
                                 letterSpacing = 1.sp
                             ),
                             modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
                         )
                     }
-                    PlLogo(modifier = Modifier.size(34.dp))
+                    VectorLogo(modifier = Modifier.size(34.dp))
                 }
 
                 Spacer(Modifier.height(18.dp))
@@ -90,7 +90,7 @@ fun AboutScreen(vm: MainViewModel) {
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Catch missing labels, colours, placement and actions in natural-language UI prompts before they reach a generator. Prompt Linter detects elements, links attributes, clears up ambiguity and produces a validated rewrite.",
+                    "Catch missing labels, colours, placement and actions in natural-language UI prompts before they reach a generator. Vector detects elements, links attributes, clears up ambiguity and produces a validated rewrite.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = Color.White.copy(alpha = 0.88f),
                         lineHeight = 21.sp
@@ -103,7 +103,7 @@ fun AboutScreen(vm: MainViewModel) {
                     onClick = { vm.closeDetail(); vm.selectedTab = Tab.NEW_ANALYSIS },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
+                    colors = ButtonDefaults.buttonColors(containerColor = LocalVectorColors.current.mustard, contentColor = LocalVectorColors.current.darkTeal)
                 ) {
                     Icon(Icons.Default.Analytics, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
@@ -122,10 +122,10 @@ fun AboutScreen(vm: MainViewModel) {
             Column(Modifier.padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalPlColors.current.critical.copy(alpha = 0.12f)),
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalVectorColors.current.critical.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.ReportProblem, contentDescription = null, tint = LocalPlColors.current.critical, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.ReportProblem, contentDescription = null, tint = LocalVectorColors.current.critical, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.width(10.dp))
                     Text(
@@ -142,7 +142,7 @@ fun AboutScreen(vm: MainViewModel) {
                 Spacer(Modifier.height(14.dp))
                 ValueItem(Icons.Default.Warning, "Missing details", "“Add a button” says nothing about its text, colour, placement or what clicking it does. The generator has to guess.")
                 Spacer(Modifier.height(12.dp))
-                ValueItem(Icons.Default.Visibility, "Vague values", "“Some nice colour”, “somewhere on the side” and “does something useful” are not actionable. Prompt Linter asks instead of pretending.")
+                ValueItem(Icons.Default.Visibility, "Vague values", "“Some nice colour”, “somewhere on the side” and “does something useful” are not actionable. Vector asks instead of pretending.")
                 Spacer(Modifier.height(12.dp))
                 ValueItem(Icons.Default.Link, "Attribute ambiguity", "With several elements on screen, it is easy to attach a colour or action to the wrong component. The engine links every attribute to an element.")
             }
@@ -158,13 +158,13 @@ fun AboutScreen(vm: MainViewModel) {
             Column(Modifier.padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalPlColors.current.teal.copy(alpha = 0.12f)),
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalVectorColors.current.teal.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Tune, contentDescription = null, tint = LocalPlColors.current.teal, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Tune, contentDescription = null, tint = LocalVectorColors.current.teal, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.width(10.dp))
-                    Text("How Prompt Linter Works", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("How Vector Works", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
                 }
                 Spacer(Modifier.height(14.dp))
                 val steps = listOf(
@@ -225,7 +225,7 @@ fun AboutScreen(vm: MainViewModel) {
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Column(Modifier.padding(18.dp)) {
-                Text("What makes Prompt Linter useful?", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Text("What makes Vector useful?", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
                 Spacer(Modifier.height(14.dp))
                 ValueItem(Icons.Default.Layers, "Element-aware findings", "Every missing detail is attached to a specific element — not just “the prompt is incomplete”.")
                 Spacer(Modifier.height(12.dp))
@@ -274,10 +274,10 @@ fun AboutScreen(vm: MainViewModel) {
             Column(Modifier.padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalPlColors.current.mustard.copy(alpha = 0.2f)),
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(LocalVectorColors.current.mustard.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Security, contentDescription = null, tint = LocalPlColors.current.darkTeal, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Security, contentDescription = null, tint = LocalVectorColors.current.darkTeal, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.width(10.dp))
                     Text(
@@ -299,7 +299,7 @@ fun AboutScreen(vm: MainViewModel) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.darkTeal),
+            colors = CardDefaults.cardColors(containerColor = LocalVectorColors.current.darkTeal),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
         ) {
             Column(Modifier.padding(22.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -317,7 +317,7 @@ fun AboutScreen(vm: MainViewModel) {
                 Button(
                     onClick = { vm.closeDetail(); vm.selectedTab = Tab.NEW_ANALYSIS },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
+                    colors = ButtonDefaults.buttonColors(containerColor = LocalVectorColors.current.mustard, contentColor = LocalVectorColors.current.darkTeal)
                 ) {
                     Text("Analyze a Prompt", fontWeight = FontWeight.Bold)
                     Spacer(Modifier.width(6.dp))
@@ -363,7 +363,7 @@ private fun PromptExaminationVisual() {
     Surface(
         shape = RoundedCornerShape(14.dp),
         color = Color(0xFF1E2E30),
-        border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.35f))
+        border = BorderStroke(1.dp, LocalVectorColors.current.mustard.copy(alpha = 0.35f))
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(14.dp),
@@ -371,10 +371,10 @@ private fun PromptExaminationVisual() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Stage(Icons.Default.EditNote, "Prompt", Color.White, Color.White.copy(alpha = 0.12f))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = LocalPlColors.current.mustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
-            Stage(Icons.Default.Analytics, "Rules", LocalPlColors.current.mustard, LocalPlColors.current.mustard.copy(alpha = 0.25f))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = LocalPlColors.current.mustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
-            Stage(Icons.Default.CheckCircle, "Validated", Color.White, LocalPlColors.current.teal.copy(alpha = 0.4f))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = LocalVectorColors.current.mustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
+            Stage(Icons.Default.Analytics, "Rules", LocalVectorColors.current.mustard, LocalVectorColors.current.mustard.copy(alpha = 0.25f))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = LocalVectorColors.current.mustard.copy(alpha = alpha), modifier = Modifier.size(16.dp))
+            Stage(Icons.Default.CheckCircle, "Validated", Color.White, LocalVectorColors.current.teal.copy(alpha = 0.4f))
         }
     }
 }

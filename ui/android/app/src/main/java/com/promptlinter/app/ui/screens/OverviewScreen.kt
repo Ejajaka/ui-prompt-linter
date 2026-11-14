@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -24,7 +25,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.promptlinter.app.data.model.HistoryItem
-import com.promptlinter.app.ui.components.PlLogo
+import com.promptlinter.app.ui.components.VectorLogo
+import com.promptlinter.app.ui.components.VectorVMark
 import com.promptlinter.app.ui.theme.*
 import com.promptlinter.app.ui.viewmodel.DetailPage
 import com.promptlinter.app.ui.viewmodel.MainViewModel
@@ -49,89 +51,99 @@ fun OverviewScreen(vm: MainViewModel) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.darkTeal),
+                colors = CardDefaults.cardColors(containerColor = LocalVectorColors.current.darkTeal),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
             ) {
-                Column(Modifier.padding(20.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = LocalPlColors.current.mustard.copy(alpha = 0.2f),
-                            border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.45f))
-                        ) {
-                            Text(
-                                "UI/UX PROMPT REVIEW",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = LocalPlColors.current.mustard,
-                                    letterSpacing = 1.sp
-                                ),
-                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
-                            )
-                        }
-                        PlLogo(modifier = Modifier.size(30.dp))
-                    }
-                    Spacer(Modifier.height(14.dp))
-                    Text(
-                        "Prompt Linter",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                Box(Modifier.fillMaxWidth()) {
+                    VectorVMark(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 36.dp, y = 36.dp)
+                            .size(190.dp)
+                            .alpha(0.10f),
+                        color = Color.White
                     )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "Identify missing labels, colours, placement and actions before your prompt reaches a UI generator.",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color.White.copy(alpha = 0.88f),
-                            lineHeight = 21.sp
-                        )
-                    )
-                    Spacer(Modifier.height(18.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Button(
-                            onClick = { vm.selectedTab = Tab.NEW_ANALYSIS },
-                            modifier = Modifier.weight(1.5f).height(48.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LocalPlColors.current.mustard,
-                                contentColor = LocalPlColors.current.darkTeal
-                            )
+                    Column(Modifier.padding(20.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                "New Analysis",
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 12.sp
-                                ),
-                                maxLines = 1,
-                                softWrap = false
-                            )
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = LocalVectorColors.current.mustard.copy(alpha = 0.2f),
+                                border = BorderStroke(1.dp, LocalVectorColors.current.mustard.copy(alpha = 0.45f))
+                            ) {
+                                Text(
+                                    "UI/UX PROMPT REVIEW",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = LocalVectorColors.current.mustard,
+                                        letterSpacing = 1.sp
+                                    ),
+                                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
+                                )
+                            }
+                            VectorLogo(modifier = Modifier.size(30.dp))
                         }
-                        OutlinedButton(
-                            onClick = { vm.openDetail(DetailPage.ABOUT) },
-                            modifier = Modifier.weight(1f).height(48.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
-                        ) {
-                            Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                "About",
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 12.sp
-                                ),
-                                maxLines = 1,
-                                softWrap = false
+                        Spacer(Modifier.height(14.dp))
+                        Text(
+                            "Vector",
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "Identify missing labels, colours, placement and actions before your prompt reaches a UI generator.",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color.White.copy(alpha = 0.88f),
+                                lineHeight = 21.sp
+                            )
+                        )
+                        Spacer(Modifier.height(18.dp))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Button(
+                                onClick = { vm.selectedTab = Tab.NEW_ANALYSIS },
+                                modifier = Modifier.weight(1.5f).height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = LocalVectorColors.current.mustard,
+                                    contentColor = LocalVectorColors.current.darkTeal
+                                )
+                            ) {
+                                Icon(Icons.Default.AddCircle, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    "New Analysis",
+                                    style = MaterialTheme.typography.labelLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    ),
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                            }
+                            OutlinedButton(
+                                onClick = { vm.openDetail(DetailPage.ABOUT) },
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                            ) {
+                                Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    "About",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 12.sp
+                                    ),
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                            }
                         }
                     }
                 }
@@ -171,7 +183,7 @@ fun OverviewScreen(vm: MainViewModel) {
                         if (total > 0) total.toString() else "0",
                         if (total > 0) "Evaluated prompts" else "No saved analyses",
                         Icons.Default.Analytics,
-                        LocalPlColors.current.teal,
+                        LocalVectorColors.current.teal,
                         Modifier.weight(1f)
                     )
                     MetricCard(
@@ -179,7 +191,7 @@ fun OverviewScreen(vm: MainViewModel) {
                         if (total > 0) "$avgRisk/100" else "—",
                         if (total > 0) "Aggregate score" else "Awaiting runs",
                         Icons.Default.Shield,
-                        if (avgRisk >= 60) LocalPlColors.current.critical else LocalPlColors.current.mustard,
+                        if (avgRisk >= 60) LocalVectorColors.current.critical else LocalVectorColors.current.mustard,
                         Modifier.weight(1f)
                     )
                 }
@@ -189,7 +201,7 @@ fun OverviewScreen(vm: MainViewModel) {
                         if (total > 0) "$avgCoverage%" else "—",
                         if (total > 0) "Details present" else "Awaiting runs",
                         Icons.Default.Verified,
-                        LocalPlColors.current.teal,
+                        LocalVectorColors.current.teal,
                         Modifier.weight(1f)
                     )
                     MetricCard(
@@ -197,7 +209,7 @@ fun OverviewScreen(vm: MainViewModel) {
                         if (total > 0) highRisk.toString() else "0",
                         if (total > 0) "Critical / High" else "Clean profile",
                         Icons.Default.Warning,
-                        LocalPlColors.current.high,
+                        LocalVectorColors.current.high,
                         Modifier.weight(1f)
                     )
                 }

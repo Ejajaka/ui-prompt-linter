@@ -45,7 +45,7 @@ class JsEngine(context: Context) {
                 val loader = WebViewAssetLoader.Builder()
                     .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(appContext))
                     .build()
-                wv.addJavascriptInterface(Bridge(), "PromptLinterBridge")
+                wv.addJavascriptInterface(Bridge(), "VectorBridge")
                 wv.webViewClient = object : WebViewClientCompat() {
                     override fun shouldInterceptRequest(
                         view: WebView,

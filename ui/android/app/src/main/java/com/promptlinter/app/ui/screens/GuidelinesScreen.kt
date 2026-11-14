@@ -27,7 +27,7 @@ data class GControl(val name: String, val desc: String, val detail: String, val 
 data class GCategory(val title: String, val desc: String, val detailLabel: String, val items: List<GControl>)
 
 private val categories = listOf(
-    GCategory("Supported UI Elements", "The ten interface elements Prompt Linter detects, and the required details each one must state to be considered complete.", "Required attributes", listOf(
+    GCategory("Supported UI Elements", "The ten interface elements Vector detects, and the required details each one must state to be considered complete.", "Required attributes", listOf(
         GControl("Button", "A clickable action: its text, colour, placement and what it does.", "LABEL, ACTION, COLOR, LOCATION", "4 required"),
         GControl("Navbar", "A top navigation bar with links.", "COLOR, LOCATION, LABEL", "3 required"),
         GControl("Input", "A text field or form control.", "LABEL, LOCATION", "2 required"),
@@ -76,7 +76,7 @@ fun GuidelinesScreen() {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "Reference catalog of UI elements, required attributes, annotation rules and risk bands evaluated by Prompt Linter.",
+                    "Reference catalog of UI elements, required attributes, annotation rules and risk bands evaluated by Vector.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -173,7 +173,7 @@ fun GuidelinesScreen() {
                                         Text(
                                             "${cat.detailLabel}: ${c.detail}",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = LocalPlColors.current.darkTeal
+                                            color = LocalVectorColors.current.darkTeal
                                         )
                                     }
                                 }

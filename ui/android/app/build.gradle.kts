@@ -30,11 +30,11 @@ android {
 
         buildConfigField(
             "String",
-            "PROMPT_LINTER_API_KEY",
+            "VECTOR_API_KEY",
             "\"${aiApiKey}\""
         )
-        buildConfigField("String", "PROMPT_LINTER_BASE_URL", "\"$aiBaseUrl\"")
-        buildConfigField("String", "PROMPT_LINTER_MODEL", "\"$aiModel\"")
+        buildConfigField("String", "VECTOR_BASE_URL", "\"$aiBaseUrl\"")
+        buildConfigField("String", "VECTOR_MODEL", "\"$aiModel\"")
     }
 
     buildTypes {

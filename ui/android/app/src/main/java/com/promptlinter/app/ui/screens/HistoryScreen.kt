@@ -234,7 +234,7 @@ fun HistoryScreen(vm: MainViewModel) {
                         refresh++
                         showClearConfirm = false
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.critical)
+                    colors = ButtonDefaults.buttonColors(containerColor = LocalVectorColors.current.critical)
                 ) { Text("Clear All") }
             },
             dismissButton = {
@@ -329,9 +329,9 @@ private fun HistoryItemCard(
 
 @Composable
 fun riskColor(level: String): Color = when (level) {
-    "CRITICAL" -> LocalPlColors.current.critical
-    "HIGH" -> LocalPlColors.current.high
-    "MEDIUM" -> LocalPlColors.current.medium
-    "MINIMAL" -> LocalPlColors.current.minimal
-    else -> LocalPlColors.current.low
+    "CRITICAL" -> LocalVectorColors.current.critical
+    "HIGH" -> LocalVectorColors.current.high
+    "MEDIUM" -> LocalVectorColors.current.medium
+    "MINIMAL" -> LocalVectorColors.current.minimal
+    else -> LocalVectorColors.current.low
 }

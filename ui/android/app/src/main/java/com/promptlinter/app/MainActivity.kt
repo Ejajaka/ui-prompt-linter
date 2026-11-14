@@ -28,9 +28,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.promptlinter.app.ui.components.PlLogo
+import com.promptlinter.app.ui.components.VectorLogo
 import com.promptlinter.app.ui.screens.*
-import com.promptlinter.app.ui.theme.PromptLinterTheme
+import com.promptlinter.app.ui.theme.VectorTheme
 import com.promptlinter.app.ui.viewmodel.DetailPage
 import com.promptlinter.app.ui.viewmodel.MainViewModel
 import com.promptlinter.app.ui.viewmodel.Tab
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                 insets.isAppearanceLightNavigationBars = !dark
             }
 
-            PromptLinterTheme(darkTheme = dark) {
+            VectorTheme(darkTheme = dark) {
                 if (showOnboarding) {
                     OnboardingScreen(onFinish = {
                         prefs.edit().putBoolean("onboarding_done", true).apply()
@@ -93,7 +93,7 @@ private val tabSubtitles = mapOf(
 )
 
 private val detailTitles = mapOf(
-    DetailPage.ABOUT to "About Prompt Linter",
+    DetailPage.ABOUT to "About Vector",
     DetailPage.GUIDELINES to "Prompt Guidelines"
 )
 
@@ -125,7 +125,7 @@ fun AppScaffold(vm: MainViewModel, dark: Boolean, onDarkChange: (Boolean) -> Uni
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (vm.detailPage == null) {
-                            PlLogo(modifier = Modifier.size(28.dp))
+                            VectorLogo(modifier = Modifier.size(28.dp))
                             Spacer(Modifier.width(10.dp))
                         }
                         Column {

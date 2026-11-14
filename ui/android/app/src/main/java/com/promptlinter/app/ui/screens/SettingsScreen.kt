@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.promptlinter.app.ui.components.PlLogo
+import com.promptlinter.app.ui.components.VectorLogo
 import com.promptlinter.app.ui.theme.*
 import com.promptlinter.app.ui.viewmodel.DetailPage
 import com.promptlinter.app.ui.viewmodel.MainViewModel
@@ -71,11 +71,11 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    PlLogo(modifier = Modifier.size(30.dp))
+                    VectorLogo(modifier = Modifier.size(30.dp))
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(
-                            "About Prompt Linter",
+                            "About Vector",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                         Text(
@@ -139,7 +139,7 @@ fun SettingsScreen(
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Both themes preserve Prompt Linter's teal and mustard accents.",
+                    "Both themes preserve Vector's teal and mustard accents.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -330,7 +330,7 @@ fun SettingsScreen(
                 OutlinedButton(
                     onClick = { vm.historyRepo.clear() },
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LocalPlColors.current.critical)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LocalVectorColors.current.critical)
                 ) { Text("Clear Local Storage") }
             }
         }
@@ -357,7 +357,7 @@ fun SettingsScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f))
                 NavRow(
                     icon = Icons.Default.Info,
-                    title = "About Prompt Linter",
+                    title = "About Vector",
                     subtitle = "What the app does and how the review works",
                     onClick = { vm.openDetail(DetailPage.ABOUT) }
                 )

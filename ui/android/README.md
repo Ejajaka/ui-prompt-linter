@@ -1,6 +1,6 @@
-# Prompt Linter - Android app
+# Vector - Android app
 
-Native Jetpack Compose app that mirrors the Prompt Linter web app
+Native Jetpack Compose app that mirrors the Vector web app
 (`ui/web-app/`) and browser extension (`ui/extension/`): same branding, logo,
 content, pages, and Rules/BERT/API analysis.
 
@@ -15,15 +15,15 @@ content, pages, and Rules/BERT/API analysis.
 | About | Hero, problem, workflow, advantages, analysis approach, responsible use |
 | Settings | Theme, engine information, local storage, replay onboarding |
 
-Branding uses the same teal/mustard palette and the dark-green "PL" monogram
-(`ui/components/PlLogo.kt`) as `ui/web-app/src/components/ui/Logo.tsx`.
+Branding uses the same teal/mustard palette and the dark-green "V" monogram
+(`ui/components/VectorLogo.kt`) as `ui/web-app/src/components/ui/Logo.tsx`.
 
 ## Engine parity
 
 - `app/src/main/assets/engine.js` is an exact copy of `ui/extension/engine.js`
   (the JavaScript port of the Python Rules backend in `engine/src/`).
 - `data/engine/JsEngine.kt` loads it in an off-screen `WebView` and calls
-  `PromptLinterEngine.analyze(text, answers, finalize)`.
+  `VectorEngine.analyze(text, answers, finalize)`.
 - Analysis, clarification, scoring and the final prompt therefore match the
   Rules behaviour of the website and extension.
 - **BERT** loads the fine-tuned DistilBERT model from GitHub Pages once and runs

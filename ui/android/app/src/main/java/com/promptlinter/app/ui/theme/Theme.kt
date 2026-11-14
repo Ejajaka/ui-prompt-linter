@@ -9,58 +9,58 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 
 private val LightColors = lightColorScheme(
-    primary = LightPlColors.teal,
+    primary = LightVectorColors.teal,
     onPrimary = Color.White,
-    primaryContainer = LightPlColors.softGreen,
-    onPrimaryContainer = LightPlColors.darkTeal,
-    secondary = LightPlColors.mustard,
-    onSecondary = LightPlColors.darkTeal,
+    primaryContainer = LightVectorColors.softGreen,
+    onPrimaryContainer = LightVectorColors.darkTeal,
+    secondary = LightVectorColors.mustard,
+    onSecondary = LightVectorColors.darkTeal,
     secondaryContainer = Color(0xFFFBF8EE),
-    onSecondaryContainer = LightPlColors.textMain,
-    tertiary = LightPlColors.high,
+    onSecondaryContainer = LightVectorColors.textMain,
+    tertiary = LightVectorColors.high,
     onTertiary = Color.White,
-    background = LightPlColors.background,
-    onBackground = LightPlColors.textMain,
-    surface = LightPlColors.card,
-    onSurface = LightPlColors.textMain,
+    background = LightVectorColors.background,
+    onBackground = LightVectorColors.textMain,
+    surface = LightVectorColors.card,
+    onSurface = LightVectorColors.textMain,
     surfaceVariant = Color(0xFFEFECE2),
-    onSurfaceVariant = LightPlColors.textSecondary,
-    outline = LightPlColors.border,
+    onSurfaceVariant = LightVectorColors.textSecondary,
+    outline = LightVectorColors.border,
     outlineVariant = Color(0xFFECE9DF),
-    error = LightPlColors.critical,
+    error = LightVectorColors.critical,
     onError = Color.White,
 )
 
 private val DarkColors = darkColorScheme(
-    primary = DarkPlColors.teal,
+    primary = DarkVectorColors.teal,
     onPrimary = Color(0xFF0E1617),
-    primaryContainer = DarkPlColors.darkTeal,
+    primaryContainer = DarkVectorColors.darkTeal,
     onPrimaryContainer = Color(0xFFE6EFE6),
-    secondary = DarkPlColors.mustard,
+    secondary = DarkVectorColors.mustard,
     onSecondary = Color(0xFF241F0A),
     secondaryContainer = Color(0xFF33301E),
     onSecondaryContainer = Color(0xFFF9ECA8),
-    tertiary = DarkPlColors.mustard,
-    onTertiary = DarkPlColors.background,
-    background = DarkPlColors.background,
-    onBackground = DarkPlColors.textMain,
-    surface = DarkPlColors.card,
-    onSurface = DarkPlColors.textMain,
+    tertiary = DarkVectorColors.mustard,
+    onTertiary = DarkVectorColors.background,
+    background = DarkVectorColors.background,
+    onBackground = DarkVectorColors.textMain,
+    surface = DarkVectorColors.card,
+    onSurface = DarkVectorColors.textMain,
     surfaceVariant = Color(0xFF263538),
-    onSurfaceVariant = DarkPlColors.textSecondary,
-    outline = DarkPlColors.border,
+    onSurfaceVariant = DarkVectorColors.textSecondary,
+    outline = DarkVectorColors.border,
     outlineVariant = Color(0xFF3B4B4F),
-    error = DarkPlColors.critical,
+    error = DarkVectorColors.critical,
     onError = Color(0xFF2A0E0B),
 )
 
 @Composable
-fun PromptLinterTheme(
+fun VectorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) DarkPlColors else LightPlColors
-    CompositionLocalProvider(LocalPlColors provides colors) {
+    val colors = if (darkTheme) DarkVectorColors else LightVectorColors
+    CompositionLocalProvider(LocalVectorColors provides colors) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColors else LightColors,
             typography = Typography,

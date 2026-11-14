@@ -6,10 +6,10 @@
 <script>
   function plAiReady() {
     return new Promise(function(resolve, reject) {
-      if (window.PromptLinterAI) return resolve(window.PromptLinterAI);
+      if (window.VectorAI) return resolve(window.VectorAI);
       var start = Date.now();
       var timer = setInterval(function() {
-        if (window.PromptLinterAI) { clearInterval(timer); resolve(window.PromptLinterAI); }
+        if (window.VectorAI) { clearInterval(timer); resolve(window.VectorAI); }
         else if (Date.now() - start > 20000) { clearInterval(timer); reject(new Error('AI module failed to load.')); }
       }, 100);
     });
@@ -30,18 +30,18 @@
 
   function plRunPlan(text, plan, answers, finalize) {
     if (plan.selected !== 'rules' && plan.spans && plan.spans.length) {
-      return PromptLinterEngine.analyzeFromSpans(
+      return VectorEngine.analyzeFromSpans(
         text, plan.spans, plan.confidence, plan.selected, answers, !!finalize, plan.meta || null
       );
     }
     if (!Object.keys(answers || {}).length && !finalize && plan.baseline) return plan.baseline;
-    return PromptLinterEngine.analyze(text, answers || {}, !!finalize);
+    return VectorEngine.analyze(text, answers || {}, !!finalize);
   }
 
   window.runAnalyze = function(text, answersJson, finalize) {
     try {
       var answers = answersJson ? JSON.parse(answersJson) : {};
-      var result = PromptLinterEngine.analyze(text || "", answers, !!finalize);
+      var result = VectorEngine.analyze(text || "", answers, !!finalize);
       return JSON.stringify(result);
     } catch (e) {
       return JSON.stringify({ error: String(e) });
@@ -54,7 +54,7 @@
     var settings = settingsJson ? JSON.parse(settingsJson) : {};
     engineName = engineName || 'auto';
     var done = function(result) {
-      PromptLinterBridge.onResult(callbackId, JSON.stringify(result));
+      VectorBridge.onResult(callbackId, JSON.stringify(result));
     };
     try {
       var allowLlm = !!(settings.baseUrl && settings.model && settings.apiKey);
@@ -67,9 +67,9 @@
         plan = cached.plan;
         prepare = Promise.resolve();
       } else {
-        route = PromptLinterEngine.routePrompt(text, allowLlm);
-        baseline = PromptLinterEngine.analyze(text, {}, false);
-        compared = { rules: PromptLinterEngine.selectionScore(baseline) };
+        route = VectorEngine.routePrompt(text, allowLlm);
+        baseline = VectorEngine.analyze(text, {}, false);
+        compared = { rules: VectorEngine.selectionScore(baseline) };
         target = engineName === 'auto' ? route.method : (engineName === 'api' ? 'llm' : engineName);
         plan = {
           mode: engineName, selected: 'rules', route: route, compared: compared,
@@ -80,8 +80,8 @@
         if (target === 'bert') {
           prepare = plAiReady().then(function(ai) {
             return ai.runBert(text).then(function(r) {
-              var cand = PromptLinterEngine.analyzeFromSpans(text, r.spans, r.confidence, 'bert', {}, false);
-              compared.bert = PromptLinterEngine.selectionScore(cand);
+              var cand = VectorEngine.analyzeFromSpans(text, r.spans, r.confidence, 'bert', {}, false);
+              compared.bert = VectorEngine.selectionScore(cand);
               plan.spans = r.spans; plan.confidence = r.confidence; plan.selected = 'bert';
               plan.reason = route.reason + ' BERT detected ' + cand.result.elements.length + ' element(s).';
               if (engineName === 'auto' && compared.bert + 0.02 < compared.rules) {
@@ -101,10 +101,10 @@
           } else {
             prepare = plAiReady().then(function(ai) {
               return ai.extractSpansApi(text, settings).then(function(r) {
-                var cand = PromptLinterEngine.analyzeFromSpans(
+                var cand = VectorEngine.analyzeFromSpans(
                   text, r.spans, r.confidence, 'llm', {}, false, r.meta || null
                 );
-                compared.llm = PromptLinterEngine.selectionScore(cand);
+                compared.llm = VectorEngine.selectionScore(cand);
                 plan.spans = r.spans; plan.confidence = r.confidence; plan.selected = 'llm';
                 plan.meta = r.meta || null;
                 plan.reason = route.reason + ' The LLM grounded ' + r.spans.length + ' span(s).';

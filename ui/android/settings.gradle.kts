@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PromptLinter"
+rootProject.name = "Vector"
 include(":app")

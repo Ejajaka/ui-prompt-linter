@@ -4,14 +4,14 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 // Brand mark colours - constant across light/dark (used by the logo tile).
-val PlBrandGreen = Color(0xFF185345)
-val PlBrandYellow = Color(0xFFFAD237)
+val VectorBrandGreen = Color(0xFF2D5D4F)
+val VectorBrandYellow = Color(0xFFFAD237)
 
 /**
  * Semantic palette for the whole app. Mirrors `frontend/src/index.css` so the
  * Android app, web app and extension share the exact same light/dark tokens.
  */
-data class PlColors(
+data class VectorColors(
     val background: Color,
     val card: Color,
     val subtle: Color,
@@ -35,7 +35,7 @@ data class PlColors(
     val warningBg: Color,
 )
 
-val LightPlColors = PlColors(
+val LightVectorColors = VectorColors(
     background = Color(0xFFF6F4EC),
     card = Color(0xFFFFFFFF),
     subtle = Color(0xFFFAFAF8),
@@ -59,7 +59,7 @@ val LightPlColors = PlColors(
     warningBg = Color(0xFFFEFCE8),
 )
 
-val DarkPlColors = PlColors(
+val DarkVectorColors = VectorColors(
     background = Color(0xFF141C1E),
     card = Color(0xFF1D282A),
     subtle = Color(0xFF182123),
@@ -83,4 +83,4 @@ val DarkPlColors = PlColors(
     warningBg = Color(0xFF33301E),
 )
 
-val LocalPlColors = staticCompositionLocalOf { LightPlColors }
+val LocalVectorColors = staticCompositionLocalOf { LightVectorColors }

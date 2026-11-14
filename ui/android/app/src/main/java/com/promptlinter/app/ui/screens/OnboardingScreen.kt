@@ -26,7 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.promptlinter.app.ui.components.PlLogo
+import com.promptlinter.app.ui.components.VectorLogo
 import com.promptlinter.app.ui.theme.*
 
 data class OnboardingFeature(val icon: ImageVector, val title: String, val description: String)
@@ -43,9 +43,9 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     val steps = remember {
         listOf(
             OnboardingStep(
-                badge = "WELCOME TO PROMPT LINTER",
+                badge = "WELCOME TO VECTOR",
                 title = "Review UI prompts before you generate",
-                subtitle = "Prompt Linter checks a natural-language UI request for missing labels, colours, placement and actions — then produces a validated rewrite.",
+                subtitle = "Vector checks a natural-language UI request for missing labels, colours, placement and actions — then produces a validated rewrite.",
                 icon = Icons.Default.ChatBubbleOutline,
                 cards = listOf(
                     OnboardingFeature(Icons.Default.CheckCircle, "Pre-generation review", "Catch gaps in the prompt before an AI UI generator turns them into assumptions."),
@@ -115,10 +115,10 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PlLogo(modifier = Modifier.size(18.dp))
+                    VectorLogo(modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        "PROMPT LINTER",
+                        "VECTOR",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -143,14 +143,14 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             Spacer(Modifier.height(8.dp))
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = LocalPlColors.current.darkTeal,
-                border = BorderStroke(1.dp, LocalPlColors.current.mustard.copy(alpha = 0.4f))
+                color = LocalVectorColors.current.darkTeal,
+                border = BorderStroke(1.dp, LocalVectorColors.current.mustard.copy(alpha = 0.4f))
             ) {
                 Text(
                     step.badge,
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        color = LocalPlColors.current.mustard,
+                        color = LocalVectorColors.current.mustard,
                         letterSpacing = 1.sp
                     ),
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -223,7 +223,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     onClick = onFinish,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = LocalPlColors.current.mustard, contentColor = LocalPlColors.current.darkTeal)
+                    colors = ButtonDefaults.buttonColors(containerColor = LocalVectorColors.current.mustard, contentColor = LocalVectorColors.current.darkTeal)
                 ) {
                     Icon(Icons.Default.RocketLaunch, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))

@@ -62,7 +62,7 @@ fun NewAnalysisScreen(vm: MainViewModel) {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "Describe the interface you want. Prompt Linter finds missing labels, colours, placement and actions before a generator fills them in for you.",
+                    "Describe the interface you want. Vector finds missing labels, colours, placement and actions before a generator fills them in for you.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -91,7 +91,7 @@ fun NewAnalysisScreen(vm: MainViewModel) {
                             Text(
                                 "Engine error",
                                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                                color = LocalPlColors.current.critical
+                                color = LocalVectorColors.current.critical
                             )
                             Text(
                                 vm.engineError ?: "",
@@ -227,7 +227,7 @@ private fun SamplePromptsCard(onSelect: (String) -> Unit) {
                 Icon(
                     Icons.Default.Lightbulb,
                     contentDescription = null,
-                    tint = LocalPlColors.current.mustard,
+                    tint = LocalVectorColors.current.mustard,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(6.dp))
@@ -443,11 +443,11 @@ private fun RouterCard(p: AnalysisPayload) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("How this prompt was routed", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
-                Surface(shape = RoundedCornerShape(6.dp), color = LocalPlColors.current.softGreen) {
+                Surface(shape = RoundedCornerShape(6.dp), color = LocalVectorColors.current.softGreen) {
                     Text(
                         "${r.selected ?: p.engine ?: "rules"} · ${r.selectedBy ?: "router+confidence"}",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = LocalPlColors.current.softGreenText,
+                        color = LocalVectorColors.current.softGreenText,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
@@ -467,8 +467,8 @@ private fun RouterCard(p: AnalysisPayload) {
                 Text(
                     "Fallback: $it",
                     style = MaterialTheme.typography.labelSmall,
-                    color = LocalPlColors.current.warningText,
-                    modifier = Modifier.background(LocalPlColors.current.warningBg, RoundedCornerShape(6.dp)).padding(6.dp)
+                    color = LocalVectorColors.current.warningText,
+                    modifier = Modifier.background(LocalVectorColors.current.warningBg, RoundedCornerShape(6.dp)).padding(6.dp)
                 )
             }
         }
@@ -480,22 +480,22 @@ private fun ClarificationGate(p: AnalysisPayload) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = LocalPlColors.current.warningBg),
-        border = BorderStroke(1.dp, LocalPlColors.current.warningText.copy(alpha = 0.3f))
+        colors = CardDefaults.cardColors(containerColor = LocalVectorColors.current.warningBg),
+        border = BorderStroke(1.dp, LocalVectorColors.current.warningText.copy(alpha = 0.3f))
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.AutoMirrored.Filled.HelpOutline,
                     contentDescription = null,
-                    tint = LocalPlColors.current.warningText,
+                    tint = LocalVectorColors.current.warningText,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
                     "Score withheld until the prompt is unambiguous",
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    color = LocalPlColors.current.warningText
+                    color = LocalVectorColors.current.warningText
                 )
             }
             Text(
@@ -549,21 +549,21 @@ private fun RiskSummary(p: AnalysisPayload) {
             )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatBox(Modifier.weight(1f), "Risk", "${f.score.toInt()}/100", levelColor)
-                StatBox(Modifier.weight(1f), "Complete", "$completeness%", LocalPlColors.current.teal)
+                StatBox(Modifier.weight(1f), "Complete", "$completeness%", LocalVectorColors.current.teal)
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatBox(Modifier.weight(1f), "Confidence", "$conf%", LocalPlColors.current.teal)
-                StatBox(Modifier.weight(1f), "Elements", "${p.result.elements.size}", LocalPlColors.current.textSecondary)
+                StatBox(Modifier.weight(1f), "Confidence", "$conf%", LocalVectorColors.current.teal)
+                StatBox(Modifier.weight(1f), "Elements", "${p.result.elements.size}", LocalVectorColors.current.textSecondary)
             }
             Text(
                 "Missing: ${counts.missing}  ·  Vague: ${counts.vague}  ·  Unresolved: ${counts.unresolved}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Bar("Missing details", c.completeness, LocalPlColors.current.teal)
-            Bar("Vague details", c.vagueness, LocalPlColors.current.mustard)
+            Bar("Missing details", c.completeness, LocalVectorColors.current.teal)
+            Bar("Vague details", c.vagueness, LocalVectorColors.current.mustard)
             Bar("Detector uncertainty", c.detection, Color(0xFF5A8090))
-            Bar("Unresolved questions", c.unresolved, LocalPlColors.current.high)
+            Bar("Unresolved questions", c.unresolved, LocalVectorColors.current.high)
 
             val expl = p.explanation ?: f.explanation
             if (!expl.isNullOrBlank()) {
@@ -576,7 +576,7 @@ private fun RiskSummary(p: AnalysisPayload) {
                         Text(
                             if (p.explanationSource == "llm") "LLM explanation" else "Deterministic explanation",
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = LocalPlColors.current.darkTeal
+                            color = LocalVectorColors.current.darkTeal
                         )
                         Spacer(Modifier.height(3.dp))
                         Text(expl, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
@@ -585,7 +585,7 @@ private fun RiskSummary(p: AnalysisPayload) {
                             Text(
                                 "Add a base URL, model and API key in Settings to have the LLM write this explanation.",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = LocalPlColors.current.warningText
+                                color = LocalVectorColors.current.warningText
                             )
                         }
                     }
@@ -632,7 +632,7 @@ private fun HighlightedPromptCard(text: String, p: AnalysisPayload) {
     val spans = p.spans
         .filter { it.charStart >= 0 && it.charEnd > it.charStart && it.charEnd <= text.length }
         .sortedBy { it.charStart }
-    val colors = LocalPlColors.current
+    val colors = LocalVectorColors.current
     val annotated = buildAnnotatedString {
         var cursor = 0
         spans.forEach { s ->
@@ -675,7 +675,7 @@ private fun HighlightedPromptCard(text: String, p: AnalysisPayload) {
 @Composable
 private fun ElementCard(el: ElementResult) {
     val complete = el.status == "complete"
-    val statusColor = if (complete) LocalPlColors.current.low else LocalPlColors.current.warningText
+    val statusColor = if (complete) LocalVectorColors.current.low else LocalVectorColors.current.warningText
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -732,7 +732,7 @@ private fun ElementCard(el: ElementResult) {
                 Text(
                     el.attributes.entries.joinToString("   ·   ") { "${it.key}: ${it.value}" },
                     style = MaterialTheme.typography.bodySmall,
-                    color = LocalPlColors.current.teal
+                    color = LocalVectorColors.current.teal
                 )
             } else {
                 Text(
@@ -775,11 +775,11 @@ private fun ClarificationCard(p: AnalysisPayload, round: Int, disabled: Boolean,
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("A few details are still unclear", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
-                Surface(shape = RoundedCornerShape(6.dp), color = LocalPlColors.current.softGreen) {
+                Surface(shape = RoundedCornerShape(6.dp), color = LocalVectorColors.current.softGreen) {
                     Text(
                         "Round $round",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = LocalPlColors.current.softGreenText,
+                        color = LocalVectorColors.current.softGreenText,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
@@ -869,11 +869,11 @@ private fun FinalPromptCard(p: AnalysisPayload) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Validated Prompt", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                Surface(shape = RoundedCornerShape(6.dp), color = LocalPlColors.current.softGreen) {
+                Surface(shape = RoundedCornerShape(6.dp), color = LocalVectorColors.current.softGreen) {
                     Text(
                         "Copy-ready",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = LocalPlColors.current.softGreenText,
+                        color = LocalVectorColors.current.softGreenText,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
@@ -882,11 +882,11 @@ private fun FinalPromptCard(p: AnalysisPayload) {
             if (unresolved.isNotEmpty()) {
                 Text(
                     "Unresolved: " + unresolved.joinToString(" · ") { it.prompt },
-                    color = LocalPlColors.current.warningText,
+                    color = LocalVectorColors.current.warningText,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(LocalPlColors.current.warningBg, RoundedCornerShape(8.dp))
+                        .background(LocalVectorColors.current.warningBg, RoundedCornerShape(8.dp))
                         .padding(10.dp)
                 )
             }
@@ -971,7 +971,7 @@ private fun WhyCard(p: AnalysisPayload) {
                 )
             }
             p.router?.fallback?.let {
-                Text("Fallback: $it", style = MaterialTheme.typography.bodySmall, color = LocalPlColors.current.warningText)
+                Text("Fallback: $it", style = MaterialTheme.typography.bodySmall, color = LocalVectorColors.current.warningText)
             }
             Text(
                 "Detector confidence: ${String.format("%.2f", p.confidence ?: 0.0)}",
@@ -994,8 +994,8 @@ private fun WhyCard(p: AnalysisPayload) {
 
 @Composable
 private fun riskColorLevel(level: String) = when (level) {
-    "Critical" -> LocalPlColors.current.critical
-    "High" -> LocalPlColors.current.high
-    "Medium" -> LocalPlColors.current.medium
-    else -> LocalPlColors.current.low
+    "Critical" -> LocalVectorColors.current.critical
+    "High" -> LocalVectorColors.current.high
+    "Medium" -> LocalVectorColors.current.medium
+    else -> LocalVectorColors.current.low
 }

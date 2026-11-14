@@ -23,9 +23,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("prompt_linter_ai", android.content.Context.MODE_PRIVATE)
 
     var aiEngine by mutableStateOf(prefs.getString("engine_v2", "auto") ?: "auto")
-    var aiBaseUrl by mutableStateOf(prefs.getString("base_url", BuildConfig.PROMPT_LINTER_BASE_URL) ?: BuildConfig.PROMPT_LINTER_BASE_URL)
-    var aiModel by mutableStateOf(prefs.getString("model", BuildConfig.PROMPT_LINTER_MODEL) ?: BuildConfig.PROMPT_LINTER_MODEL)
-    var aiApiKey by mutableStateOf(prefs.getString("api_key", BuildConfig.PROMPT_LINTER_API_KEY) ?: BuildConfig.PROMPT_LINTER_API_KEY)
+    var aiBaseUrl by mutableStateOf(prefs.getString("base_url", BuildConfig.VECTOR_BASE_URL) ?: BuildConfig.VECTOR_BASE_URL)
+    var aiModel by mutableStateOf(prefs.getString("model", BuildConfig.VECTOR_MODEL) ?: BuildConfig.VECTOR_MODEL)
+    var aiApiKey by mutableStateOf(prefs.getString("api_key", BuildConfig.VECTOR_API_KEY) ?: BuildConfig.VECTOR_API_KEY)
 
     fun saveAiSettings(engineName: String, baseUrl: String, model: String, apiKey: String) {
         aiEngine = engineName
