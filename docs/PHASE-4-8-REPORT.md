@@ -61,6 +61,16 @@ Status: **core workflows implemented; optional LLM review function and productio
   link; no fake embedded editor.
 - Preview URL persisted in project memory.
 
+## Engine policy change
+
+- The web app now exposes **BERT only**.
+- If BERT confidence is below 0.55 and an LLM endpoint/key is configured, the
+  pipeline automatically requests a grounded LLM second opinion.
+- If BERT is unavailable, the LLM is tried next; otherwise the deterministic
+  baseline remains the internal fallback.
+- Rules/Auto/LLM are no longer user-selectable in the web analysis UI. Rules
+  remain an internal validator so existing checks and risk scoring survive.
+
 ## Tests
 
 - 13 frontend tests passing (compiler, graph, conflict/dependency/ambiguity,

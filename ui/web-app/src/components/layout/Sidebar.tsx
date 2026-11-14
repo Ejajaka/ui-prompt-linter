@@ -191,7 +191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center justify-between text-[11px] text-[#737A72]">
               <span className="font-mono">Vector v2.0</span>
               <span className="inline-flex items-center gap-1 text-[#49686C] font-medium">
-                <Shield className="w-3 h-3" /> Rules + BERT + LLM
+                <Shield className="w-3 h-3" /> BERT + LLM fallback
               </span>
             </div>
           )}

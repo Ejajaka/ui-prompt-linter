@@ -132,27 +132,26 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#3E6B33]" />
             <span className="text-xs font-bold text-[#2D5A27]">
-              Active: Auto (Rules / BERT / LLM)
+              Active: BERT with automatic LLM fallback
             </span>
           </div>
           <p className="text-xs text-[#283638] leading-relaxed pl-6">
-            The engine chooses Rules, a fine-tuned DistilBERT tagger or an optional grounded LLM per prompt, then runs the shared completeness checker and risk score.
+            BERT runs first. If its confidence is low, the configured OpenAI-compatible endpoint is asked for a second opinion. Rules remain an internal deterministic validator, not a user-facing mode.
           </p>
         </div>
 
         <div className="space-y-2">
           <div className="text-xs font-bold text-[#283638]">Detection engines</div>
           <ul className="text-xs text-[#737A72] space-y-1.5 leading-relaxed">
-            <li><b className="text-[#283638]">Auto</b> — chooses Rules, BERT or LLM from prompt features.</li>
-            <li><b className="text-[#283638]">Rules</b> — deterministic lexicons, regexes and heuristics (default).</li>
-            <li><b className="text-[#283638]">BERT</b> — fine-tuned DistilBERT BIO token classifier.</li>
+            <li><b className="text-[#283638]">BERT</b> - the only visible detector; fine-tuned DistilBERT BIO tagger.</li>
+            <li><b className="text-[#283638]">LLM fallback</b> - automatic second opinion only when BERT confidence is low.</li>
           </ul>
         </div>
 
         <div className="p-3.5 rounded-lg bg-[#FAFAF8] border border-[#E5E2D8] text-xs text-[#737A72] leading-relaxed">
-          <b className="text-[#283638]">In this web app</b> all three engines run on your device: Rules via
-          Pyodide, BERT via a quantized ONNX model (≈67 MB, downloaded once and cached by your browser), and the
-          LLM through the endpoint you configure below. You can also use the{' '}
+          <b className="text-[#283638]">In this web app</b> BERT runs on your device through a quantized ONNX model.
+          It downloads about 67 MB once and caches it in your browser; a configured LLM provides a second opinion,
+          while rules remain an internal deterministic validator. You can also use the{' '}
           <a href={ENGINE_URL} target="_blank" rel="noreferrer" className="underline text-[#49686C]">
             full Streamlit engine
           </a>{' '}
@@ -308,11 +307,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           </div>
           <div>
             <span className="text-[#737A72] block">Engine Type</span>
-            <span className="font-bold text-[#283638]">Rules + BERT + LLM</span>
+            <span className="font-bold text-[#283638]">BERT + LLM fallback</span>
           </div>
           <div>
             <span className="text-[#737A72] block">Execution Context</span>
-            <span className="font-bold text-[#283638]">All three in-browser (Rules · BERT · LLM)</span>
+            <span className="font-bold text-[#283638]">BERT on-device; LLM fallback by API</span>
           </div>
         </div>
       </div>

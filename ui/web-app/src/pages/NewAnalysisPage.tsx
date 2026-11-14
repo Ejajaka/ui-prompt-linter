@@ -303,7 +303,7 @@ function ClarificationForm({
 export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult, onViewHistory }) => {
   const [engineState, setEngineState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engineError, setEngineError] = useState('');
-  const [engine, setEngine] = useState<EngineMode>('auto');
+  const engine: EngineMode = 'bert';
   const [text, setText] = useState('');
   const [selectedExample, setSelectedExample] = useState<string | null>(null);
   const [payload, setPayload] = useState<AnalysisPayload | null>(null);
@@ -544,7 +544,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
           <Loader2 className="w-7 h-7 text-[#49686C] animate-spin mx-auto mb-3" />
           <div className="text-sm font-bold text-[#283638]">Loading the in-browser engine…</div>
           <p className="text-xs text-[#737A72] mt-1 max-w-md mx-auto">
-            First load downloads the Pyodide runtime (~10 MB) and runs the real rules backend in your browser. This takes a few seconds.
+            First load prepares the BERT detector and deterministic validator. This can take a few seconds.
           </p>
         </div>
       )}
@@ -599,46 +599,17 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
 
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <span className="text-xs font-semibold text-[#737A72]">Engine:</span>
-            {[
-              { id: 'auto' as const, label: 'Auto', hint: 'Router picks Rules, BERT or LLM and verifies its confidence' },
-              { id: 'rules' as const, label: 'Rules', hint: 'Offline, deterministic' },
-              { id: 'bert' as const, label: 'BERT', hint: 'DistilBERT in-browser (~67 MB, loads once)' },
-              { id: 'llm' as const, label: 'LLM', hint: 'Grounded extraction via your API key' },
-            ].map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => {
-                  setEngine(opt.id);
-                  planRef.current = null;
-                  setPlan(null);
-                  setPayload(null);
-                }}
-                title={opt.hint}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                  engine === opt.id
-                    ? 'bg-[#49686C] border-[#49686C] text-white'
-                    : 'bg-white border-[#E5E2D8] text-[#283638] hover:border-[#49686C]'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+            <span className="px-3 py-1.5 rounded-full text-xs font-bold border bg-[#49686C] border-[#49686C] text-white">
+              BERT
+            </span>
             <span className="text-[11px] text-[#737A72]">
-              {engine === 'auto'
-                ? 'Router analyses the prompt first, then the winning detector scores it.'
-                : 'Manual override — the router still records its recommendation.'}
+              BERT runs first; if confidence is low, the configured LLM is asked for a second opinion automatically.
             </span>
           </div>
 
           {bertProgress !== null && (
             <p className="text-[11px] text-[#856C16] bg-[#FEFCE8] border border-[#FEF08A] rounded-md px-2.5 py-1.5 mt-2">
               Downloading DistilBERT… {bertProgress}% (one time; your browser caches it afterwards)
-            </p>
-          )}
-          {engine === 'llm' && (
-            <p className="text-[11px] text-[#737A72] mt-2">
-              Sends the prompt to the OpenAI-compatible endpoint configured in Settings.
             </p>
           )}
 
@@ -695,10 +666,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             <div className="flex items-center gap-2 text-xs text-[#737A72]">
               <Sparkles className="w-4 h-4 text-[#D1B653] shrink-0" />
               <span>
-                {engine === 'auto' && 'Router selects the best detector, then the LLM explains the final score'}
-                {engine === 'rules' && 'Runs offline in your browser · Rules engine via Pyodide'}
-                {engine === 'bert' && 'Runs on-device · DistilBERT model (loads once, then offline)'}
-                {engine === 'llm' && 'Calls your configured OpenAI-compatible endpoint (Settings)'}
+                BERT runs on-device. If confidence is low, the configured LLM provides an automatic second opinion; rules remain an internal validator.
               </span>
             </div>
             <div className="flex items-center gap-2.5 self-end sm:self-auto">
@@ -780,14 +748,9 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
         <div className="bg-[#FDF2F0] border border-[#F0C4BF] rounded-xl p-4 shadow-xs">
           <div className="flex items-center gap-2 text-[#B94D42] font-bold text-sm">
             <AlertTriangle className="w-4 h-4" />
-            {engine.toUpperCase()} analysis failed
+            Analysis failed
           </div>
           <p className="text-xs text-[#B94D42] mt-1">{analysisError}</p>
-          {engine === 'llm' && (
-            <p className="text-xs text-[#737A72] mt-2">
-              Open Settings and enter a browser-accessible (CORS-enabled) base URL, model and API key.
-            </p>
-          )}
           {engine === 'bert' && (
             <p className="text-xs text-[#737A72] mt-2">
               Check that <code className="font-mono">models/bert_tagger/onnx/model_quantized.onnx</code> loads, then try again.

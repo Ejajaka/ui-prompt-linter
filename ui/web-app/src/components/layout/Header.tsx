@@ -147,8 +147,8 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label="Hybrid UI prompt engine status info"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-[#3E6B33]" />
-            <span className="hidden sm:inline">Rules + BERT + LLM</span>
-            <span className="sm:hidden">Hybrid</span>
+            <span className="hidden sm:inline">BERT + LLM fallback</span>
+            <span className="sm:hidden">BERT</span>
             <Info className="w-3 h-3 text-[#688E5E] ml-0.5 opacity-80" />
           </button>
 
@@ -157,9 +157,9 @@ export const Header: React.FC<HeaderProps> = ({
               role="tooltip"
               className="absolute right-0 top-full mt-2 w-64 p-2.5 bg-[#283638] text-white text-xs rounded-lg shadow-xl z-50 pointer-events-none transition-all"
             >
-              <p className="font-semibold text-[#D1B653] mb-1">Hybrid UI Prompt Engine</p>
+              <p className="font-semibold text-[#D1B653] mb-1">BERT-first UI Prompt Engine</p>
               <p className="text-gray-200 leading-relaxed text-[11px]">
-                The engine combines a deterministic rule baseline, a fine-tuned DistilBERT tagger and an optional grounded LLM. The active backend is chosen per prompt.
+                BERT is the only visible detection engine. When its confidence is low, a configured LLM is asked for a second opinion. The deterministic rules engine remains an internal validator.
               </p>
             </div>
           )}

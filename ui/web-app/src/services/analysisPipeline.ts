@@ -22,6 +22,7 @@ import { extractSpans, explain, isLLMConfigured } from './llmEngine.ts';
 import { loadSettings, type AppSettings } from './settings.ts';
 
 export type EngineMode = 'auto' | 'rules' | 'bert' | 'llm';
+const BERT_LLM_FALLBACK = 0.55;
 
 export interface DetectionPlan {
   mode: EngineMode;
@@ -109,9 +110,41 @@ export async function planDetection(text: string, opts: PlanOptions): Promise<De
           `(${compared.rules.toFixed(2)} vs ${compared.bert.toFixed(2)}).`;
         plan.fallback = 'rules-over-bert';
       }
+      if (requested === 'bert' && detected.confidence < BERT_LLM_FALLBACK && allowLlm) {
+        try {
+          const llmResult = await extractSpans(text, settings);
+          const llmCandidate = await runAnalysisFromSpans(text, llmResult.spans, llmResult.confidence, 'llm', {}, false);
+          compared.llm = selectionScore(llmCandidate);
+          if (llmCandidate.result.elements.length >= candidate.result.elements.length) {
+            plan.selected = 'llm';
+            plan.spans = llmResult.spans;
+            plan.confidence = llmResult.confidence;
+            plan.reason = `BERT confidence ${(detected.confidence * 100).toFixed(0)}% was low; the LLM grounded ${llmResult.spans.length} span(s) as a second opinion.`;
+            plan.fallback = 'llm-over-low-confidence-bert';
+          } else {
+            plan.fallback = 'low-confidence-bert';
+          }
+        } catch (err: any) {
+          plan.fallback = `low-confidence-bert (LLM unavailable: ${err?.message || String(err)})`;
+        }
+      }
     } catch (err: any) {
       plan.fallback = `BERT unavailable: ${err?.message || String(err)}`;
       plan.reason = `${router.reason} Falling back to Rules.`;
+      if (allowLlm) {
+        try {
+          const llmResult = await extractSpans(text, settings);
+          const llmCandidate = await runAnalysisFromSpans(text, llmResult.spans, llmResult.confidence, 'llm', {}, false);
+          plan.selected = 'llm';
+          plan.spans = llmResult.spans;
+          plan.confidence = llmResult.confidence;
+          compared.llm = selectionScore(llmCandidate);
+          plan.reason = `BERT was unavailable; the LLM grounded ${llmResult.spans.length} span(s) as fallback.`;
+          plan.fallback = 'llm-over-bert-unavailable';
+        } catch (llmErr: any) {
+          plan.fallback = `BERT unavailable; LLM unavailable: ${llmErr?.message || String(llmErr)}`;
+        }
+      }
     }
   } else if (target === 'llm') {
     if (!allowLlm) {
