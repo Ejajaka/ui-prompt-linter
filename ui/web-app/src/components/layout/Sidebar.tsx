@@ -4,6 +4,7 @@ import {
   PlusCircle,
   Sparkles,
   History, 
+  BookOpen,
   Settings, 
   ChevronLeft, 
   ChevronRight, 
@@ -55,6 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'workspace' as ActiveTab, label: 'Bolt Workspace', icon: Monitor },
     { id: 'new-analysis' as ActiveTab, label: 'New Analysis', icon: PlusCircle },
     { id: 'history' as ActiveTab, label: 'Analysis History', icon: History },
+    { id: 'manual' as ActiveTab, label: 'Manual', icon: BookOpen },
     { id: 'settings' as ActiveTab, label: 'Settings', icon: Settings },
     { id: 'privacy' as ActiveTab, label: 'Privacy', icon: ShieldCheck },
   ];
@@ -207,7 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex items-center justify-between text-[11px] text-[#737A72]">
                 <span className="font-mono">Vector v2.0</span>
                 <span className="inline-flex items-center gap-1 text-[#49686C] font-medium">
-                  <ShieldCheck className="w-3 h-3" /> Row-level security
+                  <ShieldCheck className="w-3 h-3" /> Private by design
                 </span>
               </div>
             )

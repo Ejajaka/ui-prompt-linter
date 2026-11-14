@@ -80,9 +80,9 @@ About page without a sidebar.
 | Specification & Prompt | Six-section brief, versions, regression |
 | Design Systems | Brand tokens and version history |
 | Bolt Workspace | Prompt-to-Bolt launch and published preview |
-| New Analysis | BERT-first prompt analysis |
-| Analysis History | Project-scoped analysis records |
-| Settings | Theme, engine information, local data |
+| New Analysis | Prompt review and risk read-out |
+| Manual | In-app guide to every workflow |
+| Settings | Theme, manual, local data |
 | Privacy | Data and processing policy |
 
 On mobile the signed-in sidebar becomes a drawer opened from the header. On
@@ -401,13 +401,12 @@ The preview URL is remembered per project.
 
 ## 10. New UI Prompt Analysis
 
-### 10.1 Engine policy
+### 10.1 How the review works
 
-The web app exposes **BERT only**. A fine-tuned DistilBERT model runs
-on-device. If confidence is below the threshold and an LLM endpoint is
-configured in Settings, the LLM is asked automatically for a second opinion.
-A deterministic on-device validator double-checks the result and is not a
-user-facing mode.
+Vector reads the prompt in your browser, detects the UI elements it describes,
+and links colours, placement, actions and labels to each element. When a detail
+is missing or ambiguous it asks a targeted question rather than guessing. The
+review finishes with a risk index, a completeness score and a suggested rewrite.
 
 ### 10.2 Project scope
 
@@ -419,7 +418,7 @@ project ID.
 ### 10.3 Running an analysis
 
 1. Select or create a project.
-2. Enter a UI request, or choose an example.
+2. Enter a UI request describing the screen and its elements.
 3. Select **Analyze Prompt** (or use Ctrl/Cmd + Enter).
 
 Vector detects elements, colours, placement, actions and labels, and reports
@@ -432,7 +431,7 @@ questions. Answer them, or choose placeholders, to finish.
 - **Suggested rewrite** for each element
 - **Clarification questions** for unresolved details
 - **Risk score** once the prompt is unambiguous
-- **Engine explanation** showing how the prompt was routed
+- **A plain-language summary** of what affected the score
 
 ### 10.5 Saving and history
 
@@ -447,16 +446,6 @@ another project, switches to that project first so the context matches.
 ---
 
 ## 11. Analysis History
-
-- total analyses
-- average risk score
-- average completeness
-- high-risk analyses
-- recent analyses
-- risk distribution
-
-If no project is active, the dashboard explains that analyses are project
-scoped and offers a shortcut to Projects.
 
 History lists project-scoped analyses. Use the project dropdown at the top to
 switch which project you are looking into; the header project switches with it.
@@ -477,42 +466,31 @@ completeness.
 Use the moon/sun button in the header or the choice in Settings. The preference
 is stored in the browser.
 
-### 12.2 LLM endpoint
-
-In Settings you can configure an OpenAI-compatible base URL, model and API key
-for the automatic second opinion. Settings are stored locally in the browser,
-not in the repository. Without a configured endpoint, BERT still works and
-low-confidence prompts fall back to the deterministic validator.
-
-### 12.3 Local data
+### 12.2 Local data
 
 **Clear local prompt history** removes browser-stored analyses after
 confirmation. Cloud projects and requirement documents are not affected.
 
 ---
 
-## 13. Security and data model
+## 13. Security and privacy
 
-- Authentication, Postgres and file storage are provided by Supabase.
-- Every table is protected by row-level security; a user can only read and
-  write rows in their own projects.
-- The frontend contains only the publishable Supabase key. The secret key never
-  ships to the browser.
-- Requirement documents are stored in a private storage bucket with policies
-  tied to the project owner.
-- Approval records are append-only audit rows tied to the project and actor.
+- Your projects, documents, requirements and prompts are private to your account.
+- Every project area is isolated, so one workspace can never read another.
+- Approval decisions are recorded with the person and time, forming an audit trail.
+- Prompt analyses are saved only to the project you select.
+- No prompt or project data is shared with third parties.
 
 ---
 
 ## 14. Feature limitations
 
-- Suggestions and acceptance criteria are generated deterministically. They are
-  reproducible and intentionally conservative; they are not LLM inventions.
+- Suggestions and acceptance criteria are intentionally conservative; they are
+  proposals for a human to review, never silent requirements.
 - Graph findings are recomputed from the current requirements on each visit.
   Individual finding acceptance or muting is not persisted separately.
-- Bolt does not offer a supported editor-embedding API. Vector uses a
-  launch-and-transfer workflow and only frames published `.bolt.host` apps when
-  the host allows it.
+- Bolt opens in a new tab. Vector previews a published app when the host allows
+  it; otherwise use the direct launch link.
 - The risk score is a heuristic, not a guarantee. It highlights missing detail
   and uncertainty; it does not replace design review.
 
@@ -546,11 +524,7 @@ Select a project from the header switcher or create one in Projects. Analyses,
 documents, prompts and design-system links are project scoped.
 
 **The Analyze button is disabled.**
-Either the BERT engine is still loading, or no project is active.
-
-**The LLM second opinion never appears.**
-Configure an OpenAI-compatible endpoint in Settings. Without it, BERT and the
-deterministic validator still run.
+The analyser is still preparing, or no project is active.
 
 **The Bolt preview is blank.**
 The published host is blocking framing. Use **Open Bolt**; the prompt is still
@@ -582,4 +556,4 @@ and redirect URLs.
 | Design tokens | Colour, type, spacing, radius and brand guidelines |
 | Baseline | Snapshot of requirements used for regression comparison |
 | Analysis run | A single prompt evaluation stored in a project |
-| RLS | Row-level security in Supabase |
+| Workspace isolation | Projects visible only to their owner |

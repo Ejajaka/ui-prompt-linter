@@ -246,7 +246,7 @@ export const WorkspacePage: React.FC = () => {
                   <Monitor className="w-8 h-8 text-[#49686C] mx-auto mb-3" />
                   <h2 className="text-sm font-bold text-[#283638]">Send the approved prompt to Bolt</h2>
                   <p className="text-xs text-[#737A72] mt-2 leading-relaxed">
-                    Bolt does not expose a supported editor-embedding API. Use the launch button, paste the copied prompt, and publish the result. Then add the published <code className="font-mono">*.bolt.host</code> URL above to preview it here.
+                    Send the brief to Bolt, paste the copied prompt and publish the app. Then add the published <code className="font-mono">*.bolt.host</code> URL above to preview it here.
                   </p>
                   <div className="flex flex-wrap justify-center gap-2 mt-4">
                     <button type="button" onClick={() => void sendToBolt()} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold">
@@ -265,7 +265,7 @@ export const WorkspacePage: React.FC = () => {
       </div>
 
       <div className="text-[10px] text-[#737A72] leading-relaxed">
-        Bolt integration uses a supported launch-and-transfer workflow plus an optional published-app iframe. If Bolt or its hosting blocks framing, use the external launch link. The editor itself is never faked.
+        Vector opens Bolt in a new tab, copies the brief for you, and previews the published app when the host allows it. If previewing is blocked, open Bolt directly.
       </div>
     </div>
   );

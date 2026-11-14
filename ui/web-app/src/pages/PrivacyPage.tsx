@@ -46,18 +46,12 @@ export const PrivacyPage: React.FC = () => {
 
       <Section icon={<Cpu className="w-4 h-4 text-[#49686C]" />} title="How analysis works">
         <p>
-          A fine-tuned BERT model runs on your device — in the browser, in the extension popup, and on-device in
-          the Android app. A deterministic validator double-checks every attribute, and your prompt never leaves
-          your device for that analysis.
+          Prompt review happens in your browser. The prompt you type is not uploaded for analysis, and it is only
+          saved to the project you select.
         </p>
         <p>
-          BERT loads a quantized DistilBERT model in your browser and runs locally. It does not upload your
-          prompt.
-        </p>
-        <p>
-          The optional <strong>LLM</strong> second opinion only runs when BERT confidence is low and you have added
-          an OpenAI-compatible endpoint and API key in Settings. When it runs, your prompt is sent to that endpoint
-          you configure — no other third party.
+          Saved analyses and requirement decisions live in your workspace and are visible only
+          to your account.
         </p>
       </Section>
 
@@ -70,8 +64,7 @@ export const PrivacyPage: React.FC = () => {
 
       <Section icon={<Users className="w-4 h-4 text-[#49686C]" />} title="Third parties">
         <p>
-          No data is shared with any third party. The only exception is the LLM endpoint you choose to configure
-          yourself in Settings.
+          No prompt or project data is shared with any third party.
         </p>
       </Section>
 
@@ -93,8 +86,7 @@ export const PrivacyPage: React.FC = () => {
       <div className="flex items-start gap-2.5 bg-[#F6F4EC] border border-[#E5E2D8] rounded-xl p-4">
         <Lock className="w-4 h-4 text-[#49686C] shrink-0 mt-0.5" />
         <p className="text-xs text-[#737A72] leading-relaxed">
-          This policy applies to the Vector website, browser extension and Android app. It does not cover the
-          separate Streamlit full engine, which runs BERT and LLM features server-side.
+          This policy applies to the Vector website, browser extension and Android app.
         </p>
       </div>
     </div>

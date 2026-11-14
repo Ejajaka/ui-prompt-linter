@@ -75,14 +75,14 @@ const FEATURES = [
   },
   {
     icon: Cpu,
-    title: 'BERT-first Analysis',
-    text: 'On-device DistilBERT detects UI elements; a configured LLM is consulted automatically when confidence is low.',
+    title: 'Prompt Analysis',
+    text: 'Describe the UI you want. Vector finds missing labels, colours, placement and actions, then asks only the questions that matter.',
     tone: '#3E6B33',
   },
   {
     icon: ShieldCheck,
     title: 'Project isolation',
-    text: 'Projects, documents, approvals and prompts are separated with Supabase row-level security.',
+    text: 'Projects, documents, approvals and prompts stay isolated per project and visible only to your account.',
     tone: '#B94D42',
   },
 ];
@@ -161,7 +161,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               </button>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2 text-[11px] text-[#737A72] dark:text-[#8E9A93]">
-              {['Traceable requirements', 'Human-approved criteria', 'Design tokens in every brief', 'RLS-isolated projects'].map((item) => (
+              {['Traceable requirements', 'Human-approved criteria', 'Design tokens in every brief', 'Isolated projects'].map((item) => (
                 <span key={item} className="inline-flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#688E5E]" /> {item}
                 </span>

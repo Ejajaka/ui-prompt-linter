@@ -99,6 +99,17 @@ Actions `tests` and `pages-build-deployment` all pass.
 | Public pages have no title bar; only theme + Sign in | Done |
 | Header order: theme, settings, log out | Done |
 
+## Product polish — 14 November 2026
+
+| Change | Status |
+| --- | --- |
+| Public home is a full-width About page with no sidebar/header | Done |
+| Theme + Sign in embedded at the top in normal flow (scrolls away) | Done |
+| Engine names, examples and implementation details removed from the UI | Done |
+| In-app **Manual** tab with a guided tour of every workflow | Done |
+| Settings reduced to appearance, manual, local data and privacy | Done |
+| Marketing copy rewritten at feature level | Done |
+
 ## Manual actions still required
 
 1. Delete the temporary test account

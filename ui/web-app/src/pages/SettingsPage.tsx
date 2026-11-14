@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Palette,
-  Cpu,
   Info,
   Database,
   Check,
@@ -10,68 +9,58 @@ import {
   Sun,
   Moon,
   ExternalLink,
-  Sparkles,
+  BookOpen,
+  ChevronRight,
 } from 'lucide-react';
 import { historyStorage } from '../services/historyStorage.ts';
-import { loadSettings, saveSettings, type AppSettings } from '../services/settings.ts';
 import { useToast } from '../components/ui/Toast.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
-import { ENGINE_URL } from '../config.ts';
 
 interface SettingsPageProps {
   onRefreshData?: () => void;
+  onOpenManual?: () => void;
 }
 
-export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => {
+export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData, onOpenManual }) => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
-  const [llm, setLlm] = useState<AppSettings>(() => loadSettings());
-  const [llmSaved, setLlmSaved] = useState(false);
-
-  const handleSaveLlm = () => {
-    saveSettings(llm);
-    setLlmSaved(true);
-    toast('LLM settings saved', 'info');
-    window.setTimeout(() => setLlmSaved(false), 1500);
-  };
-
   const handleClearData = () => {
-    if (window.confirm('Clear all local prompt history?')) {
+    if (window.confirm('Clear the prompt-analysis history stored in this browser? Cloud projects are not affected.')) {
       historyStorage.clear();
       if (onRefreshData) onRefreshData();
-      toast('Local history cleared', 'info');
+      toast('Local analysis history cleared', 'info');
     }
   };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-[#283638] tracking-tight">
-          System Settings
+        <h1 className="text-xl sm:text-2xl font-bold text-[#283638] dark:text-[#E7E4D9] tracking-tight">
+          Settings
         </h1>
-        <p className="text-xs sm:text-sm text-[#737A72] mt-1">
-          Theme, engine information and local data for Vector.
+        <p className="text-xs sm:text-sm text-[#737A72] dark:text-[#8E9A93] mt-1">
+          Appearance, help and local data for Vector.
         </p>
       </div>
 
-      {/* Appearance Section */}
-      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
+      {/* Appearance */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1B2426] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] dark:border-[#29383A] shadow-xs space-y-4">
+        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8] dark:border-[#29383A]">
           <Palette className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">Appearance &amp; Theme</h2>
+          <h2 className="text-base font-bold text-[#283638] dark:text-[#E7E4D9]">Appearance</h2>
         </div>
 
-        <p className="text-xs text-[#737A72]">
-          Choose your interface theme. Both themes preserve Vector's teal and mustard accents with high-contrast readability.
+        <p className="text-xs text-[#737A72] dark:text-[#8E9A93]">
+          Choose your interface theme. Both themes keep Vector&apos;s teal and mustard accents with
+          high-contrast readability.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          {/* Light Mode Option */}
           <label className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
             theme === 'light'
               ? 'border-[#49686C] bg-[#F0F5F5] ring-1 ring-[#49686C]'
-              : 'border-[#E5E2D8] bg-[#FAFAF8] hover:bg-white'
+              : 'border-[#E5E2D8] dark:border-[#33403F] bg-[#FAFAF8] dark:bg-[#141C1D] hover:bg-white dark:hover:bg-[#222E30]'
           }`}>
             <div className="flex items-center gap-3">
               <input
@@ -86,18 +75,17 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
                 <Sun className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[#283638] block">Vector Classic (Light)</span>
-                <span className="text-[11px] text-[#737A72]">Warm ivory #F6F4EC canvas &amp; teal typography</span>
+                <span className="text-xs font-bold text-[#283638] dark:text-[#E7E4D9] block">Vector Classic</span>
+                <span className="text-[11px] text-[#737A72] dark:text-[#8E9A93]">Warm ivory canvas</span>
               </div>
             </div>
             {theme === 'light' && <Check className="w-4 h-4 text-[#49686C]" />}
           </label>
 
-          {/* Dark Mode Option */}
           <label className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
             theme === 'dark'
               ? 'border-[#49686C] bg-[#F0F5F5] ring-1 ring-[#49686C]'
-              : 'border-[#E5E2D8] bg-[#FAFAF8] hover:bg-white'
+              : 'border-[#E5E2D8] dark:border-[#33403F] bg-[#FAFAF8] dark:bg-[#141C1D] hover:bg-white dark:hover:bg-[#222E30]'
           }`}>
             <div className="flex items-center gap-3">
               <input
@@ -112,8 +100,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
                 <Moon className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[#283638] block">Vector Obsidian (Dark)</span>
-                <span className="text-[11px] text-[#737A72]">Deep slate teal-black canvas &amp; high contrast</span>
+                <span className="text-xs font-bold text-[#283638] dark:text-[#E7E4D9] block">Vector Obsidian</span>
+                <span className="text-[11px] text-[#737A72] dark:text-[#8E9A93]">Deep slate, high contrast</span>
               </div>
             </div>
             {theme === 'dark' && <Check className="w-4 h-4 text-[#49686C]" />}
@@ -121,162 +109,59 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
         </div>
       </div>
 
-      {/* Analysis Engine Section */}
-      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
-          <Cpu className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">Analysis Engine</h2>
-        </div>
-
-        <div className="p-4 rounded-lg bg-[#F4F9F1] border border-[#CFE2C8] space-y-1.5">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#3E6B33]" />
-            <span className="text-xs font-bold text-[#2D5A27]">
-              Active: BERT with automatic LLM fallback
-            </span>
+      {/* Manual */}
+      <button
+        type="button"
+        onClick={onOpenManual}
+        className="w-full text-left bg-[#FFFFFF] dark:bg-[#1B2426] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] dark:border-[#29383A] shadow-xs hover:border-[#49686C] transition-colors"
+      >
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-lg bg-[#F0F5F5] dark:bg-[#222E30] text-[#49686C] dark:text-[#B9D1D4] flex items-center justify-center shrink-0">
+            <BookOpen className="w-4 h-4" />
           </div>
-          <p className="text-xs text-[#283638] leading-relaxed pl-6">
-            BERT runs first. If its confidence is low, the configured OpenAI-compatible endpoint is asked for a second opinion. A deterministic on-device validator double-checks the result, but it is not a user-facing mode.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-xs font-bold text-[#283638]">Detection engines</div>
-          <ul className="text-xs text-[#737A72] space-y-1.5 leading-relaxed">
-            <li><b className="text-[#283638]">BERT</b> - the only visible detector; fine-tuned DistilBERT BIO tagger.</li>
-            <li><b className="text-[#283638]">LLM fallback</b> - automatic second opinion only when BERT confidence is low.</li>
-          </ul>
-        </div>
-
-        <div className="p-3.5 rounded-lg bg-[#FAFAF8] border border-[#E5E2D8] text-xs text-[#737A72] leading-relaxed">
-          <b className="text-[#283638]">In this web app</b> BERT runs on your device through a quantized ONNX model.
-          It downloads about 67 MB once and caches it in your browser; a configured LLM provides a second opinion,
-          while a deterministic validator double-checks the result. You can also use the{' '}
-          <a href={ENGINE_URL} target="_blank" rel="noreferrer" className="underline text-[#49686C]">
-            full Streamlit engine
-          </a>{' '}
-          for the Python-side implementations.
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-xs font-bold text-[#283638]">LLM layer (optional)</div>
-          <p className="text-xs text-[#737A72] leading-relaxed">
-            The LLM is grounded: it may only return elements and attribute values that appear verbatim in the
-            prompt, and it cannot change the deterministic risk score. The separately deployed Streamlit engine
-            defaults to a local Ollama server; in this web app you bring your own OpenAI-compatible endpoint.
-          </p>
-          <ul className="text-xs text-[#737A72] space-y-1.5 leading-relaxed list-disc pl-4">
-            <li><b className="text-[#283638]">Groq</b> — <code className="font-mono text-[#49686C]">openai/gpt-oss-120b</code> at <code className="font-mono text-[#49686C]">https://api.groq.com/openai/v1</code></li>
-            <li><b className="text-[#283638]">OpenRouter</b> — any tool-capable model at <code className="font-mono text-[#49686C]">https://openrouter.ai/api/v1</code></li>
-            <li><b className="text-[#283638]">Ollama</b> — <code className="font-mono text-[#49686C]">qwen2.5:3b-instruct</code> at <code className="font-mono text-[#49686C]">http://localhost:11434/v1</code></li>
-          </ul>
-          <p className="text-xs text-[#737A72]">
-            If the endpoint is not reachable or returns nothing grounded, the app falls back to deterministic
-            explanations — nothing is fabricated.
-          </p>
-          <a
-            href={ENGINE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#49686C] hover:text-[#30494B]"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Open the full engine
-          </a>
-        </div>
-      </div>
-
-      {/* LLM Engine (optional) */}
-      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
-          <Sparkles className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">LLM Engine (optional)</h2>
-        </div>
-
-        <p className="text-xs text-[#737A72] leading-relaxed">
-          Add an OpenAI-compatible endpoint to run grounded LLM extraction on the New Analysis page. The key is
-          stored only in this browser (localStorage) and is sent only to the endpoint you enter. The provider must
-          allow browser (CORS) calls — Groq, OpenRouter and Gemini do.
-        </p>
-
-        <div className="space-y-3">
-          <div>
-            <label className="text-xs font-bold text-[#283638] block mb-1">Base URL</label>
-            <input
-              type="text"
-              value={llm.baseUrl}
-              onChange={(e) => setLlm((p) => ({ ...p, baseUrl: e.target.value }))}
-              placeholder="https://api.groq.com/openai/v1"
-              className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
-            />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-bold text-[#283638] dark:text-[#E7E4D9]">Vector manual</h2>
+            <p className="text-xs text-[#737A72] dark:text-[#8E9A93] mt-1 leading-relaxed">
+              Every workflow in one place: projects, requirement review, specifications, design
+              systems, workspaces and analysis.
+            </p>
           </div>
-          <div>
-            <label className="text-xs font-bold text-[#283638] block mb-1">Model</label>
-            <input
-              type="text"
-              value={llm.model}
-              onChange={(e) => setLlm((p) => ({ ...p, model: e.target.value }))}
-              placeholder="openai/gpt-oss-120b"
-              className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-[#283638] block mb-1">API key</label>
-            <input
-              type="password"
-              value={llm.apiKey}
-              onChange={(e) => setLlm((p) => ({ ...p, apiKey: e.target.value }))}
-              placeholder="gsk_..."
-              className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] px-3 py-2 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none"
-            />
-          </div>
+          <ChevronRight className="w-4 h-4 text-[#737A72] mt-2 shrink-0" />
         </div>
+      </button>
 
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            type="button"
-            onClick={handleSaveLlm}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#49686C] hover:bg-[#30494B] text-white text-xs font-bold transition-colors"
-          >
-            {llmSaved ? <Check className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-            <span>{llmSaved ? 'Saved' : 'Save LLM settings'}</span>
-          </button>
-          <span className="text-[11px] text-[#737A72]">Stored locally in your browser only — never committed.</span>
-        </div>
-      </div>
-
-      {/* Local Data Management */}
-      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
+      {/* Local data */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1B2426] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] dark:border-[#29383A] shadow-xs space-y-4">
+        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8] dark:border-[#29383A]">
           <Database className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">Local Data &amp; Storage</h2>
+          <h2 className="text-base font-bold text-[#283638] dark:text-[#E7E4D9]">Local data</h2>
         </div>
 
-        <p className="text-xs text-[#737A72]">
-          All prompt history and reviews are stored locally within your browser's private web storage. No data is stored in remote databases.
+        <p className="text-xs text-[#737A72] dark:text-[#8E9A93] leading-relaxed">
+          Projects, documents, requirements and prompts are stored in your workspace. Prompt-analysis
+          history is cached in this browser so it opens instantly; clearing it here does not delete
+          any project data.
         </p>
 
-        <div className="flex flex-wrap items-center gap-3 pt-2">
-          <button
-            type="button"
-            onClick={handleClearData}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#F0C4BF] bg-white hover:bg-[#FDF2F0] text-xs font-semibold text-[#B94D42] transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear Local Storage</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleClearData}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#F0C4BF] bg-white dark:bg-[#141C1D] hover:bg-[#FDF2F0] dark:hover:bg-[#3A2523] text-xs font-semibold text-[#B94D42] transition-colors"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Clear local analysis history
+        </button>
       </div>
 
       {/* Privacy */}
-      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-3">
-        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
+      <div className="bg-[#FFFFFF] dark:bg-[#1B2426] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] dark:border-[#29383A] shadow-xs space-y-3">
+        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8] dark:border-[#29383A]">
           <ShieldCheck className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">Privacy</h2>
+          <h2 className="text-base font-bold text-[#283638] dark:text-[#E7E4D9]">Privacy</h2>
         </div>
-        <p className="text-xs text-[#737A72] leading-relaxed">
-          No analytics, trackers or accounts. Prompts stay in your browser unless you explicitly run the optional
-          LLM engine, which sends them to the endpoint you configured. Read the full policy:
+        <p className="text-xs text-[#737A72] dark:text-[#8E9A93] leading-relaxed">
+          Your projects and documents are private to your account. Read the full data policy
+          for details.
         </p>
         <a
           href="./privacy-policy.html"
@@ -285,33 +170,24 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#49686C] hover:text-[#30494B]"
         >
           <ExternalLink className="w-3.5 h-3.5" />
-          Privacy Policy
+          Privacy policy
         </a>
       </div>
 
-      {/* Application Information */}
-      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-3">
-        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
+      {/* About */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1B2426] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] dark:border-[#29383A] shadow-xs space-y-3">
+        <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8] dark:border-[#29383A]">
           <Info className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">About Vector</h2>
+          <h2 className="text-base font-bold text-[#283638] dark:text-[#E7E4D9]">About Vector</h2>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
-            <span className="text-[#737A72] block">Application</span>
-            <span className="font-bold text-[#283638]">Vector — UI/UX Prompt Review</span>
+            <span className="text-[#737A72] dark:text-[#8E9A93] block">Application</span>
+            <span className="font-bold text-[#283638] dark:text-[#E7E4D9]">Vector — UI/UX Requirement Engineering</span>
           </div>
           <div>
-            <span className="text-[#737A72] block">Version</span>
-            <span className="font-mono font-bold text-[#283638]">v2.0</span>
-          </div>
-          <div>
-            <span className="text-[#737A72] block">Engine Type</span>
-            <span className="font-bold text-[#283638]">BERT (on-device)</span>
-          </div>
-          <div>
-            <span className="text-[#737A72] block">Execution Context</span>
-            <span className="font-bold text-[#283638]">BERT on-device; LLM fallback by API</span>
+            <span className="text-[#737A72] dark:text-[#8E9A93] block">Version</span>
+            <span className="font-mono font-bold text-[#283638] dark:text-[#E7E4D9]">v2.0</span>
           </div>
         </div>
       </div>

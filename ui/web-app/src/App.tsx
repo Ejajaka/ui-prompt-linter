@@ -22,6 +22,7 @@ import { RequirementReviewPage } from './pages/RequirementReviewPage.tsx';
 import { PromptStudioPage } from './pages/PromptStudioPage.tsx';
 import { DesignSystemsPage } from './pages/DesignSystemsPage.tsx';
 import { WorkspacePage } from './pages/WorkspacePage.tsx';
+import { ManualPage } from './pages/ManualPage.tsx';
 
 const PUBLIC_TABS: ActiveTab[] = ['about'];
 
@@ -37,6 +38,7 @@ const KNOWN_TABS: ActiveTab[] = [
   'workspace',
   'new-analysis',
   'history',
+  'manual',
   'settings',
   'privacy',
 ];
@@ -246,6 +248,8 @@ function AppShell() {
             />
           )}
 
+          {activeTab === 'manual' && <ManualPage onOpenProjects={() => setActiveTab('projects')} />}
+
           {activeTab === 'history' && (
             <HistoryPage
               onOpenAnalysis={handleOpenAnalysis}
@@ -254,7 +258,9 @@ function AppShell() {
             />
           )}
 
-          {activeTab === 'settings' && <SettingsPage />}
+          {activeTab === 'settings' && (
+            <SettingsPage onOpenManual={() => setActiveTab('manual')} />
+          )}
           {activeTab === 'privacy' && <PrivacyPage />}
         </main>
       </div>

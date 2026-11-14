@@ -61,7 +61,8 @@ export const Header: React.FC<HeaderProps> = ({
     workspace: { title: 'Bolt Workspace', subtitle: 'Prompt → Generate → Refine' },
     'new-analysis': { title: 'New UI Prompt Analysis', subtitle: 'UI/UX Prompt Analyzer' },
     history: { title: 'Analysis History', subtitle: 'Past Evaluations' },
-    settings: { title: 'System Settings', subtitle: 'Preferences & Engine' },
+    manual: { title: 'Manual', subtitle: 'How to use Vector' },
+    settings: { title: 'Settings', subtitle: 'Preferences & Help' },
     privacy: { title: 'Privacy Policy', subtitle: 'Data & Processing' },
   };
 

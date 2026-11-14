@@ -92,7 +92,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
             <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-[#737A72]">
               <div className="flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-[#49686C]" />
-                <span>BERT-first detection</span>
+                <span>Smart element detection</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-[#49686C]" />
@@ -283,7 +283,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
             <h3 className="text-sm font-bold text-[#283638]">Attribute ambiguity</h3>
             <p className="text-xs text-[#737A72] leading-relaxed">
               With several elements on screen, it is easy to attach a colour or action to the wrong
-              component. The engine links every attribute to an element.
+              component. Vector links every attribute to an element.
             </p>
           </div>
         </div>
@@ -316,8 +316,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
               n: '02',
               tag: 'Analyze',
               title: 'Detect',
-              text: 'A fine-tuned BERT model reads prompts and requirements on-device. Low confidence triggers an automatic LLM second opinion.',
-              foot: '→ BERT-first analysis',
+              text: 'Vector reads the prompt or requirement text, detects elements, and asks targeted questions when a detail is missing or unclear.',
+              foot: '→ Clear, grounded input',
             },
             {
               n: '03',
@@ -368,7 +368,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
       <section className="space-y-6">
         <div className="max-w-2xl space-y-2">
           <div className="text-xs font-bold text-[#49686C] uppercase tracking-wider">
-            Engine advantages
+            Why teams choose Vector
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#283638] tracking-tight">
             What makes Vector useful?
@@ -407,8 +407,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
               <h3 className="text-sm font-bold text-[#283638]">Shared risk score</h3>
             </div>
             <p className="text-xs text-[#737A72] leading-relaxed">
-              Completeness, vagueness, detector confidence and unresolved questions combine into a
-              deterministic 0–100 score.
+              Completeness, vagueness, review confidence and unresolved questions combine into a
+              consistent 0–100 score.
             </p>
           </div>
 
@@ -418,8 +418,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
               <h3 className="text-sm font-bold text-[#283638]">Project-scoped by design</h3>
             </div>
             <p className="text-xs text-[#737A72] leading-relaxed">
-              Documents, requirements, approvals, prompts and analyses stay inside their project,
-              protected by Supabase row-level security.
+              Documents, requirements, approvals, prompts and analyses stay inside their project
+              and are visible only to your account.
             </p>
           </div>
           <div className="bg-white p-5 rounded-xl border border-[#E5E2D8] shadow-xs space-y-2">
@@ -455,14 +455,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
 
         <div className="space-y-3 text-xs text-[#737A72] leading-relaxed">
           <p>
-            The core analysis is deterministic and explainable. BERT only labels words that exist in
-            the prompt, and a configured LLM is consulted for a second opinion only when confidence
-            is low. Values that cannot be found in the prompt or in the user’s answers are rejected.
+            Every finding is explainable and tied to the words in your prompt. Values that cannot be
+            found in the prompt or in your answers are rejected, never invented.
           </p>
           <p>
-            The final prompt is built from the confirmed checklist and placeholders. The LLM cannot
-            silently add a colour, location or action that the user did not provide; a deterministic
-            on-device validator double-checks every attribute without inventing new ones.
+            The final prompt is built from the confirmed checklist and placeholders. Nothing is added
+            silently: missing colours, locations or actions stay visible as placeholders for a human
+            to decide.
           </p>
           <p className="text-[#30494B] font-medium bg-[#F6F4EC] p-3 rounded-lg border border-[#E5E2D8]">
             The risk score is a heuristic, not a guarantee. It highlights missing details and

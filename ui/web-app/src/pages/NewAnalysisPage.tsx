@@ -7,7 +7,6 @@ import {
   FileDown,
   Info,
   AlertTriangle,
-  ExternalLink,
   Copy,
   Check,
   Sparkles,
@@ -32,7 +31,6 @@ import { historyStorage } from '../services/historyStorage.ts';
 import { useProject } from '../context/ProjectContext.tsx';
 import { useToast } from '../components/ui/Toast.tsx';
 import type { AnalysisResult, RiskLevel } from '../types/analysis.ts';
-import { ENGINE_URL } from '../config.ts';
 
 interface NewAnalysisPageProps {
   initialResult?: AnalysisResult | null;
@@ -40,27 +38,6 @@ interface NewAnalysisPageProps {
   onViewHistory?: () => void;
   onOpenProjects?: () => void;
 }
-
-const EXAMPLES = [
-  {
-    key: 'A',
-    title: 'Complete button',
-    tag: 'Complete',
-    prompt: 'Add a red button at the top right corner labelled "Sign Up" that opens the signup form.',
-  },
-  {
-    key: 'B',
-    title: 'Navbar',
-    tag: 'Detailed',
-    prompt: 'Create a blue navbar at the top of the page with links Home, About and Contact.',
-  },
-  {
-    key: 'C',
-    title: 'Vague button',
-    tag: 'Vague',
-    prompt: 'I need a button on my homepage.',
-  },
-];
 
 const SPAN_STYLES: Record<string, string> = {
   ELEMENT: 'bg-[#49686C]/20 text-[#30494B]',
@@ -310,14 +287,12 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
   const [engineError, setEngineError] = useState('');
   const engine: EngineMode = 'bert';
   const [text, setText] = useState('');
-  const [selectedExample, setSelectedExample] = useState<string | null>(null);
   const [payload, setPayload] = useState<AnalysisPayload | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [round, setRound] = useState(1);
   const [copied, setCopied] = useState(false);
   const [analysisError, setAnalysisError] = useState('');
-  const [bertProgress, setBertProgress] = useState<number | null>(null);
   const [stage, setStage] = useState<'idle' | 'routing' | 'detecting' | 'clarify' | 'explaining'>('idle');
   const [plan, setPlan] = useState<DetectionPlan | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -351,10 +326,8 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
       if (planRef.current) return planRef.current;
       const next = await planDetection(input, {
         mode: engine,
-        onProgress: (pct) => setBertProgress(pct),
         onStage: (s) => setStage(s),
       });
-      setBertProgress(null);
       planRef.current = next;
       setPlan(next);
       return next;
@@ -389,8 +362,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
         }
       } catch (e: any) {
         setAnalysisError(e?.message || String(e));
-        setBertProgress(null);
-      } finally {
+        } finally {
         setAnalyzing(false);
         setStage('idle');
       }
@@ -440,7 +412,6 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
       }
     } catch (e: any) {
       setAnalysisError(e?.message || String(e));
-      setBertProgress(null);
     } finally {
       setAnalyzing(false);
       setStage('idle');
@@ -485,7 +456,6 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
         `- Missing details: ${f.counts.missing ?? 0}`,
         `- Vague details: ${f.counts.vague ?? 0}`,
         `- Unresolved questions: ${f.counts.unresolved ?? 0}`,
-        `- Engine: ${payload.engine}`,
         '',
         '## Detected elements',
         ...payload.result.elements.map(
@@ -542,16 +512,6 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
               <span>Analysis History</span>
             </button>
           )}
-          <a
-            href={ENGINE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E2D8] bg-white hover:bg-[#F6F4EC] text-xs font-semibold text-[#283638] transition-colors"
-            title="Full engine with BERT + LLM"
-          >
-            <ExternalLink className="w-3.5 h-3.5 text-[#49686C]" />
-            <span>Full engine (BERT + LLM)</span>
-          </a>
         </div>
       </div>
 
@@ -593,7 +553,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
               <option key={project.id} value={project.id}>{project.name}</option>
             ))}
           </select>
-          <span className="text-[#737A72]">· history and Overview stay scoped to this project</span>
+          <span className="text-[#737A72]">· history stays scoped to this project</span>
         </div>
       )}
 
@@ -601,9 +561,9 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
       {engineState === 'loading' && (
         <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-10 text-center shadow-xs">
           <Loader2 className="w-7 h-7 text-[#49686C] animate-spin mx-auto mb-3" />
-          <div className="text-sm font-bold text-[#283638]">Loading the in-browser engine…</div>
+          <div className="text-sm font-bold text-[#283638]">Preparing your analyser…</div>
           <p className="text-xs text-[#737A72] mt-1 max-w-md mx-auto">
-            First load prepares the BERT detector and deterministic validator. This can take a few seconds.
+            This only takes a few seconds and is cached for next time.
           </p>
         </div>
       )}
@@ -612,15 +572,11 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
         <div className="bg-[#FDF2F0] border border-[#F0C4BF] rounded-xl p-5 shadow-xs">
           <div className="flex items-center gap-2 text-[#B94D42] font-bold text-sm">
             <AlertTriangle className="w-4 h-4" />
-            Could not start the in-browser engine
+            Could not start the analyser
           </div>
           <p className="text-xs text-[#B94D42] mt-1">{engineError}</p>
           <p className="text-xs text-[#737A72] mt-2">
-            You can still use the deployed Streamlit engine with BERT + LLM at{' '}
-            <a className="underline text-[#49686C]" href={ENGINE_URL} target="_blank" rel="noreferrer">
-              {ENGINE_URL}
-            </a>
-            .
+            Refresh the page to try again. Your projects and saved analyses are unaffected.
           </p>
         </div>
       )}
@@ -634,7 +590,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
                 Describe the UI you want
               </label>
               <span className="text-xs text-[#737A72]">
-                Enter a natural-language UI request, or pick an example below.
+                Describe the screen, its elements, colours, placement and behaviour.
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -643,7 +599,6 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
                   type="button"
                   onClick={() => {
                     setText('');
-                    setSelectedExample(null);
                     setPayload(null);
                   }}
                   className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#737A72] hover:text-[#283638] hover:bg-[#F6F4EC] rounded-md transition-colors"
@@ -655,22 +610,6 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
               <span className="text-xs font-mono text-[#737A72] tabular-nums">{text.length} chars</span>
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2 mt-3">
-            <span className="text-xs font-semibold text-[#737A72]">Engine:</span>
-            <span className="px-3 py-1.5 rounded-full text-xs font-bold border bg-[#49686C] border-[#49686C] text-white">
-              BERT
-            </span>
-            <span className="text-[11px] text-[#737A72]">
-              BERT runs first; if confidence is low, the configured LLM is asked for a second opinion automatically.
-            </span>
-          </div>
-
-          {bertProgress !== null && (
-            <p className="text-[11px] text-[#856C16] bg-[#FEFCE8] border border-[#FEF08A] rounded-md px-2.5 py-1.5 mt-2">
-              Downloading DistilBERT… {bertProgress}% (one time; your browser caches it afterwards)
-            </p>
-          )}
 
           <textarea
             id="prompt-input"
@@ -687,45 +626,11 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             className="w-full rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] p-3.5 text-sm text-[#283638] placeholder-[#737A72]/70 focus:bg-white focus:border-[#49686C] focus:ring-2 focus:ring-[#49686C]/10 focus:outline-none transition-all resize-y min-h-[110px]"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-4">
-            {EXAMPLES.map((ex) => {
-              const isSelected = selectedExample === ex.key;
-              return (
-                <button
-                  key={ex.key}
-                  type="button"
-                  onClick={() => {
-                    setText(ex.prompt);
-                    setSelectedExample(ex.key);
-                    setPayload(null);
-                  }}
-                  className={`text-left p-3 rounded-lg border transition-all ${
-                    isSelected
-                      ? 'border-[#49686C] bg-[#F0F5F5] ring-1 ring-[#49686C]'
-                      : 'border-[#E5E2D8] bg-white hover:border-[#CDC9BC] hover:bg-[#FAFAF8]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-[#283638]">
-                      Example {ex.key} — {ex.title}
-                    </span>
-                    {ex.tag === 'Vague' && (
-                      <span className="text-[10px] font-semibold text-[#B94D42] bg-[#FDF2F0] px-1.5 py-0.2 rounded border border-[#F0C4BF]">
-                        Vague
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-[#737A72] line-clamp-2 leading-relaxed">{ex.prompt}</p>
-                </button>
-              );
-            })}
-          </div>
-
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-5 pt-4 border-t border-[#E5E2D8]">
             <div className="flex items-center gap-2 text-xs text-[#737A72]">
               <Sparkles className="w-4 h-4 text-[#D1B653] shrink-0" />
               <span>
-                BERT runs on-device. If confidence is low, the configured LLM provides an automatic second opinion.
+                Your prompt is reviewed in this browser and saved only to the selected project.
               </span>
             </div>
             <div className="flex items-center gap-2.5 self-end sm:self-auto">
@@ -766,7 +671,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
       <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-3 shadow-xs">
         <div className="flex items-center gap-2 flex-wrap text-[11px] font-semibold">
           {[
-            { id: 'routing', label: '1 · Route' },
+            { id: 'routing', label: '1 · Read' },
             { id: 'detecting', label: '2 · Detect' },
             { id: 'clarify', label: '3 · Clarify' },
             { id: 'explaining', label: '4 · Explain' },
@@ -794,10 +699,10 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             );
           })}
           <span className="ml-auto text-[11px] font-normal text-[#737A72]">
-            {stage === 'routing' && 'Router scoring the prompt…'}
-            {stage === 'detecting' && (bertProgress !== null ? `Loading detector ${bertProgress}%` : 'Running the detector…')}
+            {stage === 'routing' && 'Preparing the review…'}
+            {stage === 'detecting' && 'Reviewing the prompt…'}
             {stage === 'clarify' && 'Ambiguity found — asking before scoring'}
-            {stage === 'explaining' && 'Writing the final explanation with the LLM…'}
+            {stage === 'explaining' && 'Writing the summary…'}
             {stage === 'idle' && (payload?.needs_clarification ? 'Waiting for answers' : 'Ready')}
           </span>
         </div>
@@ -811,11 +716,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             Analysis failed
           </div>
           <p className="text-xs text-[#B94D42] mt-1">{analysisError}</p>
-          {engine === 'bert' && (
-            <p className="text-xs text-[#737A72] mt-2">
-              Check that <code className="font-mono">models/bert_tagger/onnx/model_quantized.onnx</code> loads, then try again.
-            </p>
-          )}
+          <p className="text-xs text-[#737A72] mt-2">Refresh the page to try again. Saved analyses are unaffected.</p>
         </div>
       )}
 
@@ -830,13 +731,8 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
                 {payload.needs_clarification ? 'Clarification required' : 'Diagnosis complete'}
               </span>
               <span className="text-xs text-[#737A72] hidden md:inline">
-                · {payload.result.elements.length} element(s) · engine: {payload.engine}
+                · {payload.result.elements.length} element(s) reviewed
               </span>
-              {plan && (
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border border-[#CFE2C8] bg-[#F4F9F1] text-[#3E6B33]">
-                  {plan.mode === 'auto' ? 'router' : 'manual'} → {plan.selected}
-                </span>
-              )}
             </div>
             {!payload.needs_clarification && (
               <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
@@ -860,37 +756,14 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             )}
           </div>
 
-          {/* Detection provenance */}
-          {payload.router && (
-            <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] shadow-xs p-4">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="text-xs font-bold text-[#283638]">Detection</div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-[#CFE2C8] bg-[#F4F9F1] text-[#3E6B33]">
-                  {payload.engine === 'llm'
-                    ? 'BERT + LLM second opinion'
-                    : payload.engine === 'rules'
-                      ? 'Deterministic validator'
-                      : 'BERT · on-device'}
-                </span>
-              </div>
-              <p className="text-xs text-[#737A72] mt-1.5">
-                {payload.engine === 'llm'
-                  ? 'BERT confidence was low for this prompt, so the configured LLM was asked for a second opinion. Only values present in the prompt are kept.'
-                  : payload.engine === 'rules'
-                    ? 'BERT was unavailable, so the deterministic on-device validator completed this analysis.'
-                    : `BERT labelled ${payload.result.elements.length} element(s) directly in your browser.`}
-              </p>
-            </div>
-          )}
-
           {/* Clarification gate: no score/explanation until ambiguity is resolved */}
           {payload.needs_clarification && (
             <div className="bg-[#FFFDF5] rounded-xl border border-[#FEF08A] p-4">
               <div className="text-xs font-bold text-[#856C16]">Score withheld until the prompt is unambiguous</div>
               <p className="text-xs text-[#737A72] mt-1">
-                The router picked <b className="text-[#283638]">{payload.engine}</b> and found{' '}
+                The analyser found{' '}
                 {payload.clarification.questions.length} unresolved detail(s). Answer the questions on the right;
-                the analyser re-runs after each round and only then computes the risk score and LLM explanation.
+                the analyser re-runs after each round and only then computes the risk score.
               </p>
             </div>
           )}
@@ -913,7 +786,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
                       <h2 className="text-base font-bold text-[#283638]">Evaluation Summary</h2>
                       {riskBadge(level)}
                     </div>
-                    <div className="text-xs text-[#737A72] mt-1">Shared deterministic risk score across all detectors.</div>
+                    <div className="text-xs text-[#737A72] mt-1">A single, explainable read-out for this prompt.</div>
                   </div>
                   <span className="text-xs font-mono text-[#737A72]">
                     Initial {initial.score} → Final {final.score}
@@ -924,12 +797,12 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
                   <CircularScoreGauge score={Math.round(final.score)} label="Risk index" sublabel="Lower is safer" variant="risk" size={104} />
                   <CircularScoreGauge score={completeness} label="Completeness" sublabel="Required details stated" variant="coverage" size={104} />
                   <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-xl p-4 flex flex-col justify-center">
-                    <div className="text-xs font-bold text-[#283638] mb-2">Detector confidence</div>
+                    <div className="text-xs font-bold text-[#283638] mb-2">Review confidence</div>
                     <div className="text-2xl font-bold font-mono text-[#283638] tabular-nums">{confidence}%</div>
                     <div className="h-1.5 rounded-full bg-[#E5E2D8] overflow-hidden mt-2">
                       <div className="h-full rounded-full bg-[#49686C] transition-all duration-700" style={{ width: `${confidence}%` }} />
                     </div>
-                    <div className="text-[11px] text-[#737A72] mt-2">A heuristic, not a calibrated probability.</div>
+                    <div className="text-[11px] text-[#737A72] mt-2">How certain the review is about the detected details.</div>
                   </div>
                   <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-xl p-4">
                     <div className="text-xs font-bold text-[#283638] mb-2">Detected findings</div>
@@ -945,7 +818,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-3 mt-5">
                   <ComponentBar label="Missing details" value={components.completeness ?? 0} color="#49686C" />
                   <ComponentBar label="Vague details" value={components.vagueness ?? 0} color="#D1B653" />
-                  <ComponentBar label="Detector uncertainty" value={components.detection ?? 0} color="#5A8090" />
+                  <ComponentBar label="Unclear details" value={components.detection ?? 0} color="#5A8090" />
                   <ComponentBar label="Unresolved questions" value={components.unresolved ?? 0} color="#C96839" />
                 </div>
 
@@ -954,14 +827,9 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
                     <Info className="w-4 h-4 text-[#49686C] shrink-0 mt-0.5" />
                     <div>
                       <div className="text-xs font-bold text-[#30494B]">
-                        {payload.explanation_source === 'llm' ? 'LLM explanation' : 'Deterministic explanation'}
+                        Reviewer note
                       </div>
                       <div className="text-xs text-[#283638] leading-relaxed mt-0.5">{payload.explanation || final.explanation}</div>
-                      {payload.explanation_source !== 'llm' && (
-                        <div className="text-[11px] text-[#856C16] mt-1">
-                          Add a base URL, model and API key in Settings to have the LLM write this explanation.
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
@@ -990,7 +858,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             <div className="lg:col-span-7 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-base font-bold text-[#283638]">Detected elements ({payload.result.elements.length})</div>
-                <div className="text-[11px] text-[#737A72]">Extracted by {payload.engine === 'llm' ? 'BERT with an LLM second opinion' : payload.engine === 'rules' ? 'the deterministic validator' : 'BERT (on-device)'}</div>
+                <div className="text-[11px] text-[#737A72]">Detected in your prompt</div>
               </div>
               {payload.result.elements.length === 0 ? (
                 <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-8 text-center text-xs text-[#737A72]">
@@ -1063,17 +931,13 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
           {/* Why this result */}
           <details className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl shadow-xs overflow-hidden">
             <summary className="cursor-pointer px-5 py-3.5 text-sm font-bold text-[#283638] hover:bg-[#FAFAF8] transition-colors">
-              Why this engine and score?
+              How this score works
             </summary>
             <div className="px-5 pb-4 text-xs text-[#737A72] space-y-1.5">
-              <p><b className="text-[#283638]">Engine used:</b> <code className="font-mono">{payload.engine === 'llm' ? 'BERT + LLM second opinion' : payload.engine === 'rules' ? 'Deterministic validator (fallback)' : 'BERT (on-device)'}</code></p>
-              <p><b className="text-[#283638]">Detector confidence:</b> {(payload.confidence ?? 0).toFixed(2)}</p>
-              <p><b className="text-[#283638]">Explanation:</b> {payload.explanation_source === 'llm' ? 'LLM (final write-up)' : 'deterministic fallback'}</p>
-              <p className="pt-1">
-                BERT runs on-device through a quantized ONNX model. When its confidence is low, the
-                configured LLM is asked for a second opinion. The checker, clarification loop and
-                shared risk score stay identical either way.
-              </p>
+              <p><b className="text-[#283638]">Risk index</b> combines missing details, vague values, unclear placement or action, and unanswered questions.</p>
+              <p><b className="text-[#283638]">Completeness</b> is the share of required attributes that the prompt actually states.</p>
+              <p><b className="text-[#283638]">Answers you give</b> are merged into the prompt and re-checked; anything unresolved stays marked as a placeholder.</p>
+              <p className="pt-1">The score is a review aid, not a guarantee. It highlights uncertainty so a human can decide.</p>
             </div>
           </details>
         </div>

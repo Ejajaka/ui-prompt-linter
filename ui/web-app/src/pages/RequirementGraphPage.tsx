@@ -17,7 +17,6 @@ import {
   Loader2,
   Network,
   RefreshCw,
-  Sparkles,
   Waypoints,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -26,7 +25,6 @@ import { useToast } from '../components/ui/Toast.tsx';
 import { listRequirements } from '../services/documents/requirementDocuments.ts';
 import { analyzeRequirements } from '../services/requirements/intelligence.ts';
 import { exportRequirementGraph } from '../services/requirements/graphExport.ts';
-import { reviewRequirementsWithLlm } from '../services/requirements/llmReview.ts';
 import type { RequirementRecord } from '../types/requirements.ts';
 import type {
   RequirementAnalysisResult,
@@ -111,7 +109,6 @@ function FindingCard({ finding, requirements }: { finding: RequirementFinding; r
           {finding.severity}
         </span>
         <span className="text-[10px] font-bold uppercase tracking-wide text-[#737A72]">{finding.type}</span>
-        <span className="text-[10px] text-[#737A72]">{finding.source === 'llm' ? 'AI-assisted' : 'deterministic'}</span>
         <span className="ml-auto text-[10px] font-mono text-[#49686C]">
           {finding.affectedRequirementIds.map((id) => byId.get(id)?.requirementCode || id.slice(0, 8)).join(' · ')}
         </span>
@@ -143,8 +140,6 @@ export const RequirementGraphPage: React.FC = () => {
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState('');
   const [findingTab, setFindingTab] = useState<FindingTab>('all');
-  const [llmFindings, setLlmFindings] = useState<RequirementFinding[]>([]);
-  const [reviewing, setReviewing] = useState(false);
 
   const load = useCallback(async () => {
     if (!currentProject || localMode) {
@@ -155,7 +150,6 @@ export const RequirementGraphPage: React.FC = () => {
     setError('');
     try {
       setRequirements(await listRequirements(currentProject.id));
-      setLlmFindings([]);
     } catch (e: any) {
       setError(e?.message || 'Could not load requirements.');
     } finally {
@@ -168,7 +162,7 @@ export const RequirementGraphPage: React.FC = () => {
   }, [load]);
 
   const analysis = useMemo(() => analyzeRequirements(requirements), [requirements]);
-  const findings = useMemo(() => [...analysis.findings, ...llmFindings], [analysis, llmFindings]);
+  const findings = analysis.findings;
   const visibleFindings = useMemo(
     () => (findingTab === 'all' ? findings : findings.filter((finding) => finding.type === findingTab)),
     [findings, findingTab]
@@ -205,23 +199,6 @@ export const RequirementGraphPage: React.FC = () => {
       toast(e?.message || 'Could not render the graph image.', 'error');
     } finally {
       setDownloading(false);
-    }
-  };
-
-  const runAiReview = async () => {
-    if (!currentProject) return;
-    setReviewing(true);
-    try {
-      const next = await reviewRequirementsWithLlm(currentProject.id, requirements);
-      setLlmFindings(next);
-      toast(
-        next.length ? `AI review added ${next.length} finding(s).` : 'AI review found no additional issues.',
-        next.length ? 'success' : 'info'
-      );
-    } catch (e: any) {
-      toast(e?.message || 'AI review is not deployed yet.', 'error');
-    } finally {
-      setReviewing(false);
     }
   };
 
@@ -270,15 +247,6 @@ export const RequirementGraphPage: React.FC = () => {
           >
             {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
             Download PNG
-          </button>
-          <button
-            type="button"
-            onClick={() => void runAiReview()}
-            disabled={reviewing || !requirements.length || localMode}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#49686C] hover:bg-[#30494B] text-white text-xs font-bold disabled:opacity-60"
-          >
-            {reviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            AI contextual review
           </button>
         </div>
       </div>

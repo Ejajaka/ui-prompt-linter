@@ -213,7 +213,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
                 {mode === 'login'
                   ? 'Sign in to continue to your projects and specifications.'
                   : mode === 'register'
-                    ? 'Your projects, documents and approvals stay isolated by row-level security.'
+                    ? 'Your projects, documents and approvals stay private to your workspace.'
                     : 'We will email you a secure link to set a new password.'}
               </p>
             </div>
@@ -321,8 +321,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
             </div>
 
             <p className="mt-6 pt-4 border-t border-[#E5E2D8] dark:border-[#33403F] text-[10px] text-[#737A72] dark:text-[#8E9A93] leading-relaxed">
-              Your projects and documents are isolated with row-level security. Vector never asks a
-              language model to invent a requirement you did not provide.
+              Your projects and documents stay private to your workspace. Vector never invents a
+              requirement you did not provide.
             </p>
           </section>
         </div>
