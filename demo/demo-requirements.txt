@@ -1,0 +1,32 @@
+Employee Profile Portal — Demo Requirements
+
+1. Access and roles
+
+- Employees must sign in with their company email address and password before they can open any profile screen.
+- Employees must be able to reset a forgotten password from the sign-in screen.
+- Managers must be able to view the profiles of employees in their team.
+- Administrators must be able to deactivate an employee account.
+
+2. Employee profile
+
+- Employees must be able to edit their name, phone number and profile photo.
+- The profile form must validate that the phone number contains only digits.
+- The profile form must reject profile photos larger than 5 MB.
+- Employees must receive a confirmation message after saving their profile.
+- The profile photo is optional and an employee may remove it at any time.
+- Employees must upload a profile photo before they can save their profile.
+
+3. Manager approvals
+
+- Managers must be able to approve or reject profile changes submitted by their team.
+- The dashboard must display a list of pending profile approvals with the employee name and submission date.
+- Managers must be able to leave a comment when rejecting a profile change.
+
+4. Notifications and quality
+
+- Employees must be notified by email when their profile change is approved or rejected.
+- The interface must meet WCAG AA contrast requirements and support keyboard navigation.
+- The application must be responsive and usable on mobile phones and tablets.
+- The dashboard should load quickly for teams with up to 500 employees.
+- The system must keep an audit record of every approval decision.
+- The sign-in screen should look modern and user-friendly.
