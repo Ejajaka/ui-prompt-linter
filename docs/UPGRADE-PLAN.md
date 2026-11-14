@@ -290,7 +290,26 @@ Total: **56–72 focused hours**, across multiple sessions. Each phase ends with
 2. Confirmation that “BERT only + automatic low-confidence LLM fallback” applies to the main web app, while the extension/Android keep their current selectors until a later pass.
 3. Supabase Edge Functions are required for secure LLM calls; confirm that deployment can use Supabase CLI or the dashboard.
 
-## 8. Immediate next action
+## 8. Implementation status
+
+Phase 1 foundation is currently being implemented:
+
+- Supabase client and environment template.
+- Auth context, login/register/reset/password-update screens.
+- Protected application shell.
+- Projects context and project CRUD with a local fallback.
+- Initial Postgres schema, indexes, RLS policies and private document bucket.
+- Non-destructive local-history migration action.
+- Unit test for local project CRUD; TypeScript lint and production build.
+
+Still required before Phase 1 is accepted:
+
+- Apply `supabase/migrations/0001_initial.sql` in the Supabase SQL Editor.
+- Configure auth redirect URLs.
+- Verify signup/login/reset against the live project.
+- Rotate any secret key that was shared in chat.
+
+## 9. Immediate next action
 
 Start Phase 1 with:
 

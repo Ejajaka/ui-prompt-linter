@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Menu, ShieldCheck, Settings, Info, Sun, Moon } from 'lucide-react';
+import { Menu, ShieldCheck, Settings, Info, Sun, Moon, LogOut, FolderKanban } from 'lucide-react';
 import type { ActiveTab } from '../../types/analysis.ts';
 import { useTheme } from '../../context/ThemeContext.tsx';
+import { useAuth } from '../../context/AuthContext.tsx';
+import { useProject } from '../../context/ProjectContext.tsx';
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -15,6 +17,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileMenu
 }) => {
   const { theme, toggleTheme } = useTheme();
+  const { user, signOut, localMode } = useAuth();
+  const { currentProject } = useProject();
   const [showTooltip, setShowTooltip] = useState(false);
 
   const titles: Record<ActiveTab, { title: string; subtitle: string }> = {
@@ -25,6 +29,10 @@ export const Header: React.FC<HeaderProps> = ({
     overview: {
       title: 'Prompt Diagnosis Overview',
       subtitle: 'Dashboard'
+    },
+    projects: {
+      title: 'Projects',
+      subtitle: 'Requirement Workspaces'
     },
     'new-analysis': {
       title: 'New UI Prompt Analysis',
@@ -77,10 +85,31 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {/* Context Label */}
         <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F6F4EC] border border-[#E5E2D8] text-xs font-medium text-[#49686C]">
-          <span>UI</span>
-          <span className="text-[#CDC9BC]">/</span>
-          <span>UX Prompt Review</span>
+          <FolderKanban className="w-3 h-3" />
+          <span className="max-w-[140px] truncate">{currentProject?.name || 'No project'}</span>
         </div>
+
+        {/* Local mode / account */}
+        {localMode ? (
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#FFF7ED] border border-[#FED7AA] text-[11px] font-semibold text-[#9C4A28]">
+            Local mode
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <span className="hidden lg:inline text-[11px] text-[#737A72] max-w-[160px] truncate" title={user?.email || ''}>
+              {user?.email}
+            </span>
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="p-2 rounded-lg text-[#737A72] hover:text-[#283638] hover:bg-[#F6F4EC]"
+              aria-label="Sign out"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Rule-based analysis status badge with accessible tooltip */}
         <div className="relative">
