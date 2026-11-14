@@ -72,7 +72,8 @@ export async function listRequirements(projectId: string): Promise<RequirementRe
     .from('requirements')
     .select('*')
     .eq('project_id', projectId)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .order('requirement_code', { ascending: true });
   if (error) throw new Error(error.message);
   return (data || []).map((row) => mapRequirement(row as RequirementRow));
 }

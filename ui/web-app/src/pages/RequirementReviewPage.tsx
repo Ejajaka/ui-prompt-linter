@@ -177,7 +177,13 @@ export const RequirementReviewPage: React.FC = () => {
 
       {requirements.length === 0 ? (
         <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-10 text-center text-xs text-[#737A72]">
-          Upload and compile a requirement document first.
+          {loading ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading requirements and review data…
+            </span>
+          ) : (
+            'Upload and compile a requirement document first.'
+          )}
         </div>
       ) : tab === 'suggestions' ? (
         <div className="space-y-3">
@@ -231,9 +237,9 @@ export const RequirementReviewPage: React.FC = () => {
                   <span className="ml-auto text-[10px] text-[#737A72]">{criterion.source.replace(/_/g, ' ')}</span>
                 </div>
                 <div className="mt-2 space-y-1 text-xs text-[#283638] leading-relaxed">
-                  <p><b className="text-[#49686C]">Given</b> {criterion.given}</p>
-                  <p><b className="text-[#49686C]">When</b> {criterion.when}</p>
-                  <p><b className="text-[#49686C]">Then</b> {criterion.then}</p>
+                  <p><b className="text-[#49686C]">Given</b> {criterion.given.replace(/^Given\s+/i, '')}</p>
+                  <p><b className="text-[#49686C]">When</b> {criterion.when.replace(/^when\s+/i, '')}</p>
+                  <p><b className="text-[#49686C]">Then</b> {criterion.then.replace(/^then\s+/i, '')}</p>
                 </div>
                 <div className="flex gap-2 mt-3">
                   <button type="button" onClick={() => void setCriterionStatus(criterion, 'approved')} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#F4F9F1] border border-[#CFE2C8] text-[11px] font-bold text-[#3E6B33]">

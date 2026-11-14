@@ -148,7 +148,14 @@ export function generateProfessionalPrompt(input: SpecificationInput): { prompt:
   }
   if (unresolved.length) {
     lines.push('', 'Unresolved assumptions (do not treat as confirmed):');
-    for (const suggestion of unresolved.slice(0, 10)) lines.push(`- ${suggestion.title}: ${suggestion.question}`);
+    const seenAssumptions = new Set<string>();
+    for (const suggestion of unresolved) {
+      const key = suggestion.title.trim().toLowerCase();
+      if (seenAssumptions.has(key)) continue;
+      seenAssumptions.add(key);
+      lines.push(`- ${suggestion.title}: ${suggestion.question}`);
+      if (seenAssumptions.size >= 10) break;
+    }
   }
 
   lines.push(

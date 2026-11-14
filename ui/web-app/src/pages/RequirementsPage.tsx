@@ -306,9 +306,15 @@ export const RequirementsPage: React.FC = () => {
 
           {filtered.length === 0 ? (
             <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-8 text-center text-xs text-[#737A72]">
-              {requirements.length === 0
-                ? 'Upload a document to compile requirements.'
-                : 'No requirements match the current filters.'}
+              {loading && requirements.length === 0 ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading compiled requirements…
+                </span>
+              ) : requirements.length === 0 ? (
+                'Upload a document to compile requirements.'
+              ) : (
+                'No requirements match the current filters.'
+              )}
             </div>
           ) : (
             <div className="space-y-3">

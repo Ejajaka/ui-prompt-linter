@@ -45,10 +45,9 @@ function unique(values: string[], limit = 8): string[] {
 }
 
 function metadataFor(text: string, fileName: string): RequirementMetadata {
-  const lowered = text.toLowerCase();
   const screens = [...text.matchAll(SCREENS_RE)].map((match) => match[1]);
   const roles = [...text.matchAll(ROLES_RE)].map((match) => match[0]);
-  const components = COMPONENTS.filter((component) => lowered.includes(component));
+  const components = COMPONENTS.filter((component) => new RegExp(`\\b${component}s?\\b`, 'i').test(text));
   const behaviours = BEHAVIOURS.filter((verb) => new RegExp(`\\b${verb}\\b`, 'i').test(text));
   return {
     screens: unique(screens),

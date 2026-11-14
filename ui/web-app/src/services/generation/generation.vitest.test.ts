@@ -82,3 +82,22 @@ describe('prompt versions', () => {
     expect(diff.summary).toContain('requirement');
   });
 });
+
+describe('unresolved assumptions', () => {
+  it('lists each repeated assumption once in the prompt', () => {
+    const base = req('r1', 'REQ-001', 'Employees must save their profile.', 'approved');
+    const suggestion = {
+      id: 's1', projectId: 'p1', requirementId: 'r1', requirementCode: 'REQ-001',
+      type: 'edge_case' as const, title: 'Unauthorized access', detail: '', question: 'Who may proceed?',
+      recommendation: '', status: 'pending_review' as const, source: 'deterministic' as const,
+      createdAt: new Date().toISOString(),
+    };
+    const result = generateProfessionalPrompt({
+      projectName: 'Portal', requirements: [base],
+      suggestions: [suggestion, { ...suggestion, id: 's2' }, { ...suggestion, id: 's3', requirementCode: 'REQ-002' }],
+      criteria: [],
+    });
+    const occurrences = result.prompt.split('Unauthorized access:').length - 1;
+    expect(occurrences).toBe(1);
+  });
+});

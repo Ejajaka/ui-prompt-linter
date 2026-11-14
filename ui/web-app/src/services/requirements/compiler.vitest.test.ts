@@ -50,4 +50,13 @@ describe('requirement compiler', () => {
     expect(docs[1].sourcePage).toBe(2);
     expect(docs[1].metadata.roles).toContain('Admins');
   });
+
+  it('matches components on word boundaries', () => {
+    const docs = compileRequirements(
+      documentFor(['- The application must work on tablets and phones.']),
+      { codePrefix: 'REQ-WORD' }
+    );
+    expect(docs[0].metadata.components).not.toContain('tab');
+    expect(docs[0].metadata.components).not.toContain('table');
+  });
 });
