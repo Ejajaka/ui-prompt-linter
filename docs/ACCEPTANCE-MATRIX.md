@@ -68,6 +68,24 @@ Actions `tests` and `pages-build-deployment` all pass.
    `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY`, confident BERT still works and
    low-confidence prompts fall back to the internal rules baseline.
 
+## UX revision — 14 November 2026
+
+| Requirement | Status |
+| --- | --- |
+| Branded login with the Vector logo and product illustration | Done |
+| Public About/Overview with sign-in CTA before authentication | Done |
+| Per-account last-page persistence across refresh and re-login | Done |
+| Project editing after creation | Done |
+| Header project switcher | Done |
+| Confirmation for every destructive action and logout | Done |
+| Bulk approve/reject in Requirement Compiler | Done |
+| Bulk accept/reject in Review & Acceptance | Done |
+| Requirement graph PNG download | Done (canvas export, full graph) |
+| Project-scoped prompt analyses, history and overview | Done |
+| Prompt Guidelines removed | Done |
+| Header order: log out, settings, theme; engine badge removed | Done |
+| User manual | `docs/USER-MANUAL.md` |
+
 ## Manual actions still required
 
 1. Delete the temporary test account

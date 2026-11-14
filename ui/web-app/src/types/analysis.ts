@@ -40,6 +40,8 @@ export interface PromptIssue {
 
 export interface AnalysisResult {
   id: string;
+  /** Project this evaluation belongs to. Undefined only for legacy records. */
+  projectId?: string;
   prompt: string;
   riskScore: number; // 0 - 100
   riskLevel: RiskLevel;
@@ -74,4 +76,4 @@ export interface AnalyzerAdapter {
   deepScan?(prompt: string): Promise<AnalysisResult>;
 }
 
-export type ActiveTab = 'about' | 'overview' | 'projects' | 'requirements' | 'intelligence' | 'review' | 'prompt' | 'design' | 'workspace' | 'new-analysis' | 'history' | 'guidelines' | 'settings' | 'privacy';
+export type ActiveTab = 'about' | 'overview' | 'projects' | 'requirements' | 'intelligence' | 'review' | 'prompt' | 'design' | 'workspace' | 'new-analysis' | 'history' | 'settings' | 'privacy';

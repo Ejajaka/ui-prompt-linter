@@ -8,10 +8,13 @@ import {
   Search,
   Trash2,
   UploadCloud,
+  CheckCheck,
+  XCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useProject } from '../context/ProjectContext.tsx';
 import { useToast } from '../components/ui/Toast.tsx';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog.tsx';
 import {
   deleteRequirementDocument,
   listRequirementDocuments,
@@ -23,7 +26,10 @@ import type {
   RequirementRecord,
 } from '../types/requirements.ts';
 import { applyRequirementPriorities } from '../services/requirements/priority.ts';
-import { recordRequirementDecision } from '../services/requirements/approvals.ts';
+import {
+  recordRequirementDecision,
+  recordRequirementDecisions,
+} from '../services/requirements/approvals.ts';
 
 type KindFilter = 'all' | 'functional' | 'non_functional';
 
@@ -41,6 +47,11 @@ export const RequirementsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [kindFilter, setKindFilter] = useState<KindFilter>('all');
   const [prioritizing, setPrioritizing] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [confirmBulkReject, setConfirmBulkReject] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<RequirementDocument | null>(null);
+  const [deletingDocument, setDeletingDocument] = useState(false);
 
   const load = useCallback(async () => {
     if (!currentProject || localMode) {
@@ -67,6 +78,10 @@ export const RequirementsPage: React.FC = () => {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [currentProject?.id]);
 
   const handleFile = async (file: File | null) => {
     if (!file || !currentProject || !user) return;
@@ -118,14 +133,45 @@ export const RequirementsPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (document: RequirementDocument) => {
-    if (!window.confirm(`Delete “${document.fileName}” and its requirements?`)) return;
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const applyBulkDecision = async (decision: 'approved' | 'rejected') => {
+    if (!currentProject || !user || !selectedIds.size) return;
+    setBulkBusy(true);
     try {
-      await deleteRequirementDocument(document);
+      const ids = [...selectedIds];
+      await recordRequirementDecisions(currentProject.id, ids, user.id, decision);
+      const idSet = new Set(ids);
+      setRequirements((prev) => prev.map((item) => (idSet.has(item.id) ? { ...item, status: decision } : item)));
+      setSelectedIds(new Set());
+      setConfirmBulkReject(false);
+      toast(`${ids.length} requirement(s) ${decision}.`, 'success');
+    } catch (e: any) {
+      toast(e?.message || 'Could not save decisions.', 'error');
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeletingDocument(true);
+    try {
+      await deleteRequirementDocument(deleteTarget);
+      setDeleteTarget(null);
       await load();
       toast('Document deleted', 'info');
     } catch (e: any) {
       toast(e?.message || 'Could not delete document.', 'error');
+    } finally {
+      setDeletingDocument(false);
     }
   };
 
@@ -252,7 +298,7 @@ export const RequirementsPage: React.FC = () => {
                   {document.status === 'parsed' && <CheckCircle2 className="w-4 h-4 text-[#3E6B33] shrink-0" />}
                   <button
                     type="button"
-                    onClick={() => void handleDelete(document)}
+                    onClick={() => setDeleteTarget(document)}
                     className="p-1.5 rounded-md text-[#B94D42] hover:bg-[#FDF2F0]"
                     aria-label={`Delete ${document.fileName}`}
                   >
@@ -271,6 +317,31 @@ export const RequirementsPage: React.FC = () => {
                 <Filter className="w-4 h-4 text-[#49686C]" />
                 <h2 className="text-sm font-bold text-[#283638]">Extracted requirements</h2>
                 <span className="text-[10px] font-mono text-[#737A72]">{filtered.length}/{requirements.length}</span>
+                {filtered.length > 0 && (
+                  <label className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-[#49686C] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="accent-[#49686C]"
+                      checked={filtered.length > 0 && filtered.every((requirement) => selectedIds.has(requirement.id))}
+                      onChange={(event) => {
+                        if (event.target.checked) {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            filtered.forEach((requirement) => next.add(requirement.id));
+                            return next;
+                          });
+                        } else {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            filtered.forEach((requirement) => next.delete(requirement.id));
+                            return next;
+                          });
+                        }
+                      }}
+                    />
+                    Select all
+                  </label>
+                )}
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {([
@@ -302,6 +373,39 @@ export const RequirementsPage: React.FC = () => {
                 className="w-full pl-8 pr-3 py-2 rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] text-xs text-[#283638] focus:bg-white focus:outline-none focus:border-[#49686C]"
               />
             </div>
+
+            {selectedIds.size > 0 && (
+              <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-[#CFDFE1] bg-[#F0F5F5] px-3 py-2">
+                <span className="text-[11px] font-bold text-[#49686C]">{selectedIds.size} selected</span>
+                <div className="ml-auto flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    disabled={bulkBusy}
+                    onClick={() => void applyBulkDecision('approved')}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#F4F9F1] border border-[#CFE2C8] text-[10px] font-bold text-[#3E6B33] disabled:opacity-60"
+                  >
+                    {bulkBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCheck className="w-3 h-3" />}
+                    Approve selected
+                  </button>
+                  <button
+                    type="button"
+                    disabled={bulkBusy}
+                    onClick={() => setConfirmBulkReject(true)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#FDF2F0] border border-[#F0C4BF] text-[10px] font-bold text-[#B94D42] disabled:opacity-60"
+                  >
+                    <XCircle className="w-3 h-3" />
+                    Reject selected
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIds(new Set())}
+                    className="px-2 py-1 rounded-md text-[10px] font-bold text-[#737A72] hover:text-[#283638]"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {filtered.length === 0 ? (
@@ -321,6 +425,13 @@ export const RequirementsPage: React.FC = () => {
               {filtered.map((requirement) => (
                 <article key={requirement.id} className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-4 shadow-xs">
                   <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="accent-[#49686C]"
+                      checked={selectedIds.has(requirement.id)}
+                      onChange={() => toggleSelected(requirement.id)}
+                      aria-label={`Select ${requirement.requirementCode}`}
+                    />
                     <span className="font-mono text-[10px] font-bold text-[#49686C]">{requirement.requirementCode}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
                       requirement.kind === 'non_functional'
@@ -358,6 +469,31 @@ export const RequirementsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmBulkReject}
+        title={`Reject ${selectedIds.size} requirement(s)?`}
+        message="Rejected requirements stay in the project but are excluded from confirmed source text and the generated brief. You can approve them again later."
+        confirmLabel="Reject selected"
+        busy={bulkBusy}
+        onConfirm={() => void applyBulkDecision('rejected')}
+        onCancel={() => setConfirmBulkReject(false)}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete this document?"
+        message={
+          <>
+            Deleting <b>{deleteTarget?.fileName}</b> also removes every requirement compiled from it,
+            including its approvals. This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete document"
+        busy={deletingDocument}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

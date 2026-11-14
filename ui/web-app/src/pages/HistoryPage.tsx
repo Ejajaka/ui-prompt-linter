@@ -3,6 +3,7 @@ import type { AnalysisResult, RiskLevel } from '../types/analysis.ts';
 import { historyStorage } from '../services/historyStorage.ts';
 import { RiskBadge } from '../components/ui/RiskBadge.tsx';
 import { useToast } from '../components/ui/Toast.tsx';
+import { useProject } from '../context/ProjectContext.tsx';
 import { 
   Search, 
   Trash2, 
@@ -10,30 +11,38 @@ import {
   FolderOpen, 
   PlusCircle, 
   X, 
-  AlertTriangle 
+  AlertTriangle,
+  FolderKanban
 } from 'lucide-react';
 
 interface HistoryPageProps {
   onOpenAnalysis: (item: AnalysisResult) => void;
   onStartNewAnalysis: () => void;
+  onOpenProjects?: () => void;
 }
 
 export const HistoryPage: React.FC<HistoryPageProps> = ({
   onOpenAnalysis,
-  onStartNewAnalysis
+  onStartNewAnalysis,
+  onOpenProjects
 }) => {
   const { toast } = useToast();
+  const { currentProject } = useProject();
   const [search, setSearch] = useState('');
   const [riskFilter, setRiskFilter] = useState<RiskLevel | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'date_desc' | 'risk_desc' | 'coverage_asc'>('date_desc');
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const items = historyStorage.filterAndSort({
-    search,
-    riskFilter,
-    sortBy
-  });
+  const items = currentProject
+    ? historyStorage.filterAndSort({
+        projectId: currentProject.id,
+        search,
+        riskFilter,
+        sortBy
+      })
+    : [];
+  const unscopedCount = historyStorage.getUnscoped().length;
 
   const handleDeleteConfirm = () => {
     if (deleteTargetId) {
@@ -45,11 +54,19 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to clear all analysis history records?')) {
-      historyStorage.clear();
+    if (!currentProject) return;
+    if (window.confirm(`Clear all analysis history for “${currentProject.name}”? Other projects are not affected.`)) {
+      historyStorage.clear(currentProject.id);
       setRefreshKey(k => k + 1);
-      toast('All history records cleared', 'info');
+      toast('Project analysis history cleared', 'info');
     }
+  };
+
+  const attachLegacy = () => {
+    if (!currentProject) return;
+    const assigned = historyStorage.assignProject(currentProject.id);
+    setRefreshKey(k => k + 1);
+    toast(`${assigned} old analysis record(s) assigned to ${currentProject.name}.`, 'success');
   };
 
   return (
@@ -122,7 +139,40 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
         </div>
       </div>
 
-      {/* History Items Container */}
+      {!currentProject ? (
+        <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-12 text-center space-y-3">
+          <FolderKanban className="w-10 h-10 text-[#CDC9BC] mx-auto" />
+          <h3 className="text-base font-bold text-[#283638]">Choose a project first</h3>
+          <p className="text-xs text-[#737A72] max-w-sm mx-auto">
+            Analysis history is scoped per project, so prompts from different products never mix.
+          </p>
+          <button
+            onClick={onOpenProjects}
+            className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#49686C] text-white text-xs font-bold rounded-lg hover:bg-[#30494B] transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Open projects</span>
+          </button>
+        </div>
+      ) : (
+        <>
+          {unscopedCount > 0 && (
+            <div className="bg-[#F6F4EC] border border-[#E5E2D8] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1 text-xs text-[#737A72]">
+                <b className="text-[#283638]">{unscopedCount}</b> older analysis record(s) were saved before
+                project scoping and are not shown here. Assign them to this project to keep them.
+              </div>
+              <button
+                type="button"
+                onClick={attachLegacy}
+                className="shrink-0 px-3 py-1.5 rounded-lg border border-[#E5E2D8] bg-white text-[11px] font-bold text-[#49686C] hover:bg-[#FAFAF8]"
+              >
+                Assign to {currentProject.name}
+              </button>
+            </div>
+          )}
+
+          {/* History Items Container */}
       {items.length === 0 ? (
         <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-12 text-center space-y-3">
           <FolderOpen className="w-10 h-10 text-[#CDC9BC] mx-auto" />
@@ -229,6 +279,8 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
             </table>
           </div>
         </div>
+      )}
+        </>
       )}
 
       {/* Delete Confirmation Modal */}

@@ -2,17 +2,20 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Check,
+  CheckCheck,
   CheckCircle2,
   ClipboardCheck,
   Loader2,
   RefreshCw,
   Sparkles,
   X,
+  XCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
-import { recordCriterionDecision } from '../services/requirements/approvals.ts';
+import { recordCriterionDecision, recordCriterionDecisions } from '../services/requirements/approvals.ts';
 import { useProject } from '../context/ProjectContext.tsx';
 import { useToast } from '../components/ui/Toast.tsx';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog.tsx';
 import { listRequirements } from '../services/documents/requirementDocuments.ts';
 import { generateSuggestions } from '../services/requirements/suggestions.ts';
 import { generateAcceptanceCriteria } from '../services/requirements/acceptance.ts';
@@ -22,7 +25,9 @@ import {
   loadSuggestions,
   saveSuggestions,
   updateAcceptanceStatus,
+  updateAcceptanceStatuses,
   updateSuggestionStatus,
+  updateSuggestionStatuses,
 } from '../services/requirements/acceptanceRepository.ts';
 import type { RequirementRecord, RequirementSuggestion, AcceptanceCriterion } from '../types/requirements.ts';
 
@@ -45,6 +50,10 @@ export const RequirementReviewPage: React.FC = () => {
   const [tab, setTab] = useState<Tab>('suggestions');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
+  const [selectedCriteria, setSelectedCriteria] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [confirmReject, setConfirmReject] = useState<null | 'suggestions' | 'criteria'>(null);
 
   const load = useCallback(async () => {
     if (!currentProject || localMode) {
@@ -85,6 +94,11 @@ export const RequirementReviewPage: React.FC = () => {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    setSelectedSuggestions(new Set());
+    setSelectedCriteria(new Set());
+  }, [currentProject?.id, tab]);
+
   const pendingSuggestions = useMemo(() => suggestions.filter((suggestion) => suggestion.status === 'pending_review'), [suggestions]);
   const pendingCriteria = useMemo(() => criteria.filter((criterion) => criterion.status === 'pending_review'), [criteria]);
 
@@ -106,6 +120,56 @@ export const RequirementReviewPage: React.FC = () => {
       setCriteria((prev) => prev.map((item) => (item.id === criterion.id ? { ...item, status } : item)));
     } catch (e: any) {
       toast(e?.message || 'Could not update acceptance criterion.', 'error');
+    }
+  };
+
+  const toggleSet = (setter: React.Dispatch<React.SetStateAction<Set<string>>>, id: string) => {
+    setter((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = (ids: string[], setter: React.Dispatch<React.SetStateAction<Set<string>>>) => {
+    setter(new Set(ids));
+  };
+
+  const applySuggestionBulk = async (status: RequirementSuggestion['status']) => {
+    if (!currentProject || !selectedSuggestions.size) return;
+    setBulkBusy(true);
+    try {
+      const ids = [...selectedSuggestions];
+      setSuggestions(await updateSuggestionStatuses(currentProject.id, suggestions, ids, status));
+      setSelectedSuggestions(new Set());
+      setConfirmReject(null);
+      toast(`${ids.length} suggestion(s) ${status.replace(/_/g, ' ')}.`, 'success');
+    } catch (e: any) {
+      toast(e?.message || 'Could not update suggestions.', 'error');
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const applyCriterionBulk = async (status: AcceptanceCriterion['status']) => {
+    if (!currentProject || !selectedCriteria.size) return;
+    setBulkBusy(true);
+    try {
+      const ids = [...selectedCriteria];
+      await updateAcceptanceStatuses(ids, status);
+      if (user && (status === 'approved' || status === 'rejected')) {
+        await recordCriterionDecisions(currentProject.id, ids, user.id, status);
+      }
+      const idSet = new Set(ids);
+      setCriteria((prev) => prev.map((item) => (idSet.has(item.id) ? { ...item, status } : item)));
+      setSelectedCriteria(new Set());
+      setConfirmReject(null);
+      toast(`${ids.length} criterion/criteria ${status}.`, 'success');
+    } catch (e: any) {
+      toast(e?.message || 'Could not update acceptance criteria.', 'error');
+    } finally {
+      setBulkBusy(false);
     }
   };
 
@@ -175,6 +239,63 @@ export const RequirementReviewPage: React.FC = () => {
         ))}
       </div>
 
+      {requirements.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#49686C] cursor-pointer">
+            <input
+              type="checkbox"
+              className="accent-[#49686C]"
+              checked={
+                tab === 'suggestions'
+                  ? suggestions.length > 0 && suggestions.every((suggestion) => selectedSuggestions.has(suggestion.id))
+                  : criteria.length > 0 && criteria.every((criterion) => selectedCriteria.has(criterion.id))
+              }
+              onChange={(event) => {
+                if (tab === 'suggestions') {
+                  selectAll(event.target.checked ? suggestions.map((suggestion) => suggestion.id) : [], setSelectedSuggestions);
+                } else {
+                  selectAll(event.target.checked ? criteria.map((criterion) => criterion.id) : [], setSelectedCriteria);
+                }
+              }}
+            />
+            Select all {tab === 'suggestions' ? 'suggestions' : 'criteria'}
+          </label>
+
+          {(tab === 'suggestions' ? selectedSuggestions.size : selectedCriteria.size) > 0 && (
+            <div className="ml-auto flex flex-wrap items-center gap-1.5 rounded-lg border border-[#CFDFE1] bg-[#F0F5F5] px-3 py-1.5">
+              <span className="text-[11px] font-bold text-[#49686C]">
+                {tab === 'suggestions' ? selectedSuggestions.size : selectedCriteria.size} selected
+              </span>
+              <button
+                type="button"
+                disabled={bulkBusy}
+                onClick={() => void (tab === 'suggestions' ? applySuggestionBulk('accepted') : applyCriterionBulk('approved'))}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#F4F9F1] border border-[#CFE2C8] text-[10px] font-bold text-[#3E6B33] disabled:opacity-60"
+              >
+                {bulkBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCheck className="w-3 h-3" />}
+                {tab === 'suggestions' ? 'Accept selected' : 'Approve selected'}
+              </button>
+              <button
+                type="button"
+                disabled={bulkBusy}
+                onClick={() => setConfirmReject(tab === 'suggestions' ? 'suggestions' : 'criteria')}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#FDF2F0] border border-[#F0C4BF] text-[10px] font-bold text-[#B94D42] disabled:opacity-60"
+              >
+                <XCircle className="w-3 h-3" />
+                Reject selected
+              </button>
+              <button
+                type="button"
+                onClick={() => (tab === 'suggestions' ? setSelectedSuggestions(new Set()) : setSelectedCriteria(new Set()))}
+                className="px-2 py-1 rounded-md text-[10px] font-bold text-[#737A72] hover:text-[#283638]"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {requirements.length === 0 ? (
         <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-10 text-center text-xs text-[#737A72]">
           {loading ? (
@@ -197,6 +318,13 @@ export const RequirementReviewPage: React.FC = () => {
             suggestions.map((suggestion) => (
               <article key={suggestion.id} className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-4 shadow-xs">
                 <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="accent-[#49686C]"
+                    checked={selectedSuggestions.has(suggestion.id)}
+                    onChange={() => toggleSet(setSelectedSuggestions, suggestion.id)}
+                    aria-label={`Select ${suggestion.title}`}
+                  />
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${statusClass(suggestion.status)}`}>
                     {suggestion.status.replace(/_/g, ' ')}
                   </span>
@@ -230,6 +358,13 @@ export const RequirementReviewPage: React.FC = () => {
             criteria.map((criterion) => (
               <article key={criterion.id} className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-4 shadow-xs">
                 <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="accent-[#49686C]"
+                    checked={selectedCriteria.has(criterion.id)}
+                    onChange={() => toggleSet(setSelectedCriteria, criterion.id)}
+                    aria-label={`Select criterion ${criterion.requirementCode}`}
+                  />
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${statusClass(criterion.status)}`}>
                     {criterion.status.replace(/_/g, ' ')}
                   </span>
@@ -254,6 +389,26 @@ export const RequirementReviewPage: React.FC = () => {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmReject === 'suggestions'}
+        title={`Reject ${selectedSuggestions.size} suggestion(s)?`}
+        message="Rejected suggestions stay visible for reference but are excluded from the review baseline and the generated brief. You can accept them later."
+        confirmLabel="Reject suggestions"
+        busy={bulkBusy}
+        onConfirm={() => void applySuggestionBulk('rejected')}
+        onCancel={() => setConfirmReject(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmReject === 'criteria'}
+        title={`Reject ${selectedCriteria.size} criterion/criteria?`}
+        message="Rejected acceptance criteria stay linked to their requirement but are excluded from the approved brief. You can approve them later."
+        confirmLabel="Reject criteria"
+        busy={bulkBusy}
+        onConfirm={() => void applyCriterionBulk('rejected')}
+        onCancel={() => setConfirmReject(null)}
+      />
     </div>
   );
 };

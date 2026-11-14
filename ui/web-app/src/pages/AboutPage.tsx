@@ -52,7 +52,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#E4EBDD] text-[#30494B] border border-[#CFE2C8] shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[#49686C] animate-pulse" />
-              <span>Vector — Pre-Generation UI Prompt Review</span>
+              <span>Vector — Requirement engineering for UI teams</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#283638] tracking-tight leading-[1.15]">
@@ -64,9 +64,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
             </h1>
 
             <p className="text-base sm:text-lg text-[#737A72] max-w-xl leading-relaxed">
-              Catch missing labels, colours, placement and actions in natural-language UI prompts
-              before they reach a generator. Vector detects elements, links attributes,
-              clears up ambiguity and produces a validated rewrite.
+              Turn company requirement documents into traceable requirements, reviewed edge cases,
+              audited acceptance criteria and a six-section design brief — all before a generator
+              is allowed to guess.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -75,7 +75,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
                 onClick={onStartAnalysis}
                 className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#49686C] hover:bg-[#30494B] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer active:scale-[0.98] group"
               >
-                <span>Analyze a Prompt</span>
+                <span>Start a requirement review</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
 
@@ -92,15 +92,15 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
             <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-[#737A72]">
               <div className="flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-[#49686C]" />
-                <span>Rules + BERT + LLM</span>
+                <span>BERT-first detection</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-[#49686C]" />
-                <span>Clarifies ambiguity</span>
+                <span>Traceable requirements</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-[#49686C]" />
-                <span>Validated rewrite</span>
+                <span>Human-approved briefs</span>
               </div>
             </div>
           </div>
@@ -307,31 +307,31 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
           {[
             {
               n: '01',
-              tag: 'Input',
-              title: 'Describe',
-              text: 'Provide the natural-language UI request: the screen, elements, colours, placement and behaviour.',
-              foot: '→ Natural language',
+              tag: 'Compile',
+              title: 'Upload',
+              text: 'Drop in a PDF, DOCX, TXT or Markdown document. Vector extracts every requirement with its source page and character offsets.',
+              foot: '→ Traceable requirements',
             },
             {
               n: '02',
-              tag: 'Route',
+              tag: 'Analyze',
               title: 'Detect',
-              text: 'Choose Rules, BERT or LLM from prompt features, then detect elements and link their attributes.',
-              foot: '→ Element-aware tagging',
+              text: 'A fine-tuned BERT model reads prompts and requirements on-device. Low confidence triggers an automatic LLM second opinion.',
+              foot: '→ BERT-first analysis',
             },
             {
               n: '03',
-              tag: 'Clarify',
-              title: 'Ask',
-              text: 'Missing, vague or low-confidence details become targeted questions. Answers are merged and re-checked.',
-              foot: '→ Grounded answers',
+              tag: 'Review',
+              title: 'Approve',
+              text: 'Ambiguities, conflicts and dependencies surface in a live graph. Edge cases are suggested, then accepted or rejected by a human.',
+              foot: '→ Audited acceptance',
             },
             {
               n: '04',
-              tag: 'Output',
-              title: 'Improve',
-              text: 'Get a risk score, prioritised recommendations and a validated final prompt with placeholders.',
-              foot: '→ Copy-ready rewrite',
+              tag: 'Generate',
+              title: 'Ship',
+              text: 'Produce a six-section design brief with your design tokens, version it, and launch Bolt from the workspace.',
+              foot: '→ Build-ready brief',
             },
           ].map((step, index) => (
             <div
@@ -415,11 +415,32 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
           <div className="bg-white p-5 rounded-xl border border-[#E5E2D8] shadow-xs space-y-2">
             <div className="flex items-center gap-2">
               <Wand2 className="w-4 h-4 text-[#49686C]" />
-              <h3 className="text-sm font-bold text-[#283638]">Three engines, one result</h3>
+              <h3 className="text-sm font-bold text-[#283638]">Project-scoped by design</h3>
             </div>
             <p className="text-xs text-[#737A72] leading-relaxed">
-              Rules, a fine-tuned DistilBERT tagger and an optional grounded LLM feed the same
-              checker and the same final recommendation.
+              Documents, requirements, approvals, prompts and analyses stay inside their project,
+              protected by Supabase row-level security.
+            </p>
+          </div>
+          <div className="bg-white p-5 rounded-xl border border-[#E5E2D8] shadow-xs space-y-2">
+            <div className="flex items-center gap-2">
+              <Link2 className="w-4 h-4 text-[#49686C]" />
+              <h3 className="text-sm font-bold text-[#283638]">Traceable by default</h3>
+            </div>
+            <p className="text-xs text-[#737A72] leading-relaxed">
+              Every compiled requirement keeps its source document, page, paragraph and character
+              range, so a reviewer can check the original wording in seconds.
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-[#E5E2D8] shadow-xs space-y-2">
+            <div className="flex items-center gap-2">
+              <ClipboardCheck className="w-4 h-4 text-[#3E6B33]" />
+              <h3 className="text-sm font-bold text-[#283638]">Approval audit trail</h3>
+            </div>
+            <p className="text-xs text-[#737A72] leading-relaxed">
+              Requirement and acceptance-criteria decisions are recorded with the actor and reason,
+              so the brief can prove what was approved and when.
             </p>
           </div>
         </div>
@@ -434,13 +455,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
 
         <div className="space-y-3 text-xs text-[#737A72] leading-relaxed">
           <p>
-            The core analysis is deterministic and explainable. Rules and BERT only label words that
-            exist in the prompt. The LLM layer is grounded: values that cannot be found in the
-            prompt or in the user’s answers are rejected.
+            The core analysis is deterministic and explainable. BERT only labels words that exist in
+            the prompt, and a configured LLM is consulted for a second opinion only when confidence
+            is low. Values that cannot be found in the prompt or in the user’s answers are rejected.
           </p>
           <p>
             The final prompt is built from the confirmed checklist and placeholders. The LLM cannot
-            silently add a colour, location or action that the user did not provide.
+            silently add a colour, location or action that the user did not provide, and rules remain
+            an internal validator rather than a user-facing mode.
           </p>
           <p className="text-[#30494B] font-medium bg-[#F6F4EC] p-3 rounded-lg border border-[#E5E2D8]">
             The risk score is a heuristic, not a guarantee. It highlights missing details and
@@ -465,7 +487,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
               onClick={onStartAnalysis}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#D1B653] hover:bg-[#bda241] text-[#283638] text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-[0.98]"
             >
-              <span>Analyze a Prompt</span>
+              <span>Start a requirement review</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

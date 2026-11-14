@@ -4,14 +4,13 @@ import {
   PlusCircle,
   Sparkles,
   History, 
-  BookOpen, 
   Settings, 
   ChevronLeft, 
   ChevronRight, 
   ExternalLink,
-  Shield,
   ShieldCheck,
   FolderKanban,
+  LogIn,
   FileText,
   Network,
   ClipboardCheck,
@@ -30,6 +29,8 @@ interface SidebarProps {
   setIsCollapsed: (collapsed: boolean) => void;
   isMobileOpen: boolean;
   setIsMobileOpen: (open: boolean) => void;
+  publicMode?: boolean;
+  onRequestSignIn?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -38,7 +39,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   setIsCollapsed,
   isMobileOpen,
-  setIsMobileOpen
+  setIsMobileOpen,
+  publicMode = false,
+  onRequestSignIn,
 }) => {
   const navItems = [
     { id: 'about' as ActiveTab, label: 'About & Overview', icon: Sparkles },
@@ -52,10 +55,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'workspace' as ActiveTab, label: 'Bolt Workspace', icon: Monitor },
     { id: 'new-analysis' as ActiveTab, label: 'New Analysis', icon: PlusCircle },
     { id: 'history' as ActiveTab, label: 'Analysis History', icon: History },
-    { id: 'guidelines' as ActiveTab, label: 'Prompt Guidelines', icon: BookOpen },
     { id: 'settings' as ActiveTab, label: 'Settings', icon: Settings },
     { id: 'privacy' as ActiveTab, label: 'Privacy', icon: ShieldCheck },
   ];
+
+  const visibleItems = publicMode
+    ? navItems.filter((item) => ['about', 'overview', 'privacy'].includes(item.id))
+    : navItems;
 
   const handleNavClick = (id: ActiveTab) => {
     setActiveTab(id);
@@ -151,7 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Navigation Links */}
         <nav className={`flex-1 py-4 space-y-1.5 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-3'}`}>
-          {navItems.map(item => {
+          {visibleItems.map(item => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
@@ -188,12 +194,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </span>
             </div>
           ) : (
-            <div className="flex items-center justify-between text-[11px] text-[#737A72]">
-              <span className="font-mono">Vector v2.0</span>
-              <span className="inline-flex items-center gap-1 text-[#49686C] font-medium">
-                <Shield className="w-3 h-3" /> BERT + LLM fallback
-              </span>
-            </div>
+            publicMode ? (
+              <button
+                type="button"
+                onClick={onRequestSignIn}
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[#49686C] hover:bg-[#30494B] text-white text-xs font-bold transition-colors"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                Sign in to build
+              </button>
+            ) : (
+              <div className="flex items-center justify-between text-[11px] text-[#737A72]">
+                <span className="font-mono">Vector v2.0</span>
+                <span className="inline-flex items-center gap-1 text-[#49686C] font-medium">
+                  <ShieldCheck className="w-3 h-3" /> Row-level security
+                </span>
+              </div>
+            )
           )}
         </div>
       </aside>

@@ -21,7 +21,10 @@ export async function migrateLocalHistory(projectId: string, userId: string): Pr
     .eq('project_id', projectId)
     .limit(1);
   if (existingError) throw new Error(existingError.message);
-  if (existing && existing.length) return { imported: 0, skipped: true };
+  if (existing && existing.length) {
+    historyStorage.assignProject(projectId);
+    return { imported: 0, skipped: true };
+  }
 
   const rows = items.map((item) => ({
     project_id: projectId,
@@ -35,5 +38,8 @@ export async function migrateLocalHistory(projectId: string, userId: string): Pr
 
   const { error } = await supabase.from('analysis_runs').insert(rows);
   if (error) throw new Error(error.message);
+
+  // Attach the same records to this project locally so they appear in its history.
+  historyStorage.assignProject(projectId);
   return { imported: rows.length, skipped: false };
 }

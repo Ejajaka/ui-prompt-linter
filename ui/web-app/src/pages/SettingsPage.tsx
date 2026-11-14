@@ -307,7 +307,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           </div>
           <div>
             <span className="text-[#737A72] block">Engine Type</span>
-            <span className="font-bold text-[#283638]">BERT + LLM fallback</span>
+            <span className="font-bold text-[#283638]">BERT (on-device)</span>
           </div>
           <div>
             <span className="text-[#737A72] block">Execution Context</span>

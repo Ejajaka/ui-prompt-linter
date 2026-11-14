@@ -12,6 +12,7 @@ import '@xyflow/react/dist/style.css';
 import {
   AlertTriangle,
   ArrowRight,
+  Download,
   GitBranch,
   Loader2,
   Network,
@@ -24,6 +25,7 @@ import { useProject } from '../context/ProjectContext.tsx';
 import { useToast } from '../components/ui/Toast.tsx';
 import { listRequirements } from '../services/documents/requirementDocuments.ts';
 import { analyzeRequirements } from '../services/requirements/intelligence.ts';
+import { exportRequirementGraph } from '../services/requirements/graphExport.ts';
 import { reviewRequirementsWithLlm } from '../services/requirements/llmReview.ts';
 import type { RequirementRecord } from '../types/requirements.ts';
 import type {
@@ -138,6 +140,7 @@ export const RequirementGraphPage: React.FC = () => {
   const { toast } = useToast();
   const [requirements, setRequirements] = useState<RequirementRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState('');
   const [findingTab, setFindingTab] = useState<FindingTab>('all');
   const [llmFindings, setLlmFindings] = useState<RequirementFinding[]>([]);
@@ -171,6 +174,39 @@ export const RequirementGraphPage: React.FC = () => {
     [findings, findingTab]
   );
   const flow = useMemo(() => buildFlow(analysis), [analysis]);
+
+  const downloadGraph = async () => {
+    if (!flow.nodes.length || !currentProject) {
+      toast('There is no graph to download yet.', 'info');
+      return;
+    }
+    setDownloading(true);
+    try {
+      const blob = await exportRequirementGraph(analysis, {
+        projectName: currentProject.name,
+        counts: {
+          requirements: requirements.length,
+          ambiguities: findings.filter((finding) => finding.type === 'ambiguity').length,
+          conflicts: findings.filter((finding) => finding.type === 'conflict').length,
+          dependencies: findings.filter((finding) => finding.type === 'dependency').length,
+        },
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0, 10);
+      link.download = `requirement-graph-${currentProject.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-${stamp}.png`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast('Requirement graph downloaded', 'success');
+    } catch (e: any) {
+      toast(e?.message || 'Could not render the graph image.', 'error');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const runAiReview = async () => {
     if (!currentProject) return;
@@ -224,6 +260,16 @@ export const RequirementGraphPage: React.FC = () => {
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
             Refresh
+          </button>
+          <button
+            type="button"
+            onClick={() => void downloadGraph()}
+            disabled={downloading || !requirements.length}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-white text-xs font-bold text-[#49686C] hover:bg-[#F6F4EC] disabled:opacity-60"
+            title="Download the requirement graph as a PNG"
+          >
+            {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            Download PNG
           </button>
           <button
             type="button"

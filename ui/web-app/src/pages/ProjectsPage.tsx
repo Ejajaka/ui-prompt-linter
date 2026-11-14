@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowRight, Database, FolderKanban, Loader2, Plus, Sparkles, Trash2, UploadCloud } from 'lucide-react';
+import { ArrowRight, Database, FolderKanban, Loader2, Pencil, Plus, Sparkles, Trash2, UploadCloud, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useProject } from '../context/ProjectContext.tsx';
 import { migrateLocalHistory } from '../services/historyMigration.ts';
 import { useToast } from '../components/ui/Toast.tsx';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog.tsx';
+import type { Project } from '../types/projects.ts';
 
 interface ProjectsPageProps {
   onOpenProject: () => void;
@@ -12,12 +14,18 @@ interface ProjectsPageProps {
 
 export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onOpenProject, onOpenSettings }) => {
   const { user, localMode } = useAuth();
-  const { projects, currentProject, loading, error, createProject, deleteProject, selectProject, refresh } = useProject();
+  const { projects, currentProject, loading, error, createProject, updateProject, deleteProject, selectProject, refresh } = useProject();
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [creating, setCreating] = useState(false);
   const [migrating, setMigrating] = useState(false);
+  const [editTarget, setEditTarget] = useState<Project | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleCreate = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -40,13 +48,38 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onOpenProject, onOpe
     onOpenProject();
   };
 
-  const handleDelete = async (projectId: string, projectName: string) => {
-    if (!window.confirm(`Delete “${projectName}”? This removes its cloud data too.`)) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await deleteProject(projectId);
+      await deleteProject(deleteTarget.id);
       toast('Project deleted', 'info');
+      setDeleteTarget(null);
     } catch (e: any) {
       toast(e?.message || 'Could not delete project.', 'error');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const startEdit = (project: Project) => {
+    setEditTarget(project);
+    setEditName(project.name);
+    setEditDescription(project.description || '');
+  };
+
+  const handleEditSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editTarget || !editName.trim() || savingEdit) return;
+    setSavingEdit(true);
+    try {
+      await updateProject(editTarget.id, { name: editName.trim(), description: editDescription.trim() });
+      toast('Project updated', 'success');
+      setEditTarget(null);
+    } catch (e: any) {
+      toast(e?.message || 'Could not update project.', 'error');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -144,7 +177,16 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onOpenProject, onOpe
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(project.id, project.name)}
+                      onClick={() => startEdit(project)}
+                      className="p-2 rounded-lg text-[#737A72] hover:bg-[#F6F4EC] hover:text-[#283638]"
+                      aria-label={`Edit ${project.name}`}
+                      title="Edit project"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(project)}
                       className="p-2 rounded-lg text-[#B94D42] hover:bg-[#FDF2F0]"
                       aria-label={`Delete ${project.name}`}
                       title="Delete project"
@@ -164,7 +206,8 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onOpenProject, onOpe
                 <div className="flex-1">
                   <p className="text-sm font-bold text-[#283638]">Import existing browser history</p>
                   <p className="text-xs text-[#737A72] mt-1 leading-relaxed">
-                    Copy your existing local analyses into <b>{currentProject.name}</b>. The local records stay where they are.
+                    Copy your existing local analyses into <b>{currentProject.name}</b>. They stay in this
+                    browser and are attached to this project so other projects keep a clean history.
                   </p>
                   <button
                     type="button"
@@ -219,6 +262,86 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onOpenProject, onOpe
           </button>
         </form>
       </div>
+
+      {editTarget && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#283638]/50 backdrop-blur-xs">
+          <form
+            onSubmit={handleEditSave}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Edit project"
+            className="bg-[#FFFFFF] dark:bg-[#1F2B2D] border border-[#E5E2D8] dark:border-[#33403F] rounded-xl max-w-md w-full p-5 shadow-2xl"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E2D8] dark:border-[#33403F]">
+              <div className="flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-[#49686C]" />
+                <h3 className="text-sm font-bold text-[#283638] dark:text-[#E7E4D9]">Edit project</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditTarget(null)}
+                className="p-1 text-[#737A72] hover:text-[#283638] dark:hover:text-white rounded"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <label className="block mt-4">
+              <span className="text-xs font-bold text-[#283638] dark:text-[#E7E4D9] block mb-1">Name</span>
+              <input
+                value={editName}
+                onChange={(event) => setEditName(event.target.value)}
+                maxLength={120}
+                required
+                className="w-full px-3 py-2.5 rounded-lg border border-[#E5E2D8] dark:border-[#33403F] bg-[#FAFAF8] dark:bg-[#141C1D] text-sm text-[#283638] dark:text-[#E7E4D9] focus:bg-white dark:focus:bg-[#1B2526] focus:outline-none focus:border-[#49686C]"
+              />
+            </label>
+            <label className="block mt-3">
+              <span className="text-xs font-bold text-[#283638] dark:text-[#E7E4D9] block mb-1">Description</span>
+              <textarea
+                value={editDescription}
+                onChange={(event) => setEditDescription(event.target.value)}
+                rows={3}
+                className="w-full px-3 py-2.5 rounded-lg border border-[#E5E2D8] dark:border-[#33403F] bg-[#FAFAF8] dark:bg-[#141C1D] text-sm text-[#283638] dark:text-[#E7E4D9] focus:bg-white dark:focus:bg-[#1B2526] focus:outline-none focus:border-[#49686C]"
+              />
+            </label>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <button
+                type="button"
+                onClick={() => setEditTarget(null)}
+                className="px-3.5 py-1.5 border border-[#E5E2D8] dark:border-[#33403F] rounded-lg text-xs font-semibold text-[#737A72] hover:bg-[#F6F4EC] dark:hover:bg-[#263335]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={savingEdit || !editName.trim()}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#49686C] text-white text-xs font-semibold hover:bg-[#30494B] disabled:opacity-60"
+              >
+                {savingEdit && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Save changes
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete this project?"
+        message={
+          <>
+            Deleting <b>{deleteTarget?.name}</b> also removes its documents, requirements,
+            analysis history, design systems and prompts. This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete project"
+        busy={deleting}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

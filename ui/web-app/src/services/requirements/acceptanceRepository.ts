@@ -45,6 +45,20 @@ export async function updateSuggestionStatus(
   return next;
 }
 
+export async function updateSuggestionStatuses(
+  projectId: string,
+  suggestions: RequirementSuggestion[],
+  suggestionIds: string[],
+  status: SuggestionStatus,
+): Promise<RequirementSuggestion[]> {
+  const ids = new Set(suggestionIds);
+  const next = suggestions.map((suggestion) =>
+    ids.has(suggestion.id) ? { ...suggestion, status } : suggestion
+  );
+  await saveSuggestions(projectId, next);
+  return next;
+}
+
 export async function listAcceptanceCriteria(
   projectId: string,
   requirementCodes: Map<string, string>,
@@ -98,5 +112,17 @@ export async function updateAcceptanceStatus(
     .from('acceptance_criteria')
     .update({ status })
     .eq('id', criterionId);
+  if (error) throw new Error(error.message);
+}
+
+export async function updateAcceptanceStatuses(
+  criterionIds: string[],
+  status: AcceptanceCriterion['status'],
+): Promise<void> {
+  if (!supabase || !criterionIds.length) return;
+  const { error } = await supabase
+    .from('acceptance_criteria')
+    .update({ status })
+    .in('id', criterionIds);
   if (error) throw new Error(error.message);
 }

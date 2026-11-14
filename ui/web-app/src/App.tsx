@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ActiveTab, AnalysisResult } from './types/analysis.ts';
 import { ToastProvider } from './components/ui/Toast.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
-import { ProjectProvider } from './context/ProjectContext.tsx';
+import { ProjectProvider, useProject } from './context/ProjectContext.tsx';
 import { Sidebar } from './components/layout/Sidebar.tsx';
 import { Header } from './components/layout/Header.tsx';
 import { AuthPage } from './components/auth/AuthPage.tsx';
@@ -11,7 +11,6 @@ import { ResetPasswordPage } from './components/auth/ResetPasswordPage.tsx';
 import { OverviewPage } from './pages/OverviewPage.tsx';
 import { NewAnalysisPage } from './pages/NewAnalysisPage.tsx';
 import { HistoryPage } from './pages/HistoryPage.tsx';
-import { GuidelinesPage } from './pages/GuidelinesPage.tsx';
 import { SettingsPage } from './pages/SettingsPage.tsx';
 import { AboutPage } from './pages/AboutPage.tsx';
 import { PrivacyPage } from './pages/PrivacyPage.tsx';
@@ -23,12 +22,85 @@ import { PromptStudioPage } from './pages/PromptStudioPage.tsx';
 import { DesignSystemsPage } from './pages/DesignSystemsPage.tsx';
 import { WorkspacePage } from './pages/WorkspacePage.tsx';
 
+const PUBLIC_TABS: ActiveTab[] = ['about', 'overview', 'privacy'];
+
+const KNOWN_TABS: ActiveTab[] = [
+  'about',
+  'overview',
+  'projects',
+  'requirements',
+  'intelligence',
+  'review',
+  'prompt',
+  'design',
+  'workspace',
+  'new-analysis',
+  'history',
+  'settings',
+  'privacy',
+];
+
+function isKnownTab(value: string | null): value is ActiveTab {
+  return !!value && (KNOWN_TABS as string[]).includes(value);
+}
+
+function tabStorageKey(userId: string | undefined): string {
+  return `vector_active_tab_${userId || 'guest'}`;
+}
+
 function AppShell() {
   const { configured, loading, user, passwordRecovery } = useAuth();
+  const { projects, currentProject, selectProject } = useProject();
   const [activeTab, setActiveTab] = useState<ActiveTab>('about');
+  const [showAuth, setShowAuth] = useState(false);
+  const [pendingTab, setPendingTab] = useState<ActiveTab | null>(null);
+  const [tabHydrated, setTabHydrated] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [analysisToInspect, setAnalysisToInspect] = useState<AnalysisResult | null>(null);
+
+  const publicMode = configured && !user;
+
+  // Restore the last visited tab for this account (or for guests).
+  useEffect(() => {
+    let next: ActiveTab = user ? 'overview' : 'about';
+    try {
+      const saved = localStorage.getItem(tabStorageKey(user?.id));
+      if (isKnownTab(saved)) next = saved;
+    } catch {
+      // ignore storage failures
+    }
+    if (!user && !PUBLIC_TABS.includes(next)) next = 'about';
+    setActiveTab(next);
+    setTabHydrated(true);
+  }, [user?.id]);
+
+  // Persist the active tab so refresh, revisit and re-login return here.
+  useEffect(() => {
+    if (!tabHydrated) return;
+    if (publicMode && !PUBLIC_TABS.includes(activeTab)) return;
+    try {
+      localStorage.setItem(tabStorageKey(user?.id), activeTab);
+    } catch {
+      // ignore storage failures
+    }
+  }, [activeTab, user?.id, tabHydrated, publicMode]);
+
+  // Guests cannot open authenticated areas.
+  useEffect(() => {
+    if (publicMode && !PUBLIC_TABS.includes(activeTab)) setActiveTab('about');
+  }, [publicMode, activeTab]);
+
+  useEffect(() => {
+    if (user) setShowAuth(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (user && pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    }
+  }, [user, pendingTab]);
 
   if (configured && loading) {
     return (
@@ -45,22 +117,42 @@ function AppShell() {
     return <ResetPasswordPage />;
   }
 
-  if (configured && !user) {
-    return <AuthPage />;
+  if (configured && !user && showAuth) {
+    return <AuthPage onBack={() => setShowAuth(false)} />;
   }
 
   const handleOpenAnalysis = (item: AnalysisResult) => {
+    if (item.projectId && item.projectId !== currentProject?.id && projects.some((project) => project.id === item.projectId)) {
+      selectProject(item.projectId);
+    }
     setAnalysisToInspect(item);
     setActiveTab('new-analysis');
   };
 
   const handleStartNewAnalysis = () => {
+    if (publicMode) {
+      requestAuth('new-analysis');
+      return;
+    }
     setAnalysisToInspect(null);
     setActiveTab('new-analysis');
   };
 
+  const handleStartRequirementWorkflow = () => {
+    if (publicMode) {
+      requestAuth('requirements');
+      return;
+    }
+    setActiveTab('requirements');
+  };
+
+  const requestAuth = (target?: ActiveTab) => {
+    if (target) setPendingTab(target);
+    setShowAuth(true);
+  };
+
   return (
-    <div className="min-h-screen bg-[#F6F4EC] text-[#283638] flex flex-col antialiased">
+    <div className="min-h-screen bg-[#F6F4EC] dark:bg-[#131A1B] text-[#283638] dark:text-[#E7E4D9] flex flex-col antialiased">
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -68,6 +160,8 @@ function AppShell() {
         setIsCollapsed={setIsSidebarCollapsed}
         isMobileOpen={isMobileNavOpen}
         setIsMobileOpen={setIsMobileNavOpen}
+        publicMode={publicMode}
+        onRequestSignIn={() => requestAuth()}
       />
 
       <div
@@ -79,13 +173,29 @@ function AppShell() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           onOpenMobileMenu={() => setIsMobileNavOpen(true)}
+          publicMode={publicMode}
+          onRequestSignIn={() => requestAuth()}
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto" role="main">
-          {activeTab === 'about' && <AboutPage onStartAnalysis={handleStartNewAnalysis} />}
+          {activeTab === 'about' && <AboutPage onStartAnalysis={handleStartRequirementWorkflow} />}
+
+          {activeTab === 'overview' && (
+            <OverviewPage
+              publicMode={publicMode}
+              onRequestSignIn={() => requestAuth()}
+              onStartNewAnalysis={handleStartNewAnalysis}
+              onOpenAnalysis={handleOpenAnalysis}
+              onViewAllHistory={() => (publicMode ? requestAuth() : setActiveTab('history'))}
+              onOpenProjects={() => (publicMode ? requestAuth() : setActiveTab('projects'))}
+            />
+          )}
 
           {activeTab === 'projects' && (
-            <ProjectsPage onOpenProject={handleStartNewAnalysis} onOpenSettings={() => setActiveTab('settings')} />
+            <ProjectsPage
+              onOpenProject={handleStartNewAnalysis}
+              onOpenSettings={() => setActiveTab('settings')}
+            />
           )}
 
           {activeTab === 'requirements' && <RequirementsPage />}
@@ -95,19 +205,12 @@ function AppShell() {
           {activeTab === 'design' && <DesignSystemsPage />}
           {activeTab === 'workspace' && <WorkspacePage />}
 
-          {activeTab === 'overview' && (
-            <OverviewPage
-              onStartNewAnalysis={handleStartNewAnalysis}
-              onOpenAnalysis={handleOpenAnalysis}
-              onViewAllHistory={() => setActiveTab('history')}
-            />
-          )}
-
           {activeTab === 'new-analysis' && (
             <NewAnalysisPage
               initialResult={analysisToInspect}
               onClearInitialResult={() => setAnalysisToInspect(null)}
               onViewHistory={() => setActiveTab('history')}
+              onOpenProjects={() => setActiveTab('projects')}
             />
           )}
 
@@ -115,10 +218,10 @@ function AppShell() {
             <HistoryPage
               onOpenAnalysis={handleOpenAnalysis}
               onStartNewAnalysis={handleStartNewAnalysis}
+              onOpenProjects={() => setActiveTab('projects')}
             />
           )}
 
-          {activeTab === 'guidelines' && <GuidelinesPage />}
           {activeTab === 'settings' && <SettingsPage />}
           {activeTab === 'privacy' && <PrivacyPage />}
         </main>

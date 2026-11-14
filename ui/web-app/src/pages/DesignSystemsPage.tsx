@@ -3,6 +3,7 @@ import { History, Loader2, Palette, Plus, RotateCcw, Save, Trash2 } from 'lucide
 import { useAuth } from '../context/AuthContext.tsx';
 import { useProject } from '../context/ProjectContext.tsx';
 import { useToast } from '../components/ui/Toast.tsx';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog.tsx';
 import {
   createDesignSystem,
   deleteDesignSystem,
@@ -44,6 +45,8 @@ export const DesignSystemsPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [versions, setVersions] = useState<DesignSystemVersion[]>([]);
   const [restoring, setRestoring] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<DesignSystem | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -120,15 +123,19 @@ export const DesignSystemsPage: React.FC = () => {
     }
   };
 
-  const remove = async (system: DesignSystem) => {
-    if (!window.confirm(`Delete “${system.name}”?`)) return;
+  const remove = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await deleteDesignSystem(system.id);
-      if (selected?.id === system.id) startNew();
+      await deleteDesignSystem(deleteTarget.id);
+      if (selected?.id === deleteTarget.id) startNew();
+      setDeleteTarget(null);
       await load();
       toast('Design system deleted', 'info');
     } catch (e: any) {
       toast(e?.message || 'Could not delete design system.', 'error');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -166,7 +173,7 @@ export const DesignSystemsPage: React.FC = () => {
                   <p className="text-xs font-bold text-[#283638] truncate">{system.name}</p>
                   <p className="text-[10px] text-[#737A72]">{system.isShared ? 'shared' : 'private'} · {system.projectId ? 'project' : 'library'}</p>
                 </button>
-                <button type="button" onClick={() => void remove(system)} className="p-1.5 rounded-md text-[#B94D42] hover:bg-[#FDF2F0]" aria-label={`Delete ${system.name}`}>
+                <button type="button" onClick={() => setDeleteTarget(system)} className="p-1.5 rounded-md text-[#B94D42] hover:bg-[#FDF2F0]" aria-label={`Delete ${system.name}`}>
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -248,6 +255,21 @@ export const DesignSystemsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete this design system?"
+        message={
+          <>
+            Deleting <b>{deleteTarget?.name}</b> removes its tokens and version history. Prompts that
+            already referenced it keep their saved text, but future briefs will need another system.
+          </>
+        }
+        confirmLabel="Delete design system"
+        busy={deleting}
+        onConfirm={() => void remove()}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

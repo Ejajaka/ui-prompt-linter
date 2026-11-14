@@ -29,6 +29,8 @@ import {
 } from '../services/analysisPipeline.ts';
 import { CircularScoreGauge } from '../components/ui/CircularScoreGauge.tsx';
 import { historyStorage } from '../services/historyStorage.ts';
+import { useProject } from '../context/ProjectContext.tsx';
+import { useToast } from '../components/ui/Toast.tsx';
 import type { AnalysisResult, RiskLevel } from '../types/analysis.ts';
 import { ENGINE_URL } from '../config.ts';
 
@@ -36,6 +38,7 @@ interface NewAnalysisPageProps {
   initialResult?: AnalysisResult | null;
   onClearInitialResult?: () => void;
   onViewHistory?: () => void;
+  onOpenProjects?: () => void;
 }
 
 const EXAMPLES = [
@@ -300,7 +303,9 @@ function ClarificationForm({
   );
 }
 
-export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult, onViewHistory }) => {
+export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult, onViewHistory, onOpenProjects }) => {
+  const { currentProject } = useProject();
+  const { toast } = useToast();
   const [engineState, setEngineState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engineError, setEngineError] = useState('');
   const engine: EngineMode = 'bert';
@@ -366,6 +371,10 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
 
   const analyze = useCallback(
     async (input: string, mergedAnswers: Record<string, string>, finalize: boolean) => {
+      if (!currentProject) {
+        setAnalysisError('Select or create a project before analyzing a prompt.');
+        return;
+      }
       setAnalyzing(true);
       setAnalysisError('');
       try {
@@ -375,7 +384,9 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
         setStage(p.needs_clarification ? 'clarify' : 'explaining');
         if (!p.needs_clarification) p = await finish(input, p);
         setPayload(p);
-        if (!p.needs_clarification) historyStorage.save(toHistoryResult(input, p));
+        if (!p.needs_clarification) {
+          historyStorage.save({ ...toHistoryResult(input, p), projectId: currentProject.id });
+        }
       } catch (e: any) {
         setAnalysisError(e?.message || String(e));
         setBertProgress(null);
@@ -384,11 +395,15 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
         setStage('idle');
       }
     },
-    [ensurePlan, finish],
+    [currentProject, ensurePlan, finish],
   );
 
   const handleAnalyze = () => {
     if (!text.trim()) return;
+    if (!currentProject) {
+      toast('Select or create a project first.', 'error');
+      return;
+    }
     setAnswers({});
     setRound(1);
     planRef.current = null;
@@ -420,7 +435,9 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
         p = await finish(input, p);
       }
       setPayload(p);
-      if (!p.needs_clarification) historyStorage.save(toHistoryResult(input, p));
+      if (!p.needs_clarification && currentProject) {
+        historyStorage.save({ ...toHistoryResult(input, p), projectId: currentProject.id });
+      }
     } catch (e: any) {
       setAnalysisError(e?.message || String(e));
       setBertProgress(null);
@@ -511,7 +528,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             </span>
           </div>
           <p className="text-xs sm:text-sm text-[#737A72]">
-            Review your interface request for missing labels, colours, placement and actions — right in your browser.
+            Review your interface request for missing labels, colours, placement and actions. Evaluations are saved to {currentProject ? <b>{currentProject.name}</b> : 'the selected project'} only.
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -537,6 +554,35 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
           </a>
         </div>
       </div>
+
+      {/* Project scope banner */}
+      {!currentProject ? (
+        <div className="bg-[#FFF7ED] border border-[#FED7AA] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-start gap-2 flex-1">
+            <AlertTriangle className="w-4 h-4 text-[#9C4A28] mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-bold text-[#9C4A28]">This analysis has no project</p>
+              <p className="text-xs text-[#9C4A28]/85 mt-0.5">
+                Analyses are project-scoped so history and dashboards never mix. Create or open a project first.
+              </p>
+            </div>
+          </div>
+          {onOpenProjects && (
+            <button
+              type="button"
+              onClick={onOpenProjects}
+              className="shrink-0 px-3.5 py-2 rounded-lg bg-[#9C4A28] hover:bg-[#833d21] text-white text-xs font-bold"
+            >
+              Open projects
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="inline-flex items-center gap-2 text-[11px] text-[#49686C]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#688E5E]" />
+          Saving this run to <b>{currentProject.name}</b>
+        </div>
+      )}
 
       {/* Engine loading / error states */}
       {engineState === 'loading' && (
@@ -678,10 +724,11 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
               <button
                 type="button"
                 onClick={handleAnalyze}
-                disabled={analyzing || engineState !== 'ready'}
+                disabled={analyzing || engineState !== 'ready' || !currentProject}
+                title={!currentProject ? 'Select a project first' : 'Analyze prompt'}
                 className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white transition-all shadow-xs ${
-                  analyzing || engineState !== 'ready'
-                    ? 'bg-[#49686C]/60 cursor-wait'
+                  analyzing || engineState !== 'ready' || !currentProject
+                    ? 'bg-[#49686C]/60 cursor-not-allowed'
                     : 'bg-[#49686C] hover:bg-[#30494B] active:scale-[0.99]'
                 }`}
               >
