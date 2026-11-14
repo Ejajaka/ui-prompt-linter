@@ -1,0 +1,47 @@
+1
+00:00:00,650 --> 00:00:10,658
+Great interfaces don't start with code. They start with clarity. Meet Vector: requirement engineering for teams who ship.
+
+2
+00:00:12,150 --> 00:00:24,870
+Everything starts with a project. Requirements, approvals, design tokens, prompts and memory stay scoped to that project, protected by row level security in Supabase.
+
+3
+00:00:26,383 --> 00:00:45,487
+Upload a PDF, Word document, or plain text. Vector extracts every requirement, keeps the exact page and character reference, separates functional needs from non functional constraints, and classifies priority, so critical flows like authentication rise to the top.
+
+4
+00:00:46,983 --> 00:01:01,647
+Vector then maps your requirements into a live graph. Ambiguities surface immediately. Contradictions are flagged before design begins, and circular dependencies are caught while they are still cheap to fix.
+
+5
+00:01:03,150 --> 00:01:21,894
+Missing behaviour is the quiet killer of good products. Vector suggests implicit behaviours and edge cases: failure states, duplicate submissions, empty results, unauthorized access. Every one stays clearly marked as a suggestion until a human accepts it.
+
+6
+00:01:23,383 --> 00:01:37,567
+Accepted requirements become Given, When, Then acceptance criteria. Every approval is tied to its requirement and recorded in an audit trail, so design and engineering share one definition of done.
+
+7
+00:01:39,083 --> 00:01:58,643
+One click produces a professional six section design brief: objective, problem statement, requirements, design guidelines, deliverables, and acceptance criteria. Only approved requirements become confirmed source text, and every version is saved, comparable, and restorable.
+
+8
+00:02:00,150 --> 00:02:13,062
+Your brand belongs in the brief. Define colour, typography, spacing, radius, navigation and accessibility once, then inject those tokens into every specification.
+
+9
+00:02:14,550 --> 00:02:22,518
+Full version history means you can restore any earlier design system in a click. History is never lost.
+
+10
+00:02:24,017 --> 00:02:38,609
+Then move straight into generation. Vector's workspace puts your validated prompt beside Bolt. Copy, launch, generate, and preview the published app, with an honest fallback if the host blocks embedding.
+
+11
+00:02:40,117 --> 00:02:58,717
+Under the hood, a fine tuned BERT model reads your prompts on device. When confidence is low, a large language model is consulted automatically for a second opinion. Deterministic rules validate the result. One engine, exposed simply: BERT.
+
+12
+00:03:00,217 --> 00:03:09,553
+Vector. Better interfaces start before the first line of UI code. Try it free, at the link in the description.

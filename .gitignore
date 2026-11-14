@@ -28,3 +28,12 @@ ui/android/local.properties
 ui/extension/ai-config.local.js
 tools/local_ai_config.json
 ui/extension/dist-local/
+
+# Demo video output is generated locally and kept out of git.
+demo/*.mp4
+demo/build/audio/
+demo/build/frames/
+demo/build/clips/
+demo/build/*.txt
+demo/build/*-only.mp4
+demo/build/narration.m4a
