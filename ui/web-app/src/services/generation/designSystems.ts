@@ -79,3 +79,58 @@ export async function deleteDesignSystem(id: string): Promise<void> {
   const { error } = await supabase.from('design_systems').delete().eq('id', id);
   if (error) throw new Error(error.message);
 }
+
+export interface DesignSystemVersion {
+  id: string;
+  version: number;
+  name: string;
+  tokens: DesignTokens;
+  createdAt: string;
+}
+
+interface DesignSystemVersionRow {
+  id: string;
+  design_system_id: string;
+  version: number;
+  snapshot: { name?: string; tokens?: DesignTokens } | null;
+  created_at: string;
+}
+
+export async function listDesignSystemVersions(designSystemId: string): Promise<DesignSystemVersion[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('design_system_versions')
+    .select('*')
+    .eq('design_system_id', designSystemId)
+    .order('version', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data || []).map((row) => {
+    const version = row as DesignSystemVersionRow;
+    return {
+      id: version.id,
+      version: version.version,
+      name: version.snapshot?.name || 'Untitled design system',
+      tokens: { ...DEFAULT_DESIGN_SYSTEM.tokens, ...(version.snapshot?.tokens || {}) },
+      createdAt: version.created_at,
+    };
+  });
+}
+
+export async function restoreDesignSystemVersion(
+  designSystemId: string,
+  version: number,
+): Promise<DesignSystem> {
+  if (!supabase) throw new Error('Connect Supabase to restore design systems.');
+  const { data: snapshotRow, error: snapshotError } = await supabase
+    .from('design_system_versions')
+    .select('*')
+    .eq('design_system_id', designSystemId)
+    .eq('version', version)
+    .single();
+  if (snapshotError) throw new Error(snapshotError.message);
+  const snapshot = (snapshotRow as DesignSystemVersionRow).snapshot;
+  if (!snapshot?.tokens) throw new Error('That version has no saved tokens.');
+
+  const restored = await updateDesignSystem(designSystemId, snapshot.name || 'Untitled design system', snapshot.tokens);
+  return restored;
+}

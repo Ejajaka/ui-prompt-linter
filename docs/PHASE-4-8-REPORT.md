@@ -35,6 +35,8 @@ Status: **core workflows implemented; optional LLM review function and productio
   navigation, responsive, component, button, input and brand tokens.
 - Shared library flag and project association.
 - Snapshot rows written to `design_system_versions` on create/update.
+- Version history lists every saved snapshot and can restore one. Restoring
+  applies the saved tokens and records a new version, so history is not lost.
 - Requirement priority classifier: critical/high/medium/low with reasons.
 - Requirement approve/reject actions update `requirements.status` and append
   `approvals` audit rows.
@@ -84,8 +86,8 @@ Status: **core workflows implemented; optional LLM review function and productio
 - Deploy the `analyze-requirements` Edge Function and configure LLM secrets.
 - Production auth hardening: delete test user, re-enable email confirmation,
   configure redirect URLs, rotate the shared secret key.
-- Design-system snapshot restore UI (versions are recorded but not yet listed).
-- Full persistence/approval UI for graph findings (currently computed in the UI).
+- Graph findings are recomputed from requirements on each visit; accepting or
+  muting an individual finding is not yet persisted separately.
 - LLM-assisted suggestion/acceptance generation; current generators are
   deterministic and intentionally conservative.
 - Bolt preview remains subject to Bolt/host framing policy.

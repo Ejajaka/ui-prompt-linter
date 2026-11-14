@@ -1,14 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Loader2, Palette, Plus, Save, Trash2 } from 'lucide-react';
+import { History, Loader2, Palette, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useProject } from '../context/ProjectContext.tsx';
 import { useToast } from '../components/ui/Toast.tsx';
 import {
   createDesignSystem,
   deleteDesignSystem,
+  listDesignSystemVersions,
   listDesignSystems,
+  restoreDesignSystemVersion,
   updateDesignSystem,
 } from '../services/generation/designSystems.ts';
+import type { DesignSystemVersion } from '../services/generation/designSystems.ts';
 import type { DesignSystem, DesignTokens } from '../types/designSystem.ts';
 import { DEFAULT_DESIGN_SYSTEM } from '../types/designSystem.ts';
 
@@ -39,6 +42,8 @@ export const DesignSystemsPage: React.FC = () => {
   const [tokens, setTokens] = useState<DesignTokens>({ ...DEFAULT_DESIGN_SYSTEM.tokens });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [versions, setVersions] = useState<DesignSystemVersion[]>([]);
+  const [restoring, setRestoring] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -49,6 +54,7 @@ export const DesignSystemsPage: React.FC = () => {
         setSelected(list[0]);
         setName(list[0].name);
         setTokens(list[0].tokens);
+        setVersions(await listDesignSystemVersions(list[0].id));
       }
     } catch (e: any) {
       toast(e?.message || 'Could not load design systems.', 'error');
@@ -65,12 +71,34 @@ export const DesignSystemsPage: React.FC = () => {
     setSelected(system);
     setName(system.name);
     setTokens({ ...DEFAULT_DESIGN_SYSTEM.tokens, ...system.tokens });
+    setVersions([]);
+    void listDesignSystemVersions(system.id)
+      .then(setVersions)
+      .catch(() => setVersions([]));
   };
 
   const startNew = () => {
     setSelected(null);
     setName('');
     setTokens({ ...DEFAULT_DESIGN_SYSTEM.tokens });
+    setVersions([]);
+  };
+
+  const restore = async (version: DesignSystemVersion) => {
+    if (!selected) return;
+    setRestoring(true);
+    try {
+      const restored = await restoreDesignSystemVersion(selected.id, version.version);
+      setSelected(restored);
+      setName(restored.name);
+      setTokens({ ...DEFAULT_DESIGN_SYSTEM.tokens, ...restored.tokens });
+      setVersions(await listDesignSystemVersions(restored.id));
+      toast(`Restored version ${version.version}.`, 'success');
+    } catch (e: any) {
+      toast(e?.message || 'Could not restore design system version.', 'error');
+    } finally {
+      setRestoring(false);
+    }
   };
 
   const save = async () => {
@@ -83,6 +111,7 @@ export const DesignSystemsPage: React.FC = () => {
       setSelected(result);
       setName(result.name);
       await load();
+      setVersions(await listDesignSystemVersions(result.id));
       toast(selected ? 'Design system updated' : 'Design system created', 'success');
     } catch (e: any) {
       toast(e?.message || 'Could not save design system.', 'error');
@@ -175,6 +204,44 @@ export const DesignSystemsPage: React.FC = () => {
             </button>
             <span className="text-[10px] text-[#737A72]">Tokens are injected into the specification and prompt.</span>
           </div>
+
+          {selected && (
+            <div className="mt-5 pt-4 border-t border-[#E5E2D8]">
+              <div className="flex items-center gap-2">
+                <History className="w-4 h-4 text-[#49686C]" />
+                <h3 className="text-sm font-bold text-[#283638]">Version history</h3>
+                {restoring && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#737A72]" />}
+              </div>
+              {versions.length === 0 ? (
+                <p className="text-xs text-[#737A72] mt-2">No saved versions yet. Saving this design system records a snapshot.</p>
+              ) : (
+                <div className="mt-2 divide-y divide-[#E5E2D8] border border-[#E5E2D8] rounded-lg overflow-hidden">
+                  {versions.map((version) => (
+                    <div key={version.id} className="flex items-center gap-2 px-3 py-2 bg-[#FAFAF8]">
+                      <span className="text-xs font-bold text-[#283638]">v{version.version}</span>
+                      <span className="text-[10px] text-[#737A72]">{new Date(version.createdAt).toLocaleString()}</span>
+                      <div className="ml-auto flex items-center gap-1">
+                        {[version.tokens.primaryColor, version.tokens.secondaryColor, version.tokens.accentColor].map((color, index) => (
+                          <span key={index} className="w-3.5 h-3.5 rounded-full border border-white shadow-xs" style={{ backgroundColor: color }} />
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void restore(version)}
+                        disabled={restoring || localMode}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-[#E5E2D8] bg-white text-[10px] font-bold text-[#49686C] hover:bg-[#F6F4EC] disabled:opacity-60"
+                      >
+                        <RotateCcw className="w-3 h-3" /> Restore
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-[10px] text-[#737A72] mt-2 leading-relaxed">
+                Restoring applies the saved tokens and records the restore as a new version, so history is never lost.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
