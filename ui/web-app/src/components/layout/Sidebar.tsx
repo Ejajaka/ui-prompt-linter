@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'review' as ActiveTab, label: 'Review & Acceptance', icon: ClipboardCheck },
     { id: 'prompt' as ActiveTab, label: 'Specification & Prompt', icon: FileOutput },
     { id: 'design' as ActiveTab, label: 'Design Systems', icon: Palette },
-    { id: 'workspace' as ActiveTab, label: 'Bolt Workspace', icon: Monitor },
+    { id: 'workspace' as ActiveTab, label: 'Base44 Workspace', icon: Monitor },
     { id: 'new-analysis' as ActiveTab, label: 'New Analysis', icon: PlusCircle },
     { id: 'history' as ActiveTab, label: 'Analysis History', icon: History },
     { id: 'manual' as ActiveTab, label: 'Manual', icon: BookOpen },

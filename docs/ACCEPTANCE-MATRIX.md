@@ -28,9 +28,9 @@ Last verified: 2026-11-14, against the live site
 | Design system version history | Pass, v1/v2/v3 listed |
 | Design system restore | Pass, v1 tokens reapplied and v3 recorded |
 | Design system selectable in Prompt Studio | Pass |
-| Bolt workspace renders prompt + published preview panel | Pass |
+| Base44 workspace embeds the builder and live app preview | Pass (builder iframe subject to Base44 cookies/framing) |
 | Invalid preview URL rejected | Pass, toast + inline warning |
-| Valid `*.bolt.host` URL saved and framed | Pass |
+| Valid `https` published app URL saved and framed | Pass |
 | Panel collapse/resize controls | Pass |
 | Regression check against saved baseline | Pass, reports new requirements |
 
@@ -47,7 +47,7 @@ Actions `tests` and `pages-build-deployment` all pass.
 | Rules remain internal validator | Done | Rules baseline still runs for scoring and fallback; no user-facing mode. |
 | Supabase auth, Postgres, Storage, RLS | Done (live) | Signup/login, project isolation, document bucket, policies; unauth insert blocked with `42501`. |
 | Publishable key only in frontend | Done | Key only in gitignored `.env.local`; bundle contains the publishable key, never the secret key. |
-| No fake Bolt integration | Done | Launch + clipboard transfer, validated published-app iframe, documented fallback. |
+| No fake builder integration | Done | Embedded Base44 iframe, clipboard transfer, validated published-app iframe, documented fallback. |
 | Phases 1–8 delivered | Done | See `docs/PHASE-4-8-REPORT.md`. |
 | Tests, type check and production build after each phase | Done | 15 tests, `tsc`, Vite build; CI green. |
 | Design system version restore | Done | History list + restore, tested. |
@@ -60,8 +60,9 @@ Actions `tests` and `pages-build-deployment` all pass.
 2. **Suggestion and acceptance generation is deterministic.** No LLM-assisted
    suggestion or criterion generation yet; this is intentional for
    reproducibility.
-3. **Bolt preview depends on Bolt hosting headers.** If framing is blocked the
-   UI relies on the external launch link; the editor itself is never embedded.
+3. **Base44 framing depends on Base44 cookies and headers.** The builder is
+   embedded and can be opened in a new tab if the browser blocks it; the live
+   app preview depends on the published app's hosting policy.
 4. **Extension and Android clients still expose Rules/BERT/API selectors.**
    Web-first was chosen; parity is a separate change.
 5. **LLM second opinion depends on a configured endpoint.** Without

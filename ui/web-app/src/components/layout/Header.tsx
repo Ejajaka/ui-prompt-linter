@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
     review: { title: 'Review & Acceptance', subtitle: 'Suggestions, Edge Cases & Criteria' },
     prompt: { title: 'Specification & Prompt', subtitle: 'Design Brief Generator' },
     design: { title: 'Design Systems', subtitle: 'Tokens & Brand Context' },
-    workspace: { title: 'Bolt Workspace', subtitle: 'Prompt → Generate → Refine' },
+    workspace: { title: 'Base44 Workspace', subtitle: 'Prompt → Build → Preview' },
     'new-analysis': { title: 'New UI Prompt Analysis', subtitle: 'UI/UX Prompt Analyzer' },
     history: { title: 'Analysis History', subtitle: 'Past Evaluations' },
     manual: { title: 'Manual', subtitle: 'How to use Vector' },

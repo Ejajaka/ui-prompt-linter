@@ -69,7 +69,7 @@ const FEATURES = [
   },
   {
     icon: Monitor,
-    title: 'Bolt Workspace',
+    title: 'Base44 Workspace',
     text: 'Validate on the left, generate on the right. Prompt transfer with an honest published-app preview.',
     tone: '#5A8090',
   },
@@ -199,7 +199,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           {[
             ['01', 'Compile', 'Upload the requirement document. Vector extracts, classifies and traces every statement.'],
             ['02', 'Review', 'Fix ambiguity, conflicts and dependencies. Accept edge cases and approve criteria.'],
-            ['03', 'Generate', 'Produce the six-section brief, inject your design tokens, and launch Bolt.'],
+            ['03', 'Generate', 'Produce the six-section brief, inject your design tokens, and build in Base44.'],
           ].map(([step, title, text]) => (
             <div key={step} className="bg-[#FFFFFF] dark:bg-[#1B2426] rounded-xl border border-[#E5E2D8] dark:border-[#29383A] p-5 shadow-xs">
               <span className="font-mono text-xs font-bold text-[#D1B653]">{step}</span>

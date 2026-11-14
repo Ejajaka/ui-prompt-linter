@@ -19,7 +19,7 @@ export interface RegressionReport {
 export const MEMORY_KEYS = {
   designSystem: 'selected_design_system',
   requirementBaseline: 'requirement_baseline',
-  boltUrl: 'bolt_published_url',
+  publishedUrl: 'published_app_url',
 };
 
 export function snapshotRequirements(requirements: RequirementRecord[]): RequirementSnapshot[] {

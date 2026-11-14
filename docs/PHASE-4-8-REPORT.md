@@ -46,19 +46,19 @@ Status: **core workflows implemented; optional LLM review function and productio
 ## Phase 7 — Memory, versions and regressions
 
 - Project memory for selected design system, requirement baseline, suggestions
-  and Bolt preview URL.
+  and published app preview URL.
 - Prompt version save/compare/restore.
 - Requirement regression comparison: disappeared, changed and newly added
   requirements.
 - Baseline can be saved before a modification and checked afterwards.
 - See report in the Prompt Studio.
 
-## Phase 8 — Bolt workspace
+## Phase 8 — Base44 workspace
 
-- Resizable two-panel workspace with left-panel prompt and right-panel Bolt area.
+- Resizable two-panel workspace with left-panel prompt and right-panel Base44 builder.
 - Either panel can be collapsed.
-- “Send to Bolt” copies the approved prompt and opens bolt.new.
-- Optional published-app preview for validated `*.bolt.host` / `bolt.new/~` URLs.
+- “Send to Base44” copies the approved prompt and opens app.base44.com.
+- Embedded Base44 builder plus optional published-app preview.
 - If a published app cannot be framed, the UI falls back to the external launch
   link; no fake embedded editor.
 - Preview URL persisted in project memory.
@@ -90,4 +90,4 @@ Status: **core workflows implemented; optional LLM review function and productio
   muting an individual finding is not yet persisted separately.
 - LLM-assisted suggestion/acceptance generation; current generators are
   deterministic and intentionally conservative.
-- Bolt preview remains subject to Bolt/host framing policy.
+- Base44 builder and preview remain subject to Base44's framing and cookie policy.

@@ -79,7 +79,7 @@ About page without a sidebar.
 | Review & Acceptance | Edge-case suggestions and Given/When/Then criteria |
 | Specification & Prompt | Six-section brief, versions, regression |
 | Design Systems | Brand tokens and version history |
-| Bolt Workspace | Prompt-to-Bolt launch and published preview |
+| Base44 Workspace | Embedded Base44 builder and published app preview |
 | New Analysis | Prompt review and risk read-out |
 | Manual | In-app guide to every workflow |
 | Settings | Theme, manual, local data |
@@ -333,7 +333,7 @@ requirement codes. This is measured from the text in the editor, not from the
 project records, so it updates as you type.
 
 Use **Reset to generated** to discard the draft and rebuild from the current
-approved inputs. One draft is kept per project and is shared with the Bolt
+approved inputs. One draft is kept per project and is shared with the Base44
 workspace.
 
 ### 7.5 Copy and save
@@ -384,7 +384,7 @@ confirmation and removes its version history.
 
 ---
 
-## 9. Bolt Workspace
+## 9. Base44 Workspace
 
 ### 9.1 Layout
 
@@ -392,7 +392,12 @@ The workspace is split into two panels:
 
 - **Vector Prompt Analyser** — the editable brief, readiness status and
   requirement/criteria coverage
-- **Bolt Workspace** — launch and preview area
+- **Base44** — two tabs: the embedded **Base44 builder** and the **Live app**
+  preview
+
+The Base44 builder is loaded directly inside the workspace from
+`app.base44.com`. If sign-in or framing is blocked by the browser, use the
+**Open Base44** button to continue in a new tab.
 
 The brief here is the same per-project draft used in Specification & Prompt.
 Edits made in either place are reflected in the other, and coverage recalculates
@@ -400,21 +405,23 @@ as you type.
 
 Both panels can be collapsed, and the divider can be dragged to resize.
 
-### 9.2 Send to Bolt
+### 9.2 Send to Base44
 
-**Send to Bolt** opens `bolt.new` with the brief already filled into the composer
-and copies it as a fallback. Sign in if needed, review the brief, then press
-**Build**. This is a supported launch workflow, not a fake embedded editor.
+**Send to Base44** copies the current brief and opens `app.base44.com` in a new
+tab. Paste the brief into the Base44 chat, sign in if needed, review it and press
+**Build**. You can also paste into the embedded builder on the right.
 
-### 9.3 Published-app preview
+### 9.3 Live app preview
 
-After publishing in Bolt, copy the live URL, select **Paste URL** in Vector, then
-**Save preview**. Vector validates the URL and embeds the published app.
-Only `https://*.bolt.host` and `bolt.new` URLs are accepted. If the host blocks
-framing, use **Open Bolt** instead; Vector never pretends to embed an editor it
-cannot embed.
+After publishing in Base44, copy the live app link, open the **Live app** tab,
+select **Paste URL**, then **Save preview**. Vector validates an `https` URL and
+embeds the published app.
 
-The preview URL is remembered per project.
+Base44 apps are published at `https://your-app.base44.app` (custom domains also
+work). If the host blocks framing, use **Open Base44** instead; Vector never
+pretends to embed a page it cannot embed.
+
+The live app URL is remembered per project.
 
 ---
 
@@ -508,8 +515,9 @@ confirmation. Cloud projects and requirement documents are not affected.
   proposals for a human to review, never silent requirements.
 - Graph findings are recomputed from the current requirements on each visit.
   Individual finding acceptance or muting is not persisted separately.
-- Bolt opens in a new tab. Vector previews a published app when the host allows
-  it; otherwise use the direct launch link.
+- Base44 opens in a new tab and can be embedded in the workspace. Vector
+  previews the published app when the host allows it; otherwise use the direct
+  link.
 - The risk score is a heuristic, not a guarantee. It highlights missing detail
   and uncertainty; it does not replace design review.
 
@@ -529,8 +537,8 @@ confirmation. Cloud projects and requirement documents are not affected.
    **Specification & Prompt**.
 7. Use **Save baseline** before the next change, then generate and save a
    version.
-8. Send the brief to Bolt from **Bolt Workspace**, generate the UI, and attach
-   the published preview.
+8. Send the brief to Base44 from **Base44 Workspace**, build the UI, publish it,
+   and attach the live app preview.
 9. Optionally analyse individual UI prompts in **New Analysis**; they stay in
    the project's history.
 
@@ -545,9 +553,9 @@ documents, prompts and design-system links are project scoped.
 **The Analyze button is disabled.**
 The analyser is still preparing, or no project is active.
 
-**The Bolt preview is blank.**
-The published host is blocking framing. Use **Open Bolt**; the prompt is still
-copied and the workflow is unchanged.
+**The Base44 preview is blank.**
+The published host is blocking framing, or the app is private. Use **Open
+Base44**; the brief is still copied and the workflow is unchanged.
 
 **A document parsed but produced no requirements.**
 The compiler keeps statement-like lines. Very short fragments, headings and

@@ -330,7 +330,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
               n: '04',
               tag: 'Generate',
               title: 'Ship',
-              text: 'Produce a six-section design brief with your design tokens, version it, and launch Bolt from the workspace.',
+              text: 'Produce a six-section design brief with your design tokens, version it, and build it in Base44 from the workspace.',
               foot: '→ Build-ready brief',
             },
           ].map((step, index) => (

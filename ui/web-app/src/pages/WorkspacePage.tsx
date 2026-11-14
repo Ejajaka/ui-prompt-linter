@@ -27,11 +27,10 @@ import { usePromptDraft } from '../hooks/usePromptDraft.ts';
 import { DEFAULT_DESIGN_SYSTEM } from '../types/designSystem.ts';
 import type { AcceptanceCriterion, RequirementRecord, RequirementSuggestion } from '../types/requirements.ts';
 
-function isBoltUrl(value: string): boolean {
+function isPublishedUrl(value: string): boolean {
   try {
     const url = new URL(value);
-    if (url.protocol !== 'https:') return false;
-    return url.hostname === 'bolt.new' || url.hostname.endsWith('.bolt.host');
+    return url.protocol === 'https:' && !!url.hostname;
   } catch {
     return false;
   }
@@ -51,11 +50,12 @@ export const WorkspacePage: React.FC = () => {
   const [designSystems, setDesignSystems] = useState([DEFAULT_DESIGN_SYSTEM]);
   const [designSystemId, setDesignSystemId] = useState(DEFAULT_DESIGN_SYSTEM.id);
   const { draft, setDraft, resetDraft } = usePromptDraft(currentProject?.id);
-  const [boltUrl, setBoltUrl] = useState('');
+  const [publishedUrl, setPublishedUrl] = useState('');
   const [draftUrl, setDraftUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [rightTab, setRightTab] = useState<'builder' | 'live'>('builder');
 
   const load = useCallback(async () => {
     if (!currentProject || localMode) {
@@ -71,7 +71,7 @@ export const WorkspacePage: React.FC = () => {
       const [savedSuggestions, savedCriteria, savedUrl, savedSystems, savedDesignSystem] = await Promise.all([
         loadSuggestions(currentProject.id),
         listAcceptanceCriteria(currentProject.id, codeMap),
-        loadProjectMemory<string>(currentProject.id, MEMORY_KEYS.boltUrl, ''),
+        loadProjectMemory<string>(currentProject.id, MEMORY_KEYS.publishedUrl, ''),
         listDesignSystems(),
         loadProjectMemory<string>(currentProject.id, MEMORY_KEYS.designSystem, DEFAULT_DESIGN_SYSTEM.id),
       ]);
@@ -80,7 +80,7 @@ export const WorkspacePage: React.FC = () => {
       setCriteria(savedCriteria.length ? savedCriteria : generateAcceptanceCriteria(reqs, currentProject.id));
       setDesignSystems([DEFAULT_DESIGN_SYSTEM, ...savedSystems.filter((system) => system.id !== DEFAULT_DESIGN_SYSTEM.id)]);
       setDesignSystemId(savedDesignSystem || DEFAULT_DESIGN_SYSTEM.id);
-      setBoltUrl(savedUrl || '');
+      setPublishedUrl(savedUrl || '');
       setDraftUrl(savedUrl || '');
     } catch (e: any) {
       toast(e?.message || 'Could not load workspace.', 'error');
@@ -129,15 +129,23 @@ export const WorkspacePage: React.FC = () => {
     }
   };
 
-  const sendToBolt = async () => {
+  const sendToBase44 = async () => {
+    let copied = false;
     try {
       await navigator.clipboard.writeText(displayedPrompt);
+      copied = true;
     } catch {
-      // Clipboard may be blocked; the URL handoff still carries the brief.
+      // Clipboard may be blocked; the user can still copy from the editor.
     }
-    const url = `https://bolt.new/?prompt=${encodeURIComponent(displayedPrompt)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-    toast('Bolt opened with your brief prefilled. Sign in, review it, then press Build.', 'info');
+    setRightTab('builder');
+    setRightCollapsed(false);
+    window.open('https://app.base44.com', '_blank', 'noopener,noreferrer');
+    toast(
+      copied
+        ? 'Brief copied. Paste it into the Base44 builder, then press Build.'
+        : 'Base44 opened. Use Copy to place the brief on your clipboard.',
+      copied ? 'info' : 'error',
+    );
   };
 
   const pastePreviewUrl = async () => {
@@ -147,8 +155,8 @@ export const WorkspacePage: React.FC = () => {
         toast('Clipboard is empty.', 'error');
         return;
       }
-      if (!isBoltUrl(value)) {
-        toast('The clipboard does not contain a published bolt.host URL.', 'error');
+      if (!isPublishedUrl(value)) {
+        toast('The clipboard does not contain a valid https app URL.', 'error');
         return;
       }
       setDraftUrl(value);
@@ -161,17 +169,17 @@ export const WorkspacePage: React.FC = () => {
   const saveUrl = async () => {
     if (!currentProject || localMode) return;
     const value = draftUrl.trim();
-    if (value && !isBoltUrl(value)) {
-      toast('Enter a published Bolt URL, for example https://your-app.bolt.host.', 'error');
+    if (value && !isPublishedUrl(value)) {
+      toast('Enter the published app URL from Base44, for example https://your-app.base44.app.', 'error');
       return;
     }
     try {
-      await saveProjectMemory(currentProject.id, MEMORY_KEYS.boltUrl, value);
-      setBoltUrl(value);
+      await saveProjectMemory(currentProject.id, MEMORY_KEYS.publishedUrl, value);
+      setPublishedUrl(value);
       setShowPreview(true);
-      toast(value ? 'Bolt preview URL saved' : 'Bolt preview URL cleared', 'success');
+      toast(value ? 'Published app URL saved' : 'Published app URL cleared', 'success');
     } catch (e: any) {
-      toast(e?.message || 'Could not save Bolt URL.', 'error');
+      toast(e?.message || 'Could not save the published URL.', 'error');
     }
   };
 
@@ -202,14 +210,14 @@ export const WorkspacePage: React.FC = () => {
     );
   }
 
-  const previewAllowed = isBoltUrl(boltUrl);
+  const previewAllowed = isPublishedUrl(publishedUrl);
 
   return (
     <div className="space-y-4 max-w-[1700px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#283638] tracking-tight">Vector × Bolt Workspace</h1>
-          <p className="text-xs text-[#737A72] mt-1">Validate the prompt on the left, generate the interface on the right, then return to refine.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#283638] tracking-tight">Vector × Base44 Workspace</h1>
+          <p className="text-xs text-[#737A72] mt-1">Refine the brief on the left, build in Base44 on the right, then preview the published app.</p>
         </div>
         <div className="flex items-center gap-2">
           {loading && <Loader2 className="w-4 h-4 animate-spin text-[#737A72]" />}
@@ -219,7 +227,7 @@ export const WorkspacePage: React.FC = () => {
           </button>
           <button type="button" onClick={() => setRightCollapsed((value) => !value)} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E5E2D8] bg-white text-[11px] font-bold text-[#49686C]">
             {rightCollapsed ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-            {rightCollapsed ? 'Show Bolt' : 'Hide Bolt'}
+            {rightCollapsed ? 'Show Base44' : 'Hide Base44'}
           </button>
         </div>
       </div>
@@ -246,8 +254,8 @@ export const WorkspacePage: React.FC = () => {
                 <button type="button" onClick={copyPrompt} className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-[#E5E2D8] bg-white text-[10px] font-bold text-[#49686C]">
                   {copied ? 'Copied' : <><Clipboard className="w-3 h-3" /> Copy</>}
                 </button>
-                <button type="button" onClick={() => void sendToBolt()} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#49686C] text-white text-[10px] font-bold">
-                  <Send className="w-3 h-3" /> Send to Bolt
+                <button type="button" onClick={() => void sendToBase44()} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#49686C] text-white text-[10px] font-bold">
+                  <Send className="w-3 h-3" /> Send to Base44
                 </button>
               </div>
             </div>
@@ -285,60 +293,95 @@ export const WorkspacePage: React.FC = () => {
         {!rightCollapsed && (
           <section className="min-w-0 flex-1 flex flex-col bg-[#F6F4EC]" style={{ width: leftCollapsed ? '100%' : `${100 - split}%` }}>
             <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-[#E5E2D8] bg-[#FFFFFF]">
-              <div className="text-xs font-bold text-[#283638]">Bolt Workspace</div>
-              <span className="text-[10px] text-[#737A72]">published app preview</span>
-              <div className="ml-auto flex items-center gap-1">
-                <button type="button" onClick={() => setShowPreview((value) => !value)} className="p-1.5 rounded-md text-[#49686C] hover:bg-[#F6F4EC]" aria-label="Toggle preview">
-                  {showPreview ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              <div className="flex p-0.5 rounded-lg bg-[#F6F4EC] border border-[#E5E2D8]">
+                <button
+                  type="button"
+                  onClick={() => setRightTab('builder')}
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${rightTab === 'builder' ? 'bg-white text-[#283638] shadow-xs' : 'text-[#737A72] hover:text-[#283638]'}`}
+                >
+                  Base44 builder
                 </button>
-                <a href="https://bolt.new" target="_blank" rel="noreferrer" className="p-1.5 rounded-md text-[#49686C] hover:bg-[#F6F4EC]" aria-label="Open Bolt">
+                <button
+                  type="button"
+                  onClick={() => setRightTab('live')}
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${rightTab === 'live' ? 'bg-white text-[#283638] shadow-xs' : 'text-[#737A72] hover:text-[#283638]'}`}
+                >
+                  Live app
+                </button>
+              </div>
+              <div className="ml-auto flex items-center gap-1">
+                <a href="https://app.base44.com" target="_blank" rel="noreferrer" className="p-1.5 rounded-md text-[#49686C] hover:bg-[#F6F4EC]" aria-label="Open Base44">
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
             </div>
-            <div className="p-3 border-b border-[#E5E2D8] bg-[#FFFFFF] flex flex-col sm:flex-row gap-2">
-              <input value={draftUrl} onChange={(event) => setDraftUrl(event.target.value)} placeholder="https://your-app.bolt.host" className="flex-1 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] text-xs text-[#283638] focus:bg-white focus:outline-none focus:border-[#49686C]" />
-              <button type="button" onClick={() => void pastePreviewUrl()} className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-white text-xs font-bold text-[#49686C] hover:bg-[#F6F4EC]">
-                <Clipboard className="w-3.5 h-3.5" />
-                Paste URL
-              </button>
-              <button type="button" onClick={() => void saveUrl()} className="px-3 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold">Save preview</button>
-            </div>
-            {showPreview && previewAllowed ? (
-              <iframe
-                src={boltUrl}
-                title="Published Bolt application"
-                className="flex-1 w-full min-h-[600px] bg-white"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="flex-1 flex items-center justify-center p-6">
-                <div className="max-w-md bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-6 text-center">
-                  <Monitor className="w-8 h-8 text-[#49686C] mx-auto mb-3" />
-                  <h2 className="text-sm font-bold text-[#283638]">Send the approved prompt to Bolt</h2>
-                  <p className="text-xs text-[#737A72] mt-2 leading-relaxed">
-                    Bolt opens with your brief already in the composer. Sign in if needed, review it,
-                    press <b>Build</b>, then <b>Publish</b>. Add the published <code className="font-mono">*.bolt.host</code> URL above to preview it here.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2 mt-4">
-                    <button type="button" onClick={() => void sendToBolt()} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold">
-                      <Send className="w-3.5 h-3.5" /> Open Bolt + copy prompt
-                    </button>
-                    <a href="https://bolt.new" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-white text-xs font-bold text-[#49686C]">
-                      <ExternalLink className="w-3.5 h-3.5" /> Open Bolt
-                    </a>
-                  </div>
-                  {draftUrl && !previewAllowed && <p className="text-[10px] text-[#B94D42] mt-3">Only published bolt.host or bolt.new/~ URLs can be embedded.</p>}
+
+            {rightTab === 'builder' ? (
+              <div className="flex-1 flex flex-col">
+                <div className="px-3 py-2 border-b border-[#E5E2D8] bg-[#FAFAF8] flex flex-wrap items-center gap-2 text-[10px] text-[#737A72]">
+                  <span>Sign in inside this panel. If Base44 blocks framing or sign-in, open it in a new tab.</span>
+                  <button
+                    type="button"
+                    onClick={() => window.open('https://app.base44.com', '_blank', 'noopener,noreferrer')}
+                    className="ml-auto font-bold text-[#49686C] hover:underline"
+                  >
+                    Open Base44
+                  </button>
                 </div>
+                <iframe
+                  src="https://app.base44.com"
+                  title="Base44 app builder"
+                  className="flex-1 w-full min-h-[600px] bg-white"
+                  allow="clipboard-read; clipboard-write; fullscreen; popups"
+                />
               </div>
+            ) : (
+              <>
+                <div className="p-3 border-b border-[#E5E2D8] bg-[#FFFFFF] flex flex-col sm:flex-row gap-2">
+                  <input value={draftUrl} onChange={(event) => setDraftUrl(event.target.value)} placeholder="https://your-app.base44.app" className="flex-1 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] text-xs text-[#283638] focus:bg-white focus:outline-none focus:border-[#49686C]" />
+                  <button type="button" onClick={() => void pastePreviewUrl()} className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-white text-xs font-bold text-[#49686C] hover:bg-[#F6F4EC]">
+                    <Clipboard className="w-3.5 h-3.5" />
+                    Paste URL
+                  </button>
+                  <button type="button" onClick={() => void saveUrl()} className="px-3 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold">Save preview</button>
+                </div>
+                {showPreview && previewAllowed ? (
+                  <iframe
+                    src={publishedUrl}
+                    title="Published Base44 application"
+                    className="flex-1 w-full min-h-[600px] bg-white"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="flex-1 flex items-center justify-center p-6">
+                    <div className="max-w-md bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-6 text-center">
+                      <Monitor className="w-8 h-8 text-[#49686C] mx-auto mb-3" />
+                      <h2 className="text-sm font-bold text-[#283638]">Publish in Base44 to preview the live app</h2>
+                      <p className="text-xs text-[#737A72] mt-2 leading-relaxed">
+                        Build inside the Base44 builder, press <b>Publish</b>, copy the live app link,
+                        then use <b>Paste URL</b> and <b>Save preview</b> above.
+                      </p>
+                      <div className="flex flex-wrap justify-center gap-2 mt-4">
+                        <button type="button" onClick={() => void sendToBase44()} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold">
+                          <Send className="w-3.5 h-3.5" /> Copy brief + open Base44
+                        </button>
+                        <a href="https://app.base44.com" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-white text-xs font-bold text-[#49686C]">
+                          <ExternalLink className="w-3.5 h-3.5" /> Open Base44
+                        </a>
+                      </div>
+                      {draftUrl && !previewAllowed && <p className="text-[10px] text-[#B94D42] mt-3">Enter a valid https app URL.</p>}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </section>
         )}
       </div>
 
       <div className="text-[10px] text-[#737A72] leading-relaxed">
-        Vector opens Bolt with the brief prefilled and copies it as a fallback. Building and publishing stay in Bolt; Vector previews the published app when the host allows it.
+        The Base44 builder is embedded from app.base44.com. If sign-in or framing is blocked, open it in a new tab. Building and publishing happen in Base44; Vector previews the published app when the host allows it.
       </div>
     </div>
   );

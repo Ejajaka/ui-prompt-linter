@@ -41,7 +41,7 @@ function newer(a: PromptDraftRecord | null, b: PromptDraftRecord | null): Prompt
 
 /**
  * One editable prompt draft per project, shared by Specification & Prompt and
- * the Bolt workspace. Edits are cached locally and synced to project memory.
+ * the Base44 workspace. Edits are cached locally and synced to project memory.
  */
 export function usePromptDraft(projectId?: string) {
   const [draft, setDraftState] = useState<string | null>(null);
