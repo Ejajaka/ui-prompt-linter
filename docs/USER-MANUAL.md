@@ -16,10 +16,10 @@ This manual covers every page and control in the web app at
 
 ### 1.1 Visiting for the first time
 
-New visitors land on **About**, not on a login wall. You can read the product
-explanation and open **Overview** to explore the feature set. Public pages have no
-title bar: only a floating dark-mode toggle and a **Sign in** button appear in the
-top-right corner, plus the sidebar navigation.
+New visitors land on **About**, not on a login wall. The public page has no
+sidebar and no title bar: only a dark-mode toggle and a **Sign in** button sit at
+the top of the page. They scroll away with the content instead of staying
+pinned to the viewport.
 
 Nothing behind the workspace is accessible until you sign in. Selecting a
 protected area while signed out opens the sign-in screen instead.
@@ -51,8 +51,8 @@ password is saved.
 
 - If this browser has visited a page before, Vector returns you to it.
 - Otherwise you start on **Projects**.
-- About and Overview are public onboarding pages; they are not shown in the
-  signed-in sidebar.
+- About is the public onboarding page; it is not shown in the signed-in
+  sidebar.
 - The last visited page is remembered per account, so refreshing, closing the
   tab, signing out and signing back in all restore the same page.
 - Guests keep a separate remembered page for the public site.
@@ -67,13 +67,12 @@ session ends.
 
 ## 2. Navigation map
 
-The sidebar is the primary navigation. It is grouped by purpose in reading
-order.
+After sign-in the sidebar is the primary navigation. Public visitors see the
+About page without a sidebar.
 
 | Page | Purpose |
 | --- | --- |
-| About & Overview | Public onboarding: product explanation and feature tour |
-| Overview | Public onboarding: full feature overview and sign-in call to action |
+| About & Overview | Public onboarding page (no sidebar, theme + Sign in at the top) |
 | Projects | Create, edit, switch and delete workspaces |
 | Requirement Compiler | Upload documents and approve requirements |
 | Requirement Intelligence | Requirement graph, ambiguities, conflicts, dependencies |
@@ -86,8 +85,8 @@ order.
 | Settings | Theme, engine information, local data |
 | Privacy | Data and processing policy |
 
-On mobile the sidebar becomes a drawer opened from the header. On desktop it
-can be collapsed to an icon rail.
+On mobile the signed-in sidebar becomes a drawer opened from the header. On
+desktop it can be collapsed to an icon rail. Public pages have no sidebar.
 
 ### 2.1 Header
 
@@ -447,15 +446,7 @@ another project, switches to that project first so the context matches.
 
 ---
 
-## 11. Overview and Analysis History
-
-### 11.1 Public Overview
-
-Overview is a public feature tour, shown before sign-in. It explains the eight
-capabilities and ends with a sign-in call to action. The signed-in app starts on
-Projects instead.
-
-### 11.2 Analysis History
+## 11. Analysis History
 
 - total analyses
 - average risk score

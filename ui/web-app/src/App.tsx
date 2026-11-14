@@ -23,7 +23,7 @@ import { PromptStudioPage } from './pages/PromptStudioPage.tsx';
 import { DesignSystemsPage } from './pages/DesignSystemsPage.tsx';
 import { WorkspacePage } from './pages/WorkspacePage.tsx';
 
-const PUBLIC_TABS: ActiveTab[] = ['about', 'overview', 'privacy'];
+const PUBLIC_TABS: ActiveTab[] = ['about'];
 
 const KNOWN_TABS: ActiveTab[] = [
   'about',
@@ -160,20 +160,22 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-[#F6F4EC] dark:bg-[#131A1B] text-[#283638] dark:text-[#E7E4D9] flex flex-col antialiased">
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isCollapsed={isSidebarCollapsed}
-        setIsCollapsed={setIsSidebarCollapsed}
-        isMobileOpen={isMobileNavOpen}
-        setIsMobileOpen={setIsMobileNavOpen}
-        publicMode={publicMode}
-        onRequestSignIn={() => requestAuth()}
-      />
+      {!publicMode && (
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+          isMobileOpen={isMobileNavOpen}
+          setIsMobileOpen={setIsMobileNavOpen}
+          publicMode={publicMode}
+          onRequestSignIn={() => requestAuth()}
+        />
+      )}
 
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
-          isSidebarCollapsed ? 'lg:pl-[68px]' : 'lg:pl-64'
+          publicMode ? '' : isSidebarCollapsed ? 'lg:pl-[68px]' : 'lg:pl-64'
         }`}
       >
         {!publicMode && (
@@ -187,7 +189,7 @@ function AppShell() {
         )}
 
         {publicMode && (
-          <div className="fixed top-4 right-4 z-40 flex items-center gap-2">
+          <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-5 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={toggleTheme}
@@ -207,7 +209,7 @@ function AppShell() {
           </div>
         )}
 
-        <main className={`flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto ${publicMode ? 'pt-20' : ''}`} role="main">
+        <main className={`flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto ${publicMode ? '' : ''}`} role="main">
           {activeTab === 'about' && <AboutPage onStartAnalysis={handleStartRequirementWorkflow} />}
 
           {activeTab === 'overview' && (
