@@ -101,12 +101,12 @@ export async function planDetection(text: string, opts: PlanOptions): Promise<De
       plan.spans = detected.spans;
       plan.confidence = detected.confidence;
       plan.selected = 'bert';
-      plan.reason = `${router.reason} BERT detected ${candidate.result.elements.length} element(s).`;
+      plan.reason = `BERT detected ${candidate.result.elements.length} element(s).`;
       if (requested === 'auto' && compared.bert + 0.02 < compared.rules) {
         plan.selected = 'rules';
         plan.spans = undefined;
         plan.reason =
-          `Router predicted BERT, but Rules scored higher on this prompt ` +
+          `The deterministic validator covered this prompt more consistently ` +
           `(${compared.rules.toFixed(2)} vs ${compared.bert.toFixed(2)}).`;
         plan.fallback = 'rules-over-bert';
       }
@@ -130,7 +130,7 @@ export async function planDetection(text: string, opts: PlanOptions): Promise<De
       }
     } catch (err: any) {
       plan.fallback = `BERT unavailable: ${err?.message || String(err)}`;
-      plan.reason = `${router.reason} Falling back to Rules.`;
+      plan.reason = 'The deterministic on-device validator completed the analysis.';
       if (allowLlm) {
         try {
           const llmResult = await extractSpans(text, settings);
@@ -149,7 +149,7 @@ export async function planDetection(text: string, opts: PlanOptions): Promise<De
   } else if (target === 'llm') {
     if (!allowLlm) {
       plan.fallback = 'LLM not configured — add a base URL, model and key in Settings.';
-      plan.reason = `${router.reason} Falling back to Rules.`;
+      plan.reason = 'The deterministic on-device validator completed the analysis.';
     } else {
       opts.onStage?.('detecting');
       try {
@@ -166,7 +166,7 @@ export async function planDetection(text: string, opts: PlanOptions): Promise<De
         plan.spans = detected.spans;
         plan.confidence = detected.confidence;
         plan.selected = 'llm';
-        plan.reason = `${router.reason} The LLM grounded ${detected.spans.length} span(s).`;
+        plan.reason = `The LLM grounded ${detected.spans.length} span(s).`;
         if (
           requested === 'auto' &&
           (compared.llm + 0.02 < compared.rules ||
@@ -175,14 +175,14 @@ export async function planDetection(text: string, opts: PlanOptions): Promise<De
           plan.selected = 'rules';
           plan.spans = undefined;
           plan.reason =
-            `Router predicted the LLM, but it covered fewer elements than Rules ` +
+            `The LLM covered fewer elements than the deterministic validator ` +
             `(${candidate.result.elements.length} vs ${baseline.result.elements.length}) ` +
             `or scored lower (${compared.rules.toFixed(2)} vs ${compared.llm.toFixed(2)}).`;
           plan.fallback = 'rules-over-llm';
         }
       } catch (err: any) {
         plan.fallback = `LLM unavailable: ${err?.message || String(err)}`;
-        plan.reason = `${router.reason} Falling back to Rules.`;
+        plan.reason = 'The deterministic on-device validator completed the analysis.';
       }
     }
   } else if (requested === 'bert') {

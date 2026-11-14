@@ -461,8 +461,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
           </p>
           <p>
             The final prompt is built from the confirmed checklist and placeholders. The LLM cannot
-            silently add a colour, location or action that the user did not provide, and rules remain
-            an internal validator rather than a user-facing mode.
+            silently add a colour, location or action that the user did not provide; a deterministic
+            on-device validator double-checks every attribute without inventing new ones.
           </p>
           <p className="text-[#30494B] font-medium bg-[#F6F4EC] p-3 rounded-lg border border-[#E5E2D8]">
             The risk score is a heuristic, not a guarantee. It highlights missing details and

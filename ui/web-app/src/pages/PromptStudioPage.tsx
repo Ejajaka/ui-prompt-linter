@@ -19,7 +19,7 @@ import {
   listAcceptanceCriteria,
   loadSuggestions,
 } from '../services/requirements/acceptanceRepository.ts';
-import { generateProfessionalPrompt } from '../services/generation/promptGenerator.ts';
+import { generateProfessionalPrompt, selectBriefInputs } from '../services/generation/promptGenerator.ts';
 import { compareVersions, listPromptVersions, savePromptVersion } from '../services/generation/promptVersions.ts';
 import { DEFAULT_DESIGN_SYSTEM } from '../types/designSystem.ts';
 import { listDesignSystems } from '../services/generation/designSystems.ts';
@@ -109,6 +109,22 @@ export const PromptStudioPage: React.FC = () => {
   const selected = versions.find((version) => version.id === selectedVersion) || versions[0] || null;
   const previous = selected ? versions.find((version) => version.version === selected.version - 1) : null;
   const comparison = previous && selected ? compareVersions(previous, selected) : null;
+  const briefInputs = selectBriefInputs({
+    projectName: currentProject?.name || 'Untitled project',
+    requirements,
+    suggestions,
+    criteria,
+    designSystem,
+  });
+  const sourceCounts = {
+    approvedRequirements: briefInputs.approvedRequirements.length,
+    totalRequirements: requirements.length,
+    approvedCriteria: briefInputs.approvedCriteria.length,
+    totalCriteria: criteria.length,
+    acceptedSuggestions: briefInputs.acceptedSuggestions.length,
+    totalSuggestions: suggestions.length,
+    unresolvedSuggestions: briefInputs.unresolvedSuggestions.length,
+  };
 
   useEffect(() => {
     if (!currentProject || localMode) return;
@@ -217,15 +233,44 @@ export const PromptStudioPage: React.FC = () => {
                 {designSystems.map((system) => <option key={system.id} value={system.id}>{system.name}</option>)}
               </select>
             </label>
-            <h2 className="text-sm font-bold text-[#283638] mt-4">Source of truth</h2>
+            <div className="flex items-center justify-between gap-2 mt-4">
+              <h2 className="text-sm font-bold text-[#283638]">Source of truth</h2>
+              <span className="text-[9px] font-bold uppercase tracking-wide text-[#737A72]">live from this project</span>
+            </div>
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5"><span className="text-[#737A72] block text-[10px]">Requirements</span><b className="font-mono">{generated.specification.includedRequirementCodes.length}</b></div>
-              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5"><span className="text-[#737A72] block text-[10px]">Criteria</span><b className="font-mono">{generated.specification.includedCriterionCount}</b></div>
-              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5"><span className="text-[#737A72] block text-[10px]">Approved suggestions</span><b className="font-mono">{generated.specification.approvedSuggestionIds.length}</b></div>
-              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5"><span className="text-[#737A72] block text-[10px]">Unresolved assumptions</span><b className="font-mono">{generated.specification.unresolvedSuggestionIds.length}</b></div>
+              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5">
+                <span className="text-[#737A72] block text-[10px]">Requirements</span>
+                <b className="font-mono">{sourceCounts.approvedRequirements} / {sourceCounts.totalRequirements}</b>
+                <span className="block text-[9px] text-[#737A72] mt-0.5">approved · Requirement Compiler</span>
+              </div>
+              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5">
+                <span className="text-[#737A72] block text-[10px]">Criteria</span>
+                <b className="font-mono">{sourceCounts.approvedCriteria} / {sourceCounts.totalCriteria}</b>
+                <span className="block text-[9px] text-[#737A72] mt-0.5">approved · Review &amp; Acceptance</span>
+              </div>
+              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5">
+                <span className="text-[#737A72] block text-[10px]">Approved suggestions</span>
+                <b className="font-mono">{sourceCounts.acceptedSuggestions} / {sourceCounts.totalSuggestions}</b>
+                <span className="block text-[9px] text-[#737A72] mt-0.5">accepted · Review &amp; Acceptance</span>
+              </div>
+              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5">
+                <span className="text-[#737A72] block text-[10px]">Unresolved assumptions</span>
+                <b className="font-mono">{sourceCounts.unresolvedSuggestions}</b>
+                <span className="block text-[9px] text-[#737A72] mt-0.5">pending · Review &amp; Acceptance</span>
+              </div>
             </div>
             <p className="text-[10px] text-[#737A72] mt-2 leading-relaxed">
-              Only approved requirements become confirmed source text. Pending items remain visibly marked.
+              {briefInputs.isDraft
+                ? 'No requirement has been approved yet, so the brief is a draft: pending requirements and criteria are included and marked as pending.'
+                : `The prompt includes ${briefInputs.requirements.length} approved requirement(s) and ${briefInputs.criteria.length} approved criterion/criteria for ${currentProject?.name || 'this project'}; rejected and unapproved items are excluded.`}
+              {!briefInputs.isDraft && sourceCounts.approvedCriteria === 0 && (
+                <span className="block mt-1 text-[#856C16]">
+                  No acceptance criteria are approved yet, so section 6 will state that explicitly.
+                </span>
+              )}
+            </p>
+            <p className="text-[10px] text-[#737A72] mt-1 leading-relaxed">
+              Design Guidelines come from the selected design system: <b className="text-[#283638]">{designSystem.name}</b>.
             </p>
           </div>
 

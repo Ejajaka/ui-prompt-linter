@@ -86,6 +86,19 @@ Actions `tests` and `pages-build-deployment` all pass.
 | Header order: log out, settings, theme; engine badge removed | Done |
 | User manual | `docs/USER-MANUAL.md` |
 
+## UX revision 2 — 14 November 2026
+
+| Requirement | Status |
+| --- | --- |
+| New Analysis shows and switches the project the run is saved to | Done |
+| Analysis History has a project dropdown to inspect another project | Done |
+| Remaining "rule"/"rules" wording removed from the web UI | Done |
+| Source of truth shows approved/total plus its data source | Done |
+| Unapproved criteria are excluded from an approved brief | Done |
+| Signed-in navigation excludes About and Overview; default is Projects | Done |
+| Public pages have no title bar; only theme + Sign in | Done |
+| Header order: theme, settings, log out | Done |
+
 ## Manual actions still required
 
 1. Delete the temporary test account

@@ -189,39 +189,15 @@ export const Header: React.FC<HeaderProps> = ({
                   Local mode
                 </span>
               ) : (
-                <>
-                  <span
-                    className="hidden xl:inline-flex items-center gap-1 text-[11px] text-[#737A72] dark:text-[#8E9A93] max-w-[150px] truncate"
-                    title={user?.email || ''}
-                  >
-                    <UserRound className="w-3 h-3 shrink-0" />
-                    {user?.email}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmingLogout(true)}
-                    className="p-2 rounded-lg text-[#737A72] dark:text-[#8E9A93] hover:text-[#283638] dark:hover:text-white hover:bg-[#F6F4EC] dark:hover:bg-[#263335] transition-colors"
-                    aria-label="Log out"
-                    title="Log out"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </>
+                <span
+                  className="hidden xl:inline-flex items-center gap-1 text-[11px] text-[#737A72] dark:text-[#8E9A93] max-w-[150px] truncate"
+                  title={user?.email || ''}
+                >
+                  <UserRound className="w-3 h-3 shrink-0" />
+                  {user?.email}
+                </span>
               )}
             </>
-          )}
-
-          {!publicMode && (
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`p-2 rounded-lg text-[#737A72] dark:text-[#8E9A93] hover:text-[#283638] dark:hover:text-white hover:bg-[#F6F4EC] dark:hover:bg-[#263335] transition-colors ${
-                activeTab === 'settings' ? 'bg-[#F6F4EC] dark:bg-[#263335] text-[#283638] dark:text-white' : ''
-              }`}
-              aria-label="Open settings"
-              title="Open settings"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
           )}
 
           <button
@@ -237,6 +213,31 @@ export const Header: React.FC<HeaderProps> = ({
               <Moon className="w-4 h-4 text-[#49686C]" />
             )}
           </button>
+
+          {!publicMode && (
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`p-2 rounded-lg text-[#737A72] dark:text-[#8E9A93] hover:text-[#283638] dark:hover:text-white hover:bg-[#F6F4EC] dark:hover:bg-[#263335] transition-colors ${
+                activeTab === 'settings' ? 'bg-[#F6F4EC] dark:bg-[#263335] text-[#283638] dark:text-white' : ''
+              }`}
+              aria-label="Open settings"
+              title="Open settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          )}
+
+          {!publicMode && !localMode && (
+            <button
+              type="button"
+              onClick={() => setConfirmingLogout(true)}
+              className="p-2 rounded-lg text-[#737A72] dark:text-[#8E9A93] hover:text-[#283638] dark:hover:text-white hover:bg-[#F6F4EC] dark:hover:bg-[#263335] transition-colors"
+              aria-label="Log out"
+              title="Log out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </header>
 

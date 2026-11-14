@@ -27,7 +27,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
   onOpenProjects
 }) => {
   const { toast } = useToast();
-  const { currentProject } = useProject();
+  const { projects, currentProject, selectProject } = useProject();
   const [search, setSearch] = useState('');
   const [riskFilter, setRiskFilter] = useState<RiskLevel | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'date_desc' | 'risk_desc' | 'coverage_asc'>('date_desc');
@@ -110,6 +110,18 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          <select
+            value={currentProject?.id || ''}
+            onChange={(event) => selectProject(event.target.value)}
+            className="py-2 px-3 text-xs bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg text-[#283638] focus:outline-none focus:border-[#49686C] max-w-[180px]"
+            aria-label="Project to view history for"
+          >
+            {!currentProject && <option value="">Select project</option>}
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>{project.name}</option>
+            ))}
+          </select>
+
           {/* Risk Level Filter */}
           <select
             value={riskFilter}

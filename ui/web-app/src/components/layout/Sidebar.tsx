@@ -61,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const visibleItems = publicMode
     ? navItems.filter((item) => ['about', 'overview', 'privacy'].includes(item.id))
-    : navItems;
+    : navItems.filter((item) => item.id !== 'about' && item.id !== 'overview');
 
   const handleNavClick = (id: ActiveTab) => {
     setActiveTab(id);

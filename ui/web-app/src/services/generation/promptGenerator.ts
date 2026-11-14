@@ -55,33 +55,71 @@ function components(input: SpecificationInput): string[] {
   return [...values];
 }
 
+export interface BriefSelection {
+  isDraft: boolean;
+  requirements: RequirementRecord[];
+  criteria: AcceptanceCriterion[];
+  approvedRequirements: RequirementRecord[];
+  pendingRequirements: RequirementRecord[];
+  acceptedSuggestions: RequirementSuggestion[];
+  unresolvedSuggestions: RequirementSuggestion[];
+  approvedCriteria: AcceptanceCriterion[];
+  pendingCriteria: AcceptanceCriterion[];
+}
+
+/**
+ * Single source of truth for what enters the brief.
+ * - Confirmed requirements: approved ones, or pending ones while the project is
+ *   still a draft (no approval yet).
+ * - Criteria: approved criteria only. Pending criteria are used only in draft
+ *   mode, so an approved brief never claims unapproved tests.
+ */
+export function selectBriefInputs(input: SpecificationInput): BriefSelection {
+  const approvedRequirements = input.requirements.filter((requirement) => requirement.status === 'approved');
+  const pendingRequirements = input.requirements.filter(
+    (requirement) => requirement.status !== 'approved' && requirement.status !== 'rejected'
+  );
+  const isDraft = approvedRequirements.length === 0;
+  const requirements = isDraft ? pendingRequirements : approvedRequirements;
+
+  const approvedCriteria = input.criteria.filter((criterion) => criterion.status === 'approved');
+  const pendingCriteria = input.criteria.filter((criterion) => criterion.status === 'pending_review');
+  const criteria = approvedCriteria.length ? approvedCriteria : isDraft ? pendingCriteria : [];
+
+  return {
+    isDraft,
+    requirements,
+    criteria,
+    approvedRequirements,
+    pendingRequirements,
+    acceptedSuggestions: input.suggestions.filter((suggestion) => suggestion.status === 'accepted'),
+    unresolvedSuggestions: input.suggestions.filter((suggestion) => suggestion.status === 'pending_review'),
+    approvedCriteria,
+    pendingCriteria,
+  };
+}
+
 export function buildSpecification(input: SpecificationInput): Specification {
   const design = input.designSystem || DEFAULT_DESIGN_SYSTEM;
-  const approvedRequirements = input.requirements.filter((requirement) => requirement.status === 'approved');
-  const pendingRequirements = input.requirements.filter((requirement) => requirement.status !== 'approved' && requirement.status !== 'rejected');
-  const confirmed = approvedRequirements.length ? approvedRequirements : pendingRequirements;
-  const isDraft = approvedRequirements.length === 0;
-  const acceptedSuggestions = input.suggestions.filter((suggestion) => suggestion.status === 'accepted');
-  const unresolvedSuggestions = input.suggestions.filter((suggestion) => suggestion.status === 'pending_review');
-  const approvedCriteria = input.criteria.filter((criterion) => criterion.status === 'approved');
-  const fallbackCriteria = input.criteria.filter((criterion) => criterion.status === 'pending_review');
-  const criteria = approvedCriteria.length ? approvedCriteria : fallbackCriteria;
+  const selection = selectBriefInputs(input);
+  const confirmed = selection.requirements;
+  const criteria = selection.criteria;
   const screenNames = screens(input);
   const componentNames = components(input);
 
   return {
-    status: isDraft ? 'Draft - pending requirement approval' : 'Ready for design',
+    status: selection.isDraft ? 'Draft - pending requirement approval' : 'Ready for design',
     taskTitle: input.projectName || 'UI/UX design task',
     category: 'UI/UX Design',
     platform: input.platform || 'Responsive web',
     applicationType: input.applicationType || 'Web application',
     objective: `Design a complete, accessible ${input.applicationType || 'web application'} interface for ${input.projectName} that fulfils the confirmed company requirements and is ready for UI generation.`,
     problemStatement:
-      'The company requirements need to be turned into a coherent, unambiguous interface specification before design or code generation. Missing states, conflicting rules and unresolved assumptions can otherwise produce an incomplete interface.',
+      'The company requirements need to be turned into a coherent, unambiguous interface specification before design or code generation. Missing states, conflicting requirements and unresolved assumptions can otherwise produce an incomplete interface.',
     confirmedRequirementIds: confirmed.map((requirement) => requirement.id),
-    pendingRequirementIds: isDraft ? [] : pendingRequirements.map((requirement) => requirement.id),
-    approvedSuggestionIds: acceptedSuggestions.map((suggestion) => suggestion.id),
-    unresolvedSuggestionIds: unresolvedSuggestions.map((suggestion) => suggestion.id),
+    pendingRequirementIds: selection.isDraft ? [] : selection.pendingRequirements.map((requirement) => requirement.id),
+    approvedSuggestionIds: selection.acceptedSuggestions.map((suggestion) => suggestion.id),
+    unresolvedSuggestionIds: selection.unresolvedSuggestions.map((suggestion) => suggestion.id),
     acceptanceCriterionIds: criteria.map((criterion) => criterion.id),
     includedRequirementCodes: confirmed.map((requirement) => requirement.requirementCode),
     includedCriterionCount: criteria.length,
@@ -94,14 +132,12 @@ export function buildSpecification(input: SpecificationInput): Specification {
 export function generateProfessionalPrompt(input: SpecificationInput): { prompt: string; specification: Specification } {
   const design = input.designSystem || DEFAULT_DESIGN_SYSTEM;
   const specification = buildSpecification({ ...input, designSystem: design });
-  const approved = input.requirements.filter((requirement) => requirement.status === 'approved');
-  const pending = input.requirements.filter((requirement) => requirement.status !== 'approved' && requirement.status !== 'rejected');
-  const shownRequirements = approved.length ? approved : pending;
-  const isDraft = approved.length === 0;
-  const accepted = input.suggestions.filter((suggestion) => suggestion.status === 'accepted');
-  const unresolved = input.suggestions.filter((suggestion) => suggestion.status === 'pending_review');
-  const approvedCriteria = input.criteria.filter((criterion) => criterion.status === 'approved');
-  const criteria = approvedCriteria.length ? approvedCriteria : input.criteria.filter((criterion) => criterion.status === 'pending_review');
+  const selection = selectBriefInputs(input);
+  const shownRequirements = selection.requirements;
+  const isDraft = selection.isDraft;
+  const accepted = selection.acceptedSuggestions;
+  const unresolved = selection.unresolvedSuggestions;
+  const criteria = selection.criteria;
   const screenNames = screens(input);
   const componentNames = components(input);
   const deliverables = [
@@ -188,7 +224,7 @@ export function generateProfessionalPrompt(input: SpecificationInput): { prompt:
       lines.push(`- Given ${criterion.given.replace(/^Given\s+/i, '')}, when ${criterion.when.replace(/^when\s+/i, '')}, then ${criterion.then.replace(/^then\s+/i, '')}.`);
     }
   } else {
-    lines.push('- No measurable acceptance criteria have been approved or generated yet.');
+    lines.push('- No acceptance criteria have been approved for the confirmed requirements yet.');
   }
 
   lines.push(

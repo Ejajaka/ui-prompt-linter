@@ -10,7 +10,7 @@ import type { DetectedSpan } from './bertEngine';
 
 const SYSTEM_EXTRACT = `You are a UI prompt analyser. Extract UI elements and their explicitly stated attributes.
 Allowed element types: button, navbar, input, card, modal, image, dropdown, sidebar, footer, checkbox.
-Rules:
+Constraints:
 - Only extract elements that are explicitly mentioned.
 - Copy attribute values verbatim from the prompt. Never paraphrase.
 - Omit an attribute if it is not stated or is vague (e.g. "some nice colour").
@@ -21,7 +21,7 @@ Rules:
 const SYSTEM_EXPLAIN = `You explain a deterministic risk score for a UI prompt and give recommendations.
 You receive the already-computed score, its components, detected elements, missing details,
 unresolved clarification questions, and deterministic suggestions.
-Rules:
+Constraints:
 - Do not recompute or change the score.
 - Do not invent elements, attributes, colours, locations, actions or labels.
 - Use placeholders for anything unresolved.

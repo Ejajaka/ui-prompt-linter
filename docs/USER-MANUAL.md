@@ -17,8 +17,9 @@ This manual covers every page and control in the web app at
 ### 1.1 Visiting for the first time
 
 New visitors land on **About**, not on a login wall. You can read the product
-explanation and open **Overview** to explore the feature set. Both public pages
-show a **Sign in** button in the header and in the sidebar footer.
+explanation and open **Overview** to explore the feature set. Public pages have no
+title bar: only a floating dark-mode toggle and a **Sign in** button appear in the
+top-right corner, plus the sidebar navigation.
 
 Nothing behind the workspace is accessible until you sign in. Selecting a
 protected area while signed out opens the sign-in screen instead.
@@ -49,7 +50,9 @@ password is saved.
 ### 1.5 What happens after sign-in
 
 - If this browser has visited a page before, Vector returns you to it.
-- Otherwise you start on **Overview**.
+- Otherwise you start on **Projects**.
+- About and Overview are public onboarding pages; they are not shown in the
+  signed-in sidebar.
 - The last visited page is remembered per account, so refreshing, closing the
   tab, signing out and signing back in all restore the same page.
 - Guests keep a separate remembered page for the public site.
@@ -69,8 +72,8 @@ order.
 
 | Page | Purpose |
 | --- | --- |
-| About & Overview | Product explanation and feature tour |
-| Overview | Project dashboard and prompt-analysis metrics |
+| About & Overview | Public onboarding: product explanation and feature tour |
+| Overview | Public onboarding: full feature overview and sign-in call to action |
 | Projects | Create, edit, switch and delete workspaces |
 | Requirement Compiler | Upload documents and approve requirements |
 | Requirement Intelligence | Requirement graph, ambiguities, conflicts, dependencies |
@@ -93,9 +96,12 @@ From left to right:
 1. **Page title and breadcrumb subtitle**
 2. **Project switcher** — a dropdown listing every project. Choosing one
    changes the active project everywhere without leaving the page.
-3. **Log out** — always asks for confirmation.
+3. **Light / dark mode**
 4. **Settings**
-5. **Light / dark mode**
+5. **Log out** — always asks for confirmation.
+
+Public pages render no title bar at all; only the dark-mode toggle and Sign in
+are shown, in that order.
 
 The email address is shown on very wide screens. In local mode (no Supabase
 configured) a "Local mode" badge replaces the account controls.
@@ -125,7 +131,8 @@ choose **Save changes**. Existing documents and requirements are unaffected.
 
 Use the project switcher in the header, or select the arrow on a project row.
 The switcher also contains **Manage projects**. Switching projects updates
-every page in place.
+every page in place. Analysis History also has its own project dropdown for
+looking into another project's records.
 
 ### 3.4 Deleting a project
 
@@ -176,7 +183,7 @@ document appears under **Documents** and the compiled statements appear under
 
 Select **Prioritize** to classify every requirement. Security, payments,
 authentication, permissions and accessibility become critical; mandatory
-user-facing flows become high; cosmetic rules become low.
+user-facing flows become high; cosmetic requirements become low.
 
 ### 4.5 Approving and rejecting
 
@@ -400,8 +407,8 @@ The preview URL is remembered per project.
 The web app exposes **BERT only**. A fine-tuned DistilBERT model runs
 on-device. If confidence is below the threshold and an LLM endpoint is
 configured in Settings, the LLM is asked automatically for a second opinion.
-Deterministic rules remain an internal validator and are not a user-facing
-mode.
+A deterministic on-device validator double-checks the result and is not a
+user-facing mode.
 
 ### 10.2 Project scope
 
@@ -430,8 +437,8 @@ questions. Answer them, or choose placeholders, to finish.
 
 ### 10.5 Saving and history
 
-Completed analyses are saved automatically to the active project. They appear
-in **Analysis History** and the **Overview** dashboard only for that project.
+Select the project this analysis belongs to directly on the page. Completed
+analyses are saved to that project and appear only in its **Analysis History**.
 
 ### 10.6 Reopening an analysis
 
@@ -442,9 +449,13 @@ another project, switches to that project first so the context matches.
 
 ## 11. Overview and Analysis History
 
-### 11.1 Overview
+### 11.1 Public Overview
 
-The signed-in dashboard shows, for the active project only:
+Overview is a public feature tour, shown before sign-in. It explains the eight
+capabilities and ends with a sign-in call to action. The signed-in app starts on
+Projects instead.
+
+### 11.2 Analysis History
 
 - total analyses
 - average risk score
@@ -456,10 +467,10 @@ The signed-in dashboard shows, for the active project only:
 If no project is active, the dashboard explains that analyses are project
 scoped and offers a shortcut to Projects.
 
-### 11.2 Analysis History
-
-History lists the active project's analyses. Search by prompt or element,
-filter by risk level and sort by date, risk or completeness.
+History lists project-scoped analyses. Use the project dropdown at the top to
+switch which project you are looking into; the header project switches with it.
+Search by prompt or element, filter by risk level and sort by date, risk or
+completeness.
 
 - **Clear All** clears this project's history only, after confirmation.
 - Delete a single record with the bin icon; a confirmation dialog appears.
@@ -577,7 +588,7 @@ and redirect URLs.
 | Suggestion | AI-inferred behaviour or edge case awaiting human review |
 | Acceptance criterion | Given/When/Then testable statement linked to a requirement |
 | Specification | Structured brief data used to render the six-section prompt |
-| Design tokens | Colour, type, spacing, radius and brand rules |
+| Design tokens | Colour, type, spacing, radius and brand guidelines |
 | Baseline | Snapshot of requirements used for regression comparison |
 | Analysis run | A single prompt evaluation stored in a project |
 | RLS | Row-level security in Supabase |

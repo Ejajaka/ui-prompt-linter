@@ -136,7 +136,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
             </span>
           </div>
           <p className="text-xs text-[#283638] leading-relaxed pl-6">
-            BERT runs first. If its confidence is low, the configured OpenAI-compatible endpoint is asked for a second opinion. Rules remain an internal deterministic validator, not a user-facing mode.
+            BERT runs first. If its confidence is low, the configured OpenAI-compatible endpoint is asked for a second opinion. A deterministic on-device validator double-checks the result, but it is not a user-facing mode.
           </p>
         </div>
 
@@ -151,7 +151,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
         <div className="p-3.5 rounded-lg bg-[#FAFAF8] border border-[#E5E2D8] text-xs text-[#737A72] leading-relaxed">
           <b className="text-[#283638]">In this web app</b> BERT runs on your device through a quantized ONNX model.
           It downloads about 67 MB once and caches it in your browser; a configured LLM provides a second opinion,
-          while rules remain an internal deterministic validator. You can also use the{' '}
+          while a deterministic validator double-checks the result. You can also use the{' '}
           <a href={ENGINE_URL} target="_blank" rel="noreferrer" className="underline text-[#49686C]">
             full Streamlit engine
           </a>{' '}

@@ -22,7 +22,7 @@ const FIELDS: Array<{ key: keyof DesignTokens; label: string; multiline?: boolea
   { key: 'accentColor', label: 'Accent colour' },
   { key: 'typography', label: 'Typography' },
   { key: 'fontSizes', label: 'Font sizes' },
-  { key: 'spacing', label: 'Spacing rules' },
+  { key: 'spacing', label: 'Spacing scale' },
   { key: 'borderRadius', label: 'Border radius' },
   { key: 'shadows', label: 'Shadows' },
   { key: 'navigationPattern', label: 'Navigation pattern' },

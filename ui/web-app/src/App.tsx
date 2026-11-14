@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { LogIn, Moon, Sun } from 'lucide-react';
 import type { ActiveTab, AnalysisResult } from './types/analysis.ts';
 import { ToastProvider } from './components/ui/Toast.tsx';
-import { ThemeProvider } from './context/ThemeContext.tsx';
+import { ThemeProvider, useTheme } from './context/ThemeContext.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { ProjectProvider, useProject } from './context/ProjectContext.tsx';
 import { Sidebar } from './components/layout/Sidebar.tsx';
@@ -50,6 +51,7 @@ function tabStorageKey(userId: string | undefined): string {
 
 function AppShell() {
   const { configured, loading, user, passwordRecovery } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const { projects, currentProject, selectProject } = useProject();
   const [activeTab, setActiveTab] = useState<ActiveTab>('about');
   const [showAuth, setShowAuth] = useState(false);
@@ -63,7 +65,7 @@ function AppShell() {
 
   // Restore the last visited tab for this account (or for guests).
   useEffect(() => {
-    let next: ActiveTab = user ? 'overview' : 'about';
+    let next: ActiveTab = user ? 'projects' : 'about';
     try {
       const saved = localStorage.getItem(tabStorageKey(user?.id));
       if (isKnownTab(saved)) next = saved;
@@ -71,6 +73,7 @@ function AppShell() {
       // ignore storage failures
     }
     if (!user && !PUBLIC_TABS.includes(next)) next = 'about';
+    if (user && (next === 'about' || next === 'overview')) next = 'projects';
     setActiveTab(next);
     setTabHydrated(true);
   }, [user?.id]);
@@ -89,7 +92,11 @@ function AppShell() {
   // Guests cannot open authenticated areas.
   useEffect(() => {
     if (publicMode && !PUBLIC_TABS.includes(activeTab)) setActiveTab('about');
-  }, [publicMode, activeTab]);
+    if (user && (activeTab === 'about' || activeTab === 'overview')) {
+      // About and Overview are public onboarding pages only.
+      setActiveTab('projects');
+    }
+  }, [publicMode, user, activeTab]);
 
   useEffect(() => {
     if (user) setShowAuth(false);
@@ -169,15 +176,38 @@ function AppShell() {
           isSidebarCollapsed ? 'lg:pl-[68px]' : 'lg:pl-64'
         }`}
       >
-        <Header
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          onOpenMobileMenu={() => setIsMobileNavOpen(true)}
-          publicMode={publicMode}
-          onRequestSignIn={() => requestAuth()}
-        />
+        {!publicMode && (
+          <Header
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            onOpenMobileMenu={() => setIsMobileNavOpen(true)}
+            publicMode={publicMode}
+            onRequestSignIn={() => requestAuth()}
+          />
+        )}
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto" role="main">
+        {publicMode && (
+          <div className="fixed top-4 right-4 z-40 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="w-9 h-9 rounded-lg bg-[#FFFFFF] dark:bg-[#1B2426] border border-[#E5E2D8] dark:border-[#33403F] text-[#49686C] dark:text-[#B9D1D4] flex items-center justify-center shadow-sm hover:bg-[#F6F4EC] dark:hover:bg-[#222E30]"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-[#D1B653]" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => requestAuth()}
+              className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-lg bg-[#49686C] hover:bg-[#30494B] text-white text-xs font-bold shadow-sm"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              Sign in
+            </button>
+          </div>
+        )}
+
+        <main className={`flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto ${publicMode ? 'pt-20' : ''}`} role="main">
           {activeTab === 'about' && <AboutPage onStartAnalysis={handleStartRequirementWorkflow} />}
 
           {activeTab === 'overview' && (

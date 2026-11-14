@@ -46,17 +46,18 @@ export const PrivacyPage: React.FC = () => {
 
       <Section icon={<Cpu className="w-4 h-4 text-[#49686C]" />} title="How analysis works">
         <p>
-          The deterministic <strong>Rules</strong> engine runs entirely on your device — in the browser (via
-          Pyodide), in the extension popup, and on-device in the Android app. Your prompt never leaves your device
-          for Rules-based analysis.
+          A fine-tuned BERT model runs on your device — in the browser, in the extension popup, and on-device in
+          the Android app. A deterministic validator double-checks every attribute, and your prompt never leaves
+          your device for that analysis.
         </p>
         <p>
-          The optional <strong>BERT</strong> engine loads a quantized DistilBERT model in your browser and runs
-          locally. It does not upload your prompt.
+          BERT loads a quantized DistilBERT model in your browser and runs locally. It does not upload your
+          prompt.
         </p>
         <p>
-          The optional <strong>LLM</strong> engine only runs if you add an OpenAI-compatible endpoint and API key in
-          Settings. When you use it, your prompt is sent to that endpoint you configure — no other third party.
+          The optional <strong>LLM</strong> second opinion only runs when BERT confidence is low and you have added
+          an OpenAI-compatible endpoint and API key in Settings. When it runs, your prompt is sent to that endpoint
+          you configure — no other third party.
         </p>
       </Section>
 

@@ -304,7 +304,7 @@ function ClarificationForm({
 }
 
 export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult, onViewHistory, onOpenProjects }) => {
-  const { currentProject } = useProject();
+  const { projects, currentProject, selectProject } = useProject();
   const { toast } = useToast();
   const [engineState, setEngineState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engineError, setEngineError] = useState('');
@@ -578,9 +578,22 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
           )}
         </div>
       ) : (
-        <div className="inline-flex items-center gap-2 text-[11px] text-[#49686C]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#688E5E]" />
-          Saving this run to <b>{currentProject.name}</b>
+        <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#49686C]">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#688E5E]" />
+            Saving this run to
+          </span>
+          <select
+            value={currentProject.id}
+            onChange={(event) => selectProject(event.target.value)}
+            className="px-2.5 py-1.5 rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] text-[11px] font-semibold text-[#283638] focus:bg-white focus:outline-none focus:border-[#49686C]"
+            aria-label="Project this analysis is saved to"
+          >
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>{project.name}</option>
+            ))}
+          </select>
+          <span className="text-[#737A72]">· history and Overview stay scoped to this project</span>
         </div>
       )}
 
@@ -712,7 +725,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             <div className="flex items-center gap-2 text-xs text-[#737A72]">
               <Sparkles className="w-4 h-4 text-[#D1B653] shrink-0" />
               <span>
-                BERT runs on-device. If confidence is low, the configured LLM provides an automatic second opinion; rules remain an internal validator.
+                BERT runs on-device. If confidence is low, the configured LLM provides an automatic second opinion.
               </span>
             </div>
             <div className="flex items-center gap-2.5 self-end sm:self-auto">
@@ -847,32 +860,26 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             )}
           </div>
 
-          {/* Routing provenance */}
+          {/* Detection provenance */}
           {payload.router && (
             <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] shadow-xs p-4">
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="text-xs font-bold text-[#283638]">How this prompt was routed</div>
+                <div className="text-xs font-bold text-[#283638]">Detection</div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-[#CFE2C8] bg-[#F4F9F1] text-[#3E6B33]">
-                  {String((payload.router as any).selected || payload.engine)} ·{' '}
-                  {String((payload.router as any).selected_by || 'router+confidence')}
+                  {payload.engine === 'llm'
+                    ? 'BERT + LLM second opinion'
+                    : payload.engine === 'rules'
+                      ? 'Deterministic validator'
+                      : 'BERT · on-device'}
                 </span>
               </div>
-              <p className="text-xs text-[#737A72] mt-1.5">{plan?.reason || payload.router.reason}</p>
-              {plan && Object.keys(plan.compared).length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                  <span className="text-[10px] text-[#737A72]">Candidates:</span>
-                  {Object.entries(plan.compared).map(([name, score]) => (
-                    <span key={name} className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[#E5E2D8] bg-[#FAFAF8]">
-                      <b className="text-[#49686C] uppercase">{name}</b> {score.toFixed(2)}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {plan?.fallback && (
-                <div className="text-[11px] text-[#856C16] bg-[#FEFCE8] border border-[#FEF08A] rounded-md px-2 py-1.5 mt-2">
-                  Fallback: {plan.fallback}
-                </div>
-              )}
+              <p className="text-xs text-[#737A72] mt-1.5">
+                {payload.engine === 'llm'
+                  ? 'BERT confidence was low for this prompt, so the configured LLM was asked for a second opinion. Only values present in the prompt are kept.'
+                  : payload.engine === 'rules'
+                    ? 'BERT was unavailable, so the deterministic on-device validator completed this analysis.'
+                    : `BERT labelled ${payload.result.elements.length} element(s) directly in your browser.`}
+              </p>
             </div>
           )}
 
@@ -983,7 +990,7 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
             <div className="lg:col-span-7 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-base font-bold text-[#283638]">Detected elements ({payload.result.elements.length})</div>
-                <div className="text-[11px] text-[#737A72]">Extracted by the {payload.engine === 'llm' ? 'LLM' : payload.engine === 'bert' ? 'BERT' : 'Rules'} engine</div>
+                <div className="text-[11px] text-[#737A72]">Extracted by {payload.engine === 'llm' ? 'BERT with an LLM second opinion' : payload.engine === 'rules' ? 'the deterministic validator' : 'BERT (on-device)'}</div>
               </div>
               {payload.result.elements.length === 0 ? (
                 <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl p-8 text-center text-xs text-[#737A72]">
@@ -1059,25 +1066,13 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
               Why this engine and score?
             </summary>
             <div className="px-5 pb-4 text-xs text-[#737A72] space-y-1.5">
-              <p><b className="text-[#283638]">Engine used for the score:</b> <code className="font-mono">{payload.engine}</code></p>
-              <p><b className="text-[#283638]">Router:</b> {plan?.reason || payload.router?.reason || 'manual selection'}</p>
-              {plan && (
-                <p>
-                  <b className="text-[#283638]">Candidates (confidence + detail):</b>{' '}
-                  {Object.entries(plan.compared)
-                    .map(([name, score]) => `${name} ${score.toFixed(2)}`)
-                    .join(' · ')}
-                </p>
-              )}
-              {plan?.fallback && (
-                <p className="text-[#856C16]"><b>Fallback:</b> {plan.fallback}</p>
-              )}
+              <p><b className="text-[#283638]">Engine used:</b> <code className="font-mono">{payload.engine === 'llm' ? 'BERT + LLM second opinion' : payload.engine === 'rules' ? 'Deterministic validator (fallback)' : 'BERT (on-device)'}</code></p>
               <p><b className="text-[#283638]">Detector confidence:</b> {(payload.confidence ?? 0).toFixed(2)}</p>
               <p><b className="text-[#283638]">Explanation:</b> {payload.explanation_source === 'llm' ? 'LLM (final write-up)' : 'deterministic fallback'}</p>
               <p className="pt-1">
-                Rules, BERT and the grounded LLM all run right here in the browser — Rules via Pyodide, BERT via
-                a quantized ONNX model, and the LLM via your configured endpoint. Everything downstream (linking,
-                checker, clarification and the shared risk score) is identical across engines.
+                BERT runs on-device through a quantized ONNX model. When its confidence is low, the
+                configured LLM is asked for a second opinion. The checker, clarification loop and
+                shared risk score stay identical either way.
               </p>
             </div>
           </details>

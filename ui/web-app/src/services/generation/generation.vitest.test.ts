@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateProfessionalPrompt } from './promptGenerator.ts';
+import { generateProfessionalPrompt, selectBriefInputs } from './promptGenerator.ts';
 import { compareVersions } from './promptVersions.ts';
 import type { RequirementRecord } from '../../types/requirements.ts';
 import type { PromptVersionRecord } from '../../types/prompt.ts';
@@ -80,6 +80,38 @@ describe('prompt versions', () => {
     expect(diff.removedRequirementIds).toEqual(['a']);
     expect(diff.addedCriteria).toBe(2);
     expect(diff.summary).toContain('requirement');
+  });
+});
+
+describe('brief selection', () => {
+  it('never includes unapproved criteria in an approved brief', () => {
+    const requirement = req('r1', 'REQ-001', 'Employees must save their profile.', 'approved');
+    const pendingCriterion = {
+      id: 'c1', projectId: 'p1', requirementId: 'r1', requirementCode: 'REQ-001',
+      given: 'Given an employee', when: 'when they save', then: 'then it is stored',
+      status: 'pending_review' as const, source: 'ai_inferred' as const,
+      createdAt: new Date().toISOString(),
+    };
+    const result = generateProfessionalPrompt({
+      projectName: 'Portal', requirements: [requirement], suggestions: [], criteria: [pendingCriterion],
+    });
+    expect(result.prompt).not.toContain('Given an employee');
+    expect(result.prompt).toContain('No acceptance criteria have been approved');
+    expect(result.specification.includedCriterionCount).toBe(0);
+  });
+
+  it('reports counts that match the selected brief inputs', () => {
+    const requirement = req('r1', 'REQ-001', 'Employees must save their profile.', 'approved');
+    const selection = selectBriefInputs({
+      projectName: 'Portal',
+      requirements: [requirement],
+      suggestions: [],
+      criteria: [],
+    });
+    expect(selection.isDraft).toBe(false);
+    expect(selection.requirements.map((item) => item.id)).toEqual(['r1']);
+    expect(selection.criteria).toHaveLength(0);
+    expect(selection.approvedRequirements).toHaveLength(1);
   });
 });
 
