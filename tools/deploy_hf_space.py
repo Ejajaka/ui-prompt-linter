@@ -43,7 +43,7 @@ CMD ["streamlit", "run", "app.py", "--server.port=7860", "--server.address=0.0.0
 """
 
 SPACE_README = """---
-title: UI Prompt Linter
+title: Vector
 emoji: 🧹
 colorFrom: purple
 colorTo: blue
@@ -53,7 +53,7 @@ pinned: false
 license: mit
 ---
 
-# UI Prompt Linter
+# Vector
 
 Full Streamlit app with the Rules/BERT/LLM router, clarification loop, shared
 risk score and OpenCode Go LLM explanations.
@@ -126,7 +126,7 @@ def main(argv: list[str] | None = None) -> int:
 
         print("Uploading files…")
         api.upload_folder(folder_path=str(space), repo_id=repo_id, repo_type="space",
-                          commit_message="Deploy full UI Prompt Linter")
+                          commit_message="Deploy full Vector")
 
     if args.use_opencode_key:
         key = _opencode_key()
@@ -136,7 +136,7 @@ def main(argv: list[str] | None = None) -> int:
             print("Setting OpenCode Go secrets…")
             api.add_space_secret(repo_id, "LLM_BASE_URL", "https://opencode.ai/zen/go/v1")
             api.add_space_secret(repo_id, "LLM_MODEL", args.llm_model)
-            api.add_space_secret(repo_id, "LLM_SESSION", "ui-prompt-linter")
+            api.add_space_secret(repo_id, "LLM_SESSION", "vector")
             api.add_space_secret(repo_id, "LLM_API_KEY", key)
 
     print("\nDone. The Space will build in a few minutes:")

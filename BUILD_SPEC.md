@@ -1,4 +1,4 @@
-# BUILD SPEC — UI/UX Prompt Completeness Checker ("Prompt Linter")
+# BUILD SPEC — UI/UX Prompt Completeness Checker ("Vector")
 
 > Reconstructed project specification. The user writes a natural-language UI
 > prompt; before it reaches a UI generator the system detects elements, extracts

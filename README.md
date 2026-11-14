@@ -1,4 +1,4 @@
-# UI Prompt Linter
+# Vector
 
 **Vector-style UI (React, permanent):** <https://ejajaka.github.io/ui-prompt-linter/>  
 The home page is the advertising/overview UI; **New Analysis** runs all three engines in the browser — Rules via Pyodide, BERT via a quantized ONNX model (transformers.js), and the optional grounded LLM through your own OpenAI-compatible endpoint.
@@ -503,7 +503,7 @@ The GitHub Pages demo is Rules-only. For a permanent **BERT + LLM** app:
    # LLM_BASE_URL = "https://opencode.ai/zen/go/v1"
    # LLM_MODEL = "deepseek-v4.1-flash"
    # LLM_API_KEY = "oc_..."
-   # LLM_SESSION = "ui-prompt-linter"
+   # LLM_SESSION = "vector"
    ```
 
    Without a key, LLM detection/explanation falls back to the deterministic
@@ -532,7 +532,7 @@ via Pyodide (the Python mirror in `ui/web-app/public/py/`), and links out to the
 full Streamlit app for BERT and the optional LLM layer. The other pages keep
 their existing layout.
 
-The shipped UI uses the Prompt Linter logo (chat bubble with a mustard check), an
+The shipped UI uses the Vector logo (a yellow V on a dark-green tile), an
 animated hero, and a persisted light/dark theme. The favicon and app icons use
 the same mark, and the About, Overview, New Analysis, History, Guidelines and
 Settings pages all share the teal/mustard design system.
@@ -553,8 +553,8 @@ in-browser Rules engine is bootstrapped by
 A `Dockerfile` is included:
 
 ```bash
-docker build -t ui-prompt-linter .
-docker run -p 8501:8501 ui-prompt-linter
+docker build -t vector .
+docker run -p 8501:8501 vector
 ```
 
 The container installs CPU-only PyTorch, runs Streamlit on port 8501, and uses the
@@ -564,11 +564,11 @@ same `BERT_MODEL_URL` behaviour described above.
 
 ## Browser extension (Manifest V3)
 
-A Chrome/Edge extension that runs the Prompt Linter Rules engine entirely on your
+A Chrome/Edge extension that runs the Rules engine entirely on your
 machine. The rule engine makes **no network calls** and collects **no data**, so
 it works offline; the extension only stores your local settings.
 
-It mirrors the web app: same teal/mustard palette, same dark-green "PL" monogram
+It mirrors the web app: same teal/mustard palette, same dark-green "V" monogram
 logo, same 4-step analysis flow. The popup detects the 10 element types, links
 colour/location/action/label to each element, flags missing and vague details,
 asks clarification questions, shows the 0–100 risk score and produces a
@@ -598,7 +598,7 @@ the same offline review and copy a validated rewrite without leaving the chat.
 
 1. Open `chrome://extensions` and enable **Developer mode**.
 2. Click **Load unpacked** and select the `ui/extension/` folder.
-3. Pin **Prompt Linter** and click the icon to open the popup.
+3. Pin **Vector** and click the icon to open the popup.
 
 ### Package for the store
 
@@ -606,7 +606,7 @@ the same offline review and copy a validated rewrite without leaving the chat.
 python ui/extension/package.py
 ```
 
-This writes `ui/extension/dist/prompt-linter-extension.zip` (with `manifest.json` at
+This writes `ui/extension/dist/vector-extension.zip` (with `manifest.json` at
 the zip root) and `ui/extension/store/store-logo-300.png`. The listing text is in
 `ui/extension/store/listing.md`, the privacy answers in
 `ui/extension/store/permissions-and-privacy.md`, and the submission checklist in
@@ -623,7 +623,7 @@ The native app in `ui/android/` is a separate Jetpack Compose project (package
 `com.promptlinter.app`, `minSdk` 24, `compileSdk`/`targetSdk` 36) that recreates
 the web product rather than embedding it in a browser. It uses the same teal
 `#49686C` / mustard `#D1B653` / warm ivory `#F6F4EC` branding and a drawn
-dark-green `#185345` tile with the yellow `#FAD237` "PL" monogram.
+dark-green `#2D5D4F` tile with the yellow `#FAD237` "V" monogram.
 
 | Screen | Matches web page |
 |---|---|
@@ -640,7 +640,7 @@ dark-green `#185345` tile with the yellow `#FAD237` "PL" monogram.
   `ui/extension/engine.js`, the JavaScript port of the Python Rules backend.
 - `ui/android/app/src/main/java/com/promptlinter/app/data/engine/JsEngine.kt` loads
   that engine in an off-screen `WebView` and calls
-  `PromptLinterEngine.analyze(text, answers, finalize)`.
+  `VectorEngine.analyze(text, answers, finalize)`.
 - Analysis, clarification questions, scoring and the final validated prompt
   therefore match the Rules behaviour of the website and extension.
 - BERT and the grounded LLM are **not** bundled in the app. They remain in the
@@ -650,7 +650,7 @@ dark-green `#185345` tile with the yellow `#FAD237` "PL" monogram.
 Additional native behaviour:
 
 - 4-step onboarding on first launch, replayable from Settings.
-- Light/dark Material 3 themes that preserve the Prompt Linter accents; the
+- Light/dark Material 3 themes that preserve the Vector accents; the
   choice is persisted.
 - Analysis history is stored only on-device under the SharedPreferences key
   `prompt_linter_history_v1`, with no account and no upload.

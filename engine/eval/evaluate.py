@@ -598,7 +598,7 @@ def _write_results_md(bundle: dict[tuple[str, str], dict],
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Evaluate the prompt linter.")
+    parser = argparse.ArgumentParser(description="Evaluate Vector.")
     parser.add_argument("--backend", choices=["rules", "bert", "auto", "both"], default="both")
     parser.add_argument("--allow-llm", action="store_true", help="allow Ollama LLM fallback/explanation during evaluation")
     parser.add_argument("--split", choices=ALL_SPLITS + ["all"], default="all")

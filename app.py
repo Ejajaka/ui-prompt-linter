@@ -1,4 +1,4 @@
-"""Streamlit UI for the UI/UX Prompt Linter.
+"""Streamlit UI for Vector.
 
 The visual language follows the warm editorial dashboard used by the author's
 earlier Vector project: off-white canvas, white cards, teal primary actions and
@@ -62,7 +62,7 @@ RISK_CLASS = {
 EXAMPLE_OPTION = "— choose an example —"
 PAGES = {
     "analysis": ("New UI Prompt Analysis", "UI/UX Prompt Analyzer"),
-    "about": ("About Prompt Linter", "UI/UX Prompt Review"),
+    "about": ("About Vector", "UI/UX Prompt Review"),
     "guidelines": ("Prompt Guidelines", "Completeness Baseline"),
     "settings": ("System Settings", "Engine & Preferences"),
 }
@@ -394,7 +394,7 @@ def report_markdown(text: str, payload: dict) -> str:
     result = payload["result"]
     risk = payload["risk"]["final"]
     lines = [
-        "# Prompt Linter Report",
+        "# Vector Report",
         "",
         "## Original prompt",
         "```",
@@ -431,13 +431,12 @@ def render_sidebar() -> tuple[str, bool, bool]:
             """
             <div class="brand">
               <div class="brand-logo">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#FACB43" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="4" width="18" height="16" rx="2"/>
-                  <path d="M3 9h18M9 9v11"/>
+                <svg width="19" height="19" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                  <path d="M13.1 11.4 L24 36.2 L34.9 11.4" stroke="#FAD237" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
               <div>
-                <div class="brand-name">Prompt Linter</div>
+                <div class="brand-name">Vector</div>
                 <div class="brand-sub">UI/UX Prompt Review</div>
               </div>
             </div>
@@ -1013,7 +1012,7 @@ def render_analysis_page(
 # --------------------------------------------------------------------------- about page
 def render_about_page() -> None:
     page_header(
-        "About Prompt Linter",
+        "About Vector",
         "UI/UX Prompt Review",
         "A pre-generation completeness checker for natural-language UI requests.",
     )
@@ -1022,7 +1021,7 @@ def render_about_page() -> None:
         <div class="hero">
           <h1>Better prompts, better interfaces.</h1>
           <p>
-            Prompt Linter reads a UI request before it reaches a generator. It detects the
+            Vector reads a UI request before it reaches a generator. It detects the
             interface elements, links colours, locations, actions and labels to the right
             element, asks about anything ambiguous, and scores the prompt before producing a
             validated rewrite.
@@ -1189,7 +1188,7 @@ def render_settings_page(method: str, allow_llm: bool, live_mode: bool) -> None:
 # --------------------------------------------------------------------------- main
 def main() -> None:
     st.set_page_config(
-        page_title="Prompt Linter — UI/UX",
+        page_title="Vector — UI/UX",
         page_icon="◈",
         layout="wide",
         initial_sidebar_state="expanded",

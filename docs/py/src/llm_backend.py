@@ -79,7 +79,7 @@ class LLMClient:
         self.model = model or os.environ.get("LLM_MODEL", DEFAULT_MODEL)
         self.api_key = api_key or os.environ.get("LLM_API_KEY", "ollama")
         self.timeout = timeout
-        self.session = session or os.environ.get("LLM_SESSION", "ui-prompt-linter")
+        self.session = session or os.environ.get("LLM_SESSION", "vector")
         self._client = None
 
     @property

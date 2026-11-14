@@ -1,6 +1,6 @@
 # GitHub Pages demo
 
-This folder is a **permanent, server-free demo** of the UI Prompt Linter.
+This folder is a **permanent, server-free demo** of Vector.
 
 - `index.html`, `styles.css`, `demo.js` — static UI.
 - `py/src/` — a mirror of the Python Rules backend, loaded by Pyodide.

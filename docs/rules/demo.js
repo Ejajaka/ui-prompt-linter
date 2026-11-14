@@ -1,4 +1,4 @@
-/* UI Prompt Linter — permanent browser demo using Pyodide.
+/* Vector — permanent browser demo using Pyodide.
    Runs the actual Python Rules backend from src/ in the browser. */
 
 const PYODIDE_VERSION = "0.28.3";
