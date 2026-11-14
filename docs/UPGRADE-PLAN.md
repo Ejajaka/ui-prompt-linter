@@ -12,7 +12,8 @@ Target repository: `Ejajaka/ui-prompt-linter`.
 | Deterministic Rules engine | `engine/src/rules_tagger.py`, `checker.py`, `risk.py`, `clarification.py`, `pipeline.py` | Keep as internal deterministic validator. Hide from the main UI. |
 | BERT | `engine/src/bert_tagger.py`, `models/bert_tagger`, browser `ui/web-app/src/services/bertEngine.ts` | Make BERT the only visible detector. |
 | Grounded LLM | `engine/src/llm_backend.py`, `ui/web-app/src/services/llmEngine.ts` | Keep, but call through a server-side proxy and use only when BERT confidence is low or contextual reasoning is needed. |
-| Router | `engine/src/router.py`, `runAnalysisFromSpans` browser flow | Keep for legacy/CLI, but the upgraded UI no longer exposes Auto/Rules/LLM choices. |
+| Router | `engine/src/router.py`, `ui/web-app/src/services/analysisPipeline.ts`, extension `runner.js` | Keep the routing/validation logic internally, but the upgraded UI no longer exposes Auto/Rules/LLM choices. |
+| Browser pipeline | `analysisPipeline.ts` already handles router, confidence comparison, clarification and LLM explanation | Extend this instead of creating a competing pipeline. |
 | Element/attribute extraction | 10-type element schema in `data/schema.json` | Reuse for component-level extraction, then extend with requirement-level entities. |
 | Missing/vague detection | `checker.py`, `vague.py`, clarification loop | Reuse as deterministic validation beneath the new contextual analyzer. |
 | Risk score | `engine/src/risk.py` | Preserve as **prompt completeness risk**. Add a separate requirement-priority system. |
