@@ -292,7 +292,7 @@ Total: **56–72 focused hours**, across multiple sessions. Each phase ends with
 
 ## 8. Implementation status
 
-Phase 1 foundation is currently being implemented:
+Phase 1 foundation is implemented and verified end-to-end:
 
 - Supabase client and environment template.
 - Auth context, login/register/reset/password-update screens.
@@ -301,13 +301,12 @@ Phase 1 foundation is currently being implemented:
 - Initial Postgres schema, indexes, RLS policies and private document bucket.
 - Non-destructive local-history migration action.
 - Unit test for local project CRUD; TypeScript lint and production build.
+- Live verification: signup, profile trigger, logout/login, project create,
+  reopen and delete all passed. See `docs/PHASE-1-VERIFICATION.md`.
 
-Still required before Phase 1 is accepted:
-
-- Apply `supabase/migrations/0001_initial.sql` in the Supabase SQL Editor.
-- Configure auth redirect URLs.
-- Verify signup/login/reset against the live project.
-- Rotate any secret key that was shared in chat.
+Production follow-ups: delete the temporary test user, re-enable email
+confirmation, configure auth redirect URLs, and rotate the secret key that was
+shared in chat.
 
 ## 9. Immediate next action
 
