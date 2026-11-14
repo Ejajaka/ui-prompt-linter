@@ -106,9 +106,32 @@ export const WorkspacePage: React.FC = () => {
   };
 
   const sendToBolt = async () => {
-    await copyPrompt();
-    window.open('https://bolt.new', '_blank', 'noopener,noreferrer');
-    toast('Prompt copied. Paste it into Bolt to start the design task.', 'info');
+    try {
+      await navigator.clipboard.writeText(generated.prompt);
+    } catch {
+      // Clipboard may be blocked; the URL handoff still carries the brief.
+    }
+    const url = `https://bolt.new/?prompt=${encodeURIComponent(generated.prompt)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    toast('Bolt opened with your brief prefilled. Sign in, review it, then press Build.', 'info');
+  };
+
+  const pastePreviewUrl = async () => {
+    try {
+      const value = (await navigator.clipboard.readText()).trim();
+      if (!value) {
+        toast('Clipboard is empty.', 'error');
+        return;
+      }
+      if (!isBoltUrl(value)) {
+        toast('The clipboard does not contain a published bolt.host URL.', 'error');
+        return;
+      }
+      setDraftUrl(value);
+      toast('Published URL pasted. Select Save preview to load it.', 'success');
+    } catch {
+      toast('Could not read the clipboard. Paste the URL manually.', 'error');
+    }
   };
 
   const saveUrl = async () => {
@@ -230,6 +253,10 @@ export const WorkspacePage: React.FC = () => {
             </div>
             <div className="p-3 border-b border-[#E5E2D8] bg-[#FFFFFF] flex flex-col sm:flex-row gap-2">
               <input value={draftUrl} onChange={(event) => setDraftUrl(event.target.value)} placeholder="https://your-app.bolt.host" className="flex-1 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-[#FAFAF8] text-xs text-[#283638] focus:bg-white focus:outline-none focus:border-[#49686C]" />
+              <button type="button" onClick={() => void pastePreviewUrl()} className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5E2D8] bg-white text-xs font-bold text-[#49686C] hover:bg-[#F6F4EC]">
+                <Clipboard className="w-3.5 h-3.5" />
+                Paste URL
+              </button>
               <button type="button" onClick={() => void saveUrl()} className="px-3 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold">Save preview</button>
             </div>
             {showPreview && previewAllowed ? (
@@ -246,7 +273,8 @@ export const WorkspacePage: React.FC = () => {
                   <Monitor className="w-8 h-8 text-[#49686C] mx-auto mb-3" />
                   <h2 className="text-sm font-bold text-[#283638]">Send the approved prompt to Bolt</h2>
                   <p className="text-xs text-[#737A72] mt-2 leading-relaxed">
-                    Send the brief to Bolt, paste the copied prompt and publish the app. Then add the published <code className="font-mono">*.bolt.host</code> URL above to preview it here.
+                    Bolt opens with your brief already in the composer. Sign in if needed, review it,
+                    press <b>Build</b>, then <b>Publish</b>. Add the published <code className="font-mono">*.bolt.host</code> URL above to preview it here.
                   </p>
                   <div className="flex flex-wrap justify-center gap-2 mt-4">
                     <button type="button" onClick={() => void sendToBolt()} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#49686C] text-white text-xs font-bold">
@@ -265,7 +293,7 @@ export const WorkspacePage: React.FC = () => {
       </div>
 
       <div className="text-[10px] text-[#737A72] leading-relaxed">
-        Vector opens Bolt in a new tab, copies the brief for you, and previews the published app when the host allows it. If previewing is blocked, open Bolt directly.
+        Vector opens Bolt with the brief prefilled and copies it as a fallback. Building and publishing stay in Bolt; Vector previews the published app when the host allows it.
       </div>
     </div>
   );

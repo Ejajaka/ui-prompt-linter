@@ -383,13 +383,13 @@ Both panels can be collapsed, and the divider can be dragged to resize.
 
 ### 9.2 Send to Bolt
 
-**Send to Bolt** copies the prompt to the clipboard and opens `bolt.new`.
-Paste the prompt into Bolt to start generation. This is a supported
-launch-and-transfer workflow, not a fake embedded editor.
+**Send to Bolt** opens `bolt.new` with the brief already filled into the composer
+and copies it as a fallback. Sign in if needed, review the brief, then press
+**Build**. This is a supported launch workflow, not a fake embedded editor.
 
 ### 9.3 Published-app preview
 
-After publishing in Bolt, paste the published `*.bolt.host` URL and select
+After publishing in Bolt, copy the live URL, select **Paste URL** in Vector, then
 **Save preview**. Vector validates the URL and embeds the published app.
 Only `https://*.bolt.host` and `bolt.new` URLs are accepted. If the host blocks
 framing, use **Open Bolt** instead; Vector never pretends to embed an editor it

@@ -131,9 +131,9 @@ const SECTIONS: ManualSection[] = [
     intro: 'Move from a validated brief into interface generation.',
     steps: [
       'Open the workspace to see the brief beside the Bolt panel.',
-      'Use Send to Bolt to copy the prompt and open Bolt in a new tab.',
-      'Paste the prompt, generate and publish the app.',
-      'Add the published bolt.host URL to preview it inside Vector.',
+      'Select Send to Bolt: the brief is prefilled in Bolt and copied as a fallback.',
+      'Sign in if needed, review the brief, press Build, then Publish.',
+      'Use Paste URL to capture the published link, then Save preview.',
     ],
     tip: 'If Bolt blocks framing, use Open Bolt. Vector never fakes an embedded editor.',
   },
