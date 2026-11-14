@@ -332,7 +332,7 @@ export const RequirementsPage: React.FC = () => {
                     <span className="text-[10px] text-[#737A72]">
                       page {requirement.sourcePage ?? '—'} · para {requirement.sourceParagraph ?? '—'}
                     </span>
-                    <span className="ml-auto text-[10px] text-[#737A72]">{requirement.priority} priority ? {requirement.status.replace(/_/g, ' ')}</span>
+                    <span className="ml-auto text-[10px] text-[#737A72]">{requirement.priority} priority · {requirement.status.replace(/_/g, ' ')}</span>
                   </div>
                   <p className="text-sm text-[#283638] mt-2 leading-relaxed">{requirement.originalText}</p>
                   {requirement.status === 'pending_review' && (
