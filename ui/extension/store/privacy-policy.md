@@ -1,11 +1,11 @@
-# Privacy Policy - Prompt Linter
+# Privacy Policy - Vector
 
-Prompt Linter is a browser extension that reviews natural-language UI prompts for
+Vector is a browser extension that reviews natural-language UI prompts for
 missing details before they are sent to a UI generator.
 
 ## Data collection
 
-Prompt Linter collects **no data**. It does not:
+Vector collects **no data**. It does not:
 
 - collect, store or transmit any prompt text, browsing history, or personal information;
 - use analytics, trackers, or cookies;
@@ -23,7 +23,7 @@ On `chatgpt.com`, `chat.openai.com`, `claude.ai` and `gemini.google.com` the
 extension adds a small floating **PL** button in the bottom-right corner. It reads
 the text currently in the chat composer only when you click that button, analyses
 it locally with the same offline rule engine, and shows the result in a panel.
-The text is never transmitted to Prompt Linter or any third party, and closing the
+The text is never transmitted to Vector or any third party, and closing the
 panel discards it.
 
 ## Clipboard

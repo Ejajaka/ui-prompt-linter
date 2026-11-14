@@ -1,12 +1,12 @@
-# Prompt Linter - browser extension
+# Vector - browser extension
 
-A Manifest V3 Chrome/Edge extension for the Prompt Linter. It supports:
+A Manifest V3 Chrome/Edge extension for Vector. It supports:
 
 - **Rules** - offline deterministic engine.
 - **BERT** - the fine-tuned DistilBERT tagger, downloaded once from GitHub Pages.
 - **API** - grounded extraction through a Groq/OpenAI-compatible endpoint.
 
-The UI matches the main web app (teal/mustard, the dark-green "PL" monogram logo).
+The UI matches the main web app (teal/mustard, the dark-green "V" monogram logo).
 
 ## Floating assistant on AI chat sites
 
@@ -35,7 +35,7 @@ or network request is needed.
 
 1. Open `chrome://extensions` and enable **Developer mode**.
 2. Click **Load unpacked** and select this folder.
-3. Pin **Prompt Linter** and click the icon to open the popup.
+3. Pin **Vector** and click the icon to open the popup.
 
 > Chrome refuses to load a folder containing names that start with `_`. If
 > Python created `__pycache__` here, delete it (or run `package.py`, which
@@ -63,7 +63,7 @@ or network request is needed.
 python package.py
 ```
 
-Produces `dist/prompt-linter-extension.zip` (upload this to the store) and
+Produces `dist/vector-extension.zip` (upload this to the store) and
 `store/store-logo-300.png`. Set `VECTOR_TEST_API_KEY` before packaging to
 pre-fill the API key in the artifact; the key is not written to the source tree.
 

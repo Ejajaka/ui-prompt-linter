@@ -1,9 +1,9 @@
-"""Package the Prompt Linter extension for the Chrome Web Store / Edge Add-ons.
+"""Package the Vector extension for the Chrome Web Store / Edge Add-ons.
 
 Run:  python package.py
 Produces:
   store/store-logo-300.png      300x300 store logo
-  dist/prompt-linter-extension.zip   upload file (manifest.json at the zip root)
+  dist/vector-extension.zip   upload file (manifest.json at the zip root)
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent
-BRAND_GREEN = (24, 83, 69, 255)   # #185345
+BRAND_GREEN = (45, 93, 79, 255)   # #2D5D4F
 BRAND_YELLOW = (250, 210, 55, 255)  # #FAD237
 
 # Chrome refuses to load an unpacked extension from a folder that contains
@@ -49,9 +49,9 @@ SHIP_FILES = [
 
 
 def make_logo(size_px: int) -> Image.Image:
-    """Render the Prompt Linter mark: a dark-green rounded tile with a bold
-    yellow "PL" monogram. Coordinates are expressed in the source artwork's
-    1254 px space so the PNG icons, store logo and in-app mark stay identical.
+    """Render the Vector mark: a dark-green rounded tile with a bold yellow "V".
+    Coordinates are expressed in the source artwork's 1254 px space so the PNG
+    icons, store logo and in-app mark stay identical.
     """
     S = max(1, round(8 * 1254 / size_px))
     W = size_px * S
@@ -66,20 +66,13 @@ def make_logo(size_px: int) -> Image.Image:
     # Rounded square tile.
     d.rounded_rectangle([0, 0, W - 1, W - 1], radius=px(264), fill=BRAND_GREEN)
 
-    def rounded_line(x0, y0, x1, y1, width):
-        d.line([(px(x0), px(y0)), (px(x1), px(y1))], fill=BRAND_YELLOW, width=px(width))
-        r = px(width) / 2
-        for x, y in ((x0, y0), (x1, y1)):
-            d.ellipse([px(x) - r, px(y) - r, px(x) + r, px(y) + r], fill=BRAND_YELLOW)
-
-    # P: vertical stem and circular bowl with a rounded counter.
-    rounded_line(309, 430, 309, 825, 136)
-    d.ellipse([px(291), px(362), px(641), px(712)], fill=BRAND_YELLOW)
-    d.rounded_rectangle([px(377), px(477), px(502), px(594)], radius=px(42), fill=BRAND_GREEN)
-
-    # L: vertical stem and foot.
-    rounded_line(743, 435, 743, 817, 146)
-    rounded_line(743, 817, 954, 817, 148)
+    # V: two thick strokes with rounded caps and a rounded vertex.
+    width = px(193)
+    points = [(px(342), px(298)), (px(627), px(946)), (px(912), px(298))]
+    d.line(points, fill=BRAND_YELLOW, width=width, joint="curve")
+    radius = width / 2
+    for x, y in points:
+        d.ellipse([x - radius, y - radius, x + radius, y + radius], fill=BRAND_YELLOW)
 
     return img.resize((size_px, size_px), Image.LANCZOS)
 
@@ -94,7 +87,7 @@ def local_ai_config() -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Package the Prompt Linter extension.")
+    parser = argparse.ArgumentParser(description="Package the Vector extension.")
     parser.add_argument("--public", action="store_true",
                         help="build the keyless artifact for the tracked dist/ folder")
     args = parser.parse_args()
@@ -126,14 +119,14 @@ def main() -> None:
     if model:
         config_body = config_body.replace("openai/gpt-oss-120b", model)
     if key:
-        config_body = config_body.replace("__PROMPT_LINTER_API_KEY__", key)
+        config_body = config_body.replace("__VECTOR_API_KEY__", key)
 
     # Keys are personal: keep keyed builds out of the tracked store artifact.
     output_dir = dist_dir if not key else ROOT / "dist-local"
     output_dir.mkdir(exist_ok=True)
 
     # Upload zip
-    zip_path = output_dir / "prompt-linter-extension.zip"
+    zip_path = output_dir / "vector-extension.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for name in SHIP_FILES:
             if name == "ai-config.js":

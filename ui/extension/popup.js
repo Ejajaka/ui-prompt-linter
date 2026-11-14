@@ -1,8 +1,8 @@
-/* Prompt Linter popup — wires the Rules engine to the UI. */
+/* Vector popup — wires the Rules engine to the UI. */
 (function () {
   'use strict';
 
-  var engine = window.PromptLinterEngine;
+  var engine = window.VectorEngine;
 
   var RISK_META = {
     Critical: { color: '#B94D42', badge: 'background:#FDF2F0;border-color:#F0C4BF;color:#B94D42' },
@@ -27,9 +27,9 @@
   var AI_DEFAULTS = Object.assign({
     engine: 'auto', baseUrl: 'https://api.groq.com/openai/v1',
     model: 'openai/gpt-oss-120b', apiKey: '', configVersion: 2
-  }, window.PROMPT_LINTER_AI_DEFAULTS || {});
+  }, window.VECTOR_AI_DEFAULTS || {});
   AI_DEFAULTS.configVersion = 2;
-  if (AI_DEFAULTS.apiKey === '__PROMPT_LINTER_API_KEY__') AI_DEFAULTS.apiKey = '';
+  if (AI_DEFAULTS.apiKey === '__VECTOR_API_KEY__') AI_DEFAULTS.apiKey = '';
   var state = { text: '', answers: {}, round: 1, payload: null, engine: 'auto', settings: AI_DEFAULTS, plan: null, stage: 'idle' };
 
   function esc(s) {
@@ -242,10 +242,10 @@
 
   function aiReady() {
     return new Promise(function (resolve, reject) {
-      if (window.PromptLinterAI) return resolve(window.PromptLinterAI);
+      if (window.VectorAI) return resolve(window.VectorAI);
       var started = Date.now();
       var timer = setInterval(function () {
-        if (window.PromptLinterAI) { clearInterval(timer); resolve(window.PromptLinterAI); }
+        if (window.VectorAI) { clearInterval(timer); resolve(window.VectorAI); }
         else if (Date.now() - started > 20000) { clearInterval(timer); reject(new Error('AI module failed to load.')); }
       }, 100);
     });

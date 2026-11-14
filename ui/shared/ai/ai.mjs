@@ -1,5 +1,5 @@
 /**
- * Shared browser AI engine for the Prompt Linter extension and Android WebView.
+ * Shared browser AI engine for the Vector extension and Android WebView.
  *
  * - BERT: fine-tuned DistilBERT token classifier, loaded once from the public
  *   GitHub Pages copy and cached by the browser.
@@ -184,7 +184,7 @@ export async function extractSpansApi(text, settings) {
   const model = String(settings.model || '');
   if (!base || !key || !model) throw new Error('Add a base URL, model and API key in Settings.');
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` };
-  if (base.includes('opencode.ai')) headers['x-opencode-session'] = 'ui-prompt-linter';
+  if (base.includes('opencode.ai')) headers['x-opencode-session'] = 'vector';
   const res = await fetch(`${base}/chat/completions`, {
     method: 'POST',
     headers,
@@ -244,5 +244,5 @@ export async function extractSpansApi(text, settings) {
 }
 
 const AI = { runBert, extractSpansApi };
-if (typeof window !== 'undefined') window.PromptLinterAI = AI;
+if (typeof window !== 'undefined') window.VectorAI = AI;
 export default AI;

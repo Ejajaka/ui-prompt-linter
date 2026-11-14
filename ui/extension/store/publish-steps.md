@@ -9,7 +9,7 @@
 python package.py
 ```
 
-This produces `dist/prompt-linter-extension.zip` (manifest.json at the zip root -
+This produces `dist/vector-extension.zip` (manifest.json at the zip root -
 the store requires exactly that) and `store/store-logo-300.png`.
 
 ## 1. Register as a developer
@@ -22,7 +22,7 @@ the store requires exactly that) and `store/store-logo-300.png`.
 ## 2. Create the item
 
 1. Dashboard -> **Add new item**.
-2. Upload `dist/prompt-linter-extension.zip`.
+2. Upload `dist/vector-extension.zip`.
 3. Wait for it to process/verify.
 
 ## 3. Store listing tab

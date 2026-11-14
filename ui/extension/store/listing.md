@@ -6,7 +6,7 @@ Use this text in the Developer Dashboard when creating the listing.
   <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
 
 ## Name (max 45 chars)
-Prompt Linter - UI Prompt Review
+Vector - UI Prompt Review
 
 ## Short description (max 132 chars)
 Check UI prompts for missing labels, colours, placement and actions before you generate. Runs fully offline.
@@ -19,14 +19,14 @@ English
 
 ## Detailed description
 
-Prompt Linter checks a natural-language UI prompt BEFORE it reaches a UI
+Vector checks a natural-language UI prompt BEFORE it reaches a UI
 generator (v0, Figma AI, ChatGPT, Cursor, Copilot) and tells you what the prompt
 forgot to mention - then produces a validated rewrite.
 
 AI UI generators happily build a screen from an incomplete prompt, silently
 guessing the details you left out. "Add a button" says nothing about its text,
 colour, placement or what it does, so the generator has to invent all four.
-Prompt Linter moves the check to the point of intent: the prompt.
+Vector moves the check to the point of intent: the prompt.
 
 HOW IT WORKS
 - A deterministic rule engine runs fully offline. No account, no sign-in, no

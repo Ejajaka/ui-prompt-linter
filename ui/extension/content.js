@@ -1,6 +1,6 @@
-/* Prompt Linter — floating assistant for AI chat sites.
+/* Vector — floating assistant for AI chat sites.
  *
- * Injects a small "PL" button in the bottom-right corner of ChatGPT, Claude and
+ * Injects a small "V" button in the bottom-right corner of ChatGPT, Claude and
  * Gemini. Clicking it reads the prompt currently in the chat composer, runs the
  * same offline Rules engine as the popup, and shows the completeness score,
  * missing details, clarification questions and a validated rewrite to copy.
@@ -8,10 +8,10 @@
 (function () {
   'use strict';
 
-  if (window.__promptLinterInjected) return;
-  window.__promptLinterInjected = true;
+  if (window.__vectorInjected) return;
+  window.__vectorInjected = true;
 
-  var engine = window.PromptLinterEngine;
+  var engine = window.VectorEngine;
   if (!engine) return;
 
   var LEVEL_COLORS = {
@@ -95,25 +95,15 @@
 
   var LOGO =
     '<svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">' +
-    '<g fill="#FAD237">' +
-    '<rect x="9.23" y="13.86" width="5.21" height="20.28" rx="2.6"/>' +
-    '<circle cx="17.84" cy="20.56" r="6.7"/>' +
-    '<rect x="25.68" y="13.86" width="5.55" height="20.25" rx="2.78"/>' +
-    '<rect x="25.68" y="28.44" width="13.64" height="5.67" rx="2.84"/>' +
-    '</g>' +
-    '<rect x="14.43" y="18.26" width="4.78" height="4.48" rx="1.61" fill="#185345"/>' +
+    '<path d="M13.1 11.4 L24 36.2 L34.9 11.4" fill="none" stroke="#FAD237" ' +
+    'stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
   var PANEL_LOGO =
     '<svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true">' +
-    '<rect width="48" height="48" rx="10.1" fill="#185345"/>' +
-    '<g fill="#FAD237">' +
-    '<rect x="9.23" y="13.86" width="5.21" height="20.28" rx="2.6"/>' +
-    '<circle cx="17.84" cy="20.56" r="6.7"/>' +
-    '<rect x="25.68" y="13.86" width="5.55" height="20.25" rx="2.78"/>' +
-    '<rect x="25.68" y="28.44" width="13.64" height="5.67" rx="2.84"/>' +
-    '</g>' +
-    '<rect x="14.43" y="18.26" width="4.78" height="4.48" rx="1.61" fill="#185345"/>' +
+    '<rect width="48" height="48" rx="10.1" fill="#2D5D4F"/>' +
+    '<path d="M13.1 11.4 L24 36.2 L34.9 11.4" fill="none" stroke="#FAD237" ' +
+    'stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
   function buildPanel() {
@@ -122,7 +112,7 @@
     el.innerHTML =
       '<div class="pl-head">' +
       '<div class="pl-brand"><span class="pl-mark">' + PANEL_LOGO + '</span>' +
-      '<span><b>Prompt Linter</b><small>UI/UX prompt review · rules engine</small></span></div>' +
+      '<span><b>Vector</b><small>UI/UX prompt review · rules engine</small></span></div>' +
       '<button class="pl-close" id="pl-close" type="button" aria-label="Close">×</button>' +
       '</div>' +
       '<div class="pl-body">' +
@@ -362,8 +352,8 @@
   var fab = document.createElement('button');
   fab.id = 'pl-fab';
   fab.type = 'button';
-  fab.title = 'Prompt Linter: review this UI prompt';
-  fab.setAttribute('aria-label', 'Open Prompt Linter');
+  fab.title = 'Vector: review this UI prompt';
+  fab.setAttribute('aria-label', 'Open Vector');
   fab.innerHTML = LOGO;
   fab.addEventListener('click', function () {
     if (!panel) panel = buildPanel();

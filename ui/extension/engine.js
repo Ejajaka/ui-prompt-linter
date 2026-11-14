@@ -1,4 +1,4 @@
-/* Prompt Linter — Rules engine port (JavaScript).
+/* Vector — Rules engine port (JavaScript).
  *
  * A faithful port of the Python Rules backend (src/) so the browser extension
  * can run the exact same deterministic analysis with no server and no Pyodide.
@@ -1023,7 +1023,7 @@
     return Math.round((0.7 * confidence + 0.3 * completeness) * 10000) / 10000;
   }
 
-  global.PromptLinterEngine = {
+  global.VectorEngine = {
     analyze: analyzeFull,
     analyzeFromSpans: analyzeFromSpans,
     tokenize: tokenizeWithOffsets,
