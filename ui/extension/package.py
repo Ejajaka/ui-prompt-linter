@@ -25,6 +25,8 @@ SHIP_FILES = [
     "popup.html",
     "popup.css",
     "popup.js",
+    "content.js",
+    "content.css",
     "engine.js",
     "ai-config.js",
     "ai.js",

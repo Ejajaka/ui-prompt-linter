@@ -8,6 +8,22 @@ A Manifest V3 Chrome/Edge extension for the Prompt Linter. It supports:
 
 The UI matches the main web app (teal/mustard, the dark-green "PL" monogram logo).
 
+## Floating assistant on AI chat sites
+
+On `chatgpt.com`, `chat.openai.com`, `claude.ai` and `gemini.google.com` the
+extension also adds a floating **PL** button in the bottom-right corner
+(`content.js` / `content.css`). Click it to:
+
+1. Read the prompt currently in the chat composer (focused box, otherwise the
+   largest visible one).
+2. Run the same offline Rules engine as the popup.
+3. Show the 0-100 risk score, detected elements, missing/vague details and
+   clarification questions.
+4. Offer a validated rewrite with a **Copy prompt** button.
+
+It runs entirely on-device with the bundled `engine.js`; no API key, BERT model
+or network request is needed.
+
 ## Install
 
 - **Microsoft Edge Add-ons (live):**
@@ -25,8 +41,9 @@ The UI matches the main web app (teal/mustard, the dark-green "PL" monogram logo
 
 | File | Purpose |
 |---|---|
-| `manifest.json` | Manifest V3 config (popup + icons; storage + API/model hosts) |
+| `manifest.json` | Manifest V3 config (popup, floating assistant, icons; storage + API/model hosts) |
 | `engine.js` | JavaScript port of the Rules engine (`engine/src/`) |
+| `content.js` / `content.css` | Floating PL assistant injected on ChatGPT, Claude and Gemini |
 | `ai.js` | BERT + API extraction bridge |
 | `ai-config.js` | Build-time API defaults (key placeholder) |
 | `transformers.web.min.js` | Transformers.js runtime |

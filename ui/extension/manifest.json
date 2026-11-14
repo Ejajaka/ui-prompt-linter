@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Prompt Linter",
-  "version": "1.2.1",
-  "description": "Pre-generation completeness review for UI prompts. Detect missing labels, colours, placement and actions before you generate UI.",
+  "version": "1.3.0",
+  "description": "Review UI prompts for missing labels, colours, placement and actions. Floating checker on ChatGPT, Claude and Gemini.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://api.groq.com/*",
@@ -22,6 +22,19 @@
       "128": "icons/icon128.png"
     }
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": ["engine.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

@@ -46,9 +46,19 @@ WHAT YOU GET
 - Copy the validated prompt into your AI tool of choice.
 - Works in the toolbar popup. Fully offline, no sign-in, no data collection.
 
+FLOATING ASSISTANT
+- On ChatGPT, Claude and Gemini a small PL button sits in the bottom-right
+  corner. Click it to review whatever you have typed in the chat box without
+  switching tabs.
+- It reads the composer, runs the same offline rule engine, shows the risk
+  score and missing details, asks clarifying questions and offers a copy-ready
+  validated prompt.
+- Runs entirely on-device with the bundled rules engine. No API key, no model
+  download and no network request.
+
 PRIVACY
 - The rule engine is entirely local. Nothing is uploaded, ever.
-- The extension requests no permissions and collects no data.
+- The extension stores only your local settings and collects no data.
 
 ## Support / homepage (optional)
 https://github.com/Ejajaka/ui-prompt-linter

@@ -55,9 +55,10 @@ Use `store/permissions-and-privacy.md`:
 
 - Click **Submit for review**.
 - Chrome review usually takes a few days; Edge up to ~7 business days.
-- Common rejection causes (low risk here since we request no permissions): unclear
-  single purpose, weak privacy policy. The files in `store/` are written to cover
-  those.
+- Common rejection causes (low risk here because permissions are minimal and
+  justified in `store/permissions-and-privacy.md`): unclear single purpose, weak
+  privacy policy, or an unexplained content script. The files in `store/` are
+  written to cover those.
 
 ## 8. Testing without publishing
 

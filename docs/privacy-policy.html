@@ -59,7 +59,7 @@
         </div>
 
         <h1>Privacy Policy</h1>
-        <div class="updated">Last updated: November 12, 2026</div>
+        <div class="updated">Last updated: November 14, 2026</div>
 
         <p>Prompt Linter is a UI prompt review tool available as a web app, a browser extension and a native Android app. It reviews natural-language UI prompts for missing details before they are sent to a UI generator.</p>
 
@@ -75,6 +75,9 @@
         <h2>How it works</h2>
         <p>The deterministic <strong>Rules</strong> engine runs entirely on your device — in the browser via Pyodide, in the extension popup, and on-device in the Android app. The optional <strong>BERT</strong> engine loads a quantized DistilBERT model in your browser and also runs locally. Neither uploads your prompt.</p>
         <p>The optional <strong>LLM</strong> engine only runs if you add an OpenAI-compatible endpoint and API key in Settings. When you use it, your prompt is sent to that endpoint and to no other third party.</p>
+
+        <h2>Floating assistant</h2>
+        <p>On ChatGPT, Claude and Gemini the extension adds a small floating <strong>PL</strong> button. It reads the text currently in the chat composer only when you click that button, analyses it locally with the same offline rules engine, and never transmits it to Prompt Linter or any third party. Closing the panel discards it.</p>
 
         <h2>Clipboard</h2>
         <p>The web app and extension write to the clipboard only when you explicitly click “Copy prompt”, using the standard Clipboard API on that click.</p>

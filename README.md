@@ -10,7 +10,7 @@ Runs the actual Python rules engine in your browser with no server.
 The Python-side deployment; the React app now runs BERT and the optional LLM on-device too.
 
 **Browser extension (Manifest V3):** [`ui/extension/`](ui/extension/)  
-Fully offline popup with the same branding and Rules engine; no permissions, no network.  
+Fully offline popup plus a floating chat assistant on ChatGPT/Claude/Gemini; local settings only, no data collection.
 Install it from the Edge Add-ons store: <https://microsoftedge.microsoft.com/addons/detail/jheifindpanfdbggckacfodiopdnhadf>
 
 **Android app (Jetpack Compose):** [`ui/android/`](ui/android/)  
@@ -564,15 +564,19 @@ same `BERT_MODEL_URL` behaviour described above.
 
 ## Browser extension (Manifest V3)
 
-A Chrome/Edge extension that runs the Prompt Linter Rules engine entirely in the
-popup. It requests **no permissions**, makes **no network calls** and collects
-**no data**, so it works offline and declares no remote code.
+A Chrome/Edge extension that runs the Prompt Linter Rules engine entirely on your
+machine. The rule engine makes **no network calls** and collects **no data**, so
+it works offline; the extension only stores your local settings.
 
 It mirrors the web app: same teal/mustard palette, same dark-green "PL" monogram
 logo, same 4-step analysis flow. The popup detects the 10 element types, links
 colour/location/action/label to each element, flags missing and vague details,
 asks clarification questions, shows the 0–100 risk score and produces a
 copy-ready validated prompt.
+
+On ChatGPT, Claude and Gemini the extension also adds a floating **PL** button in
+the bottom-right corner. Click it to read the prompt in the chat composer, run
+the same offline review and copy a validated rewrite without leaving the chat.
 
 ### Install
 
@@ -582,8 +586,9 @@ copy-ready validated prompt.
 
 | File | Purpose |
 |---|---|
-| `ui/extension/manifest.json` | Manifest V3 config (popup + icons, no permissions) |
+| `ui/extension/manifest.json` | Manifest V3 config (popup, floating assistant, icons, minimal permissions) |
 | `ui/extension/engine.js` | JavaScript port of the Rules engine in `engine/src/` |
+| `ui/extension/content.js` / `content.css` | Floating PL assistant on ChatGPT, Claude and Gemini |
 | `ui/extension/popup.html` / `popup.css` / `popup.js` | Popup UI |
 | `ui/extension/icons/` | 16/32/48/128 icons |
 | `ui/extension/store/` | Store listing, permission/privacy answers, policy, 300px logo |
