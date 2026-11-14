@@ -37,6 +37,10 @@ or network request is needed.
 2. Click **Load unpacked** and select this folder.
 3. Pin **Prompt Linter** and click the icon to open the popup.
 
+> Chrome refuses to load a folder containing names that start with `_`. If
+> Python created `__pycache__` here, delete it (or run `package.py`, which
+> cleans it up) and click **Reload**.
+
 ## Files
 
 | File | Purpose |

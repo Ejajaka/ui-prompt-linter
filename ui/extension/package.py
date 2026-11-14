@@ -19,6 +19,15 @@ ROOT = Path(__file__).resolve().parent
 BRAND_GREEN = (24, 83, 69, 255)   # #185345
 BRAND_YELLOW = (250, 210, 55, 255)  # #FAD237
 
+# Chrome refuses to load an unpacked extension from a folder that contains
+# "__pycache__" (names starting with "_" are reserved). Remove it if Python
+# created one by importing this module.
+_PYCACHE = ROOT / "__pycache__"
+if _PYCACHE.exists():
+    import shutil
+
+    shutil.rmtree(_PYCACHE, ignore_errors=True)
+
 # Files that ship inside the extension zip (manifest.json must be at the root).
 SHIP_FILES = [
     "manifest.json",
