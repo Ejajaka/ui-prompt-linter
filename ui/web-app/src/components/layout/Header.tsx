@@ -38,6 +38,10 @@ export const Header: React.FC<HeaderProps> = ({
       title: 'Requirement Compiler',
       subtitle: 'Documents & Traceability'
     },
+    intelligence: {
+      title: 'Requirement Intelligence',
+      subtitle: 'Graph, Conflicts & Dependencies'
+    },
     'new-analysis': {
       title: 'New UI Prompt Analysis',
       subtitle: 'UI/UX Prompt Analyzer'

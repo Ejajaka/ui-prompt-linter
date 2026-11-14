@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   FolderKanban,
   FileText,
+  Network,
   X
 } from 'lucide-react';
 import type { ActiveTab } from '../../types/analysis.ts';
@@ -40,6 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'overview' as ActiveTab, label: 'Overview', icon: LayoutDashboard },
     { id: 'projects' as ActiveTab, label: 'Projects', icon: FolderKanban },
     { id: 'requirements' as ActiveTab, label: 'Requirement Compiler', icon: FileText },
+    { id: 'intelligence' as ActiveTab, label: 'Requirement Intelligence', icon: Network },
     { id: 'new-analysis' as ActiveTab, label: 'New Analysis', icon: PlusCircle },
     { id: 'history' as ActiveTab, label: 'Analysis History', icon: History },
     { id: 'guidelines' as ActiveTab, label: 'Prompt Guidelines', icon: BookOpen },

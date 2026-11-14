@@ -17,6 +17,7 @@ import { AboutPage } from './pages/AboutPage.tsx';
 import { PrivacyPage } from './pages/PrivacyPage.tsx';
 import { ProjectsPage } from './pages/ProjectsPage.tsx';
 import { RequirementsPage } from './pages/RequirementsPage.tsx';
+import { RequirementGraphPage } from './pages/RequirementGraphPage.tsx';
 
 function AppShell() {
   const { configured, loading, user, passwordRecovery } = useAuth();
@@ -84,6 +85,7 @@ function AppShell() {
           )}
 
           {activeTab === 'requirements' && <RequirementsPage />}
+          {activeTab === 'intelligence' && <RequirementGraphPage />}
 
           {activeTab === 'overview' && (
             <OverviewPage

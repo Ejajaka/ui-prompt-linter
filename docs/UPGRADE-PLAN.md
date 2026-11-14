@@ -321,6 +321,19 @@ Phase 2 core is implemented and live-verified for TXT/Markdown uploads:
 Still to add in later phases: LLM semantic enrichment, graph/ambiguity/conflict
 analysis, acceptance criteria, specification and prompt generation.
 
+Phase 3 deterministic intelligence is implemented:
+
+- Interactive requirement graph.
+- Contextual ambiguity, conflict and dependency detection.
+- Circular dependency detection.
+- Optional server-side LLM review Edge Function (deployment pending).
+- 8 frontend tests, lint, build and CI passing.
+- See `docs/PHASE-3-REPORT.md`.
+
+Remaining in later phases: persist findings/relationships, approval actions,
+implicit behaviour, edge cases, acceptance criteria, specification and prompt
+generation.
+
 ## 9. Immediate next action
 
 Start Phase 1 with:
