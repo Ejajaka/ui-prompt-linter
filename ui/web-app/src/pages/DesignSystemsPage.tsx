@@ -212,7 +212,11 @@ export const DesignSystemsPage: React.FC = () => {
                 <h3 className="text-sm font-bold text-[#283638]">Version history</h3>
                 {restoring && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#737A72]" />}
               </div>
-              {versions.length === 0 ? (
+              {loading ? (
+                <p className="text-xs text-[#737A72] mt-2 inline-flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading versions…
+                </p>
+              ) : versions.length === 0 ? (
                 <p className="text-xs text-[#737A72] mt-2">No saved versions yet. Saving this design system records a snapshot.</p>
               ) : (
                 <div className="mt-2 divide-y divide-[#E5E2D8] border border-[#E5E2D8] rounded-lg overflow-hidden">
