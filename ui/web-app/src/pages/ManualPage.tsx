@@ -106,6 +106,7 @@ const SECTIONS: ManualSection[] = [
     steps: [
       'Choose a design system; its tokens are injected into the brief.',
       'Check Source of truth: approved/total requirements, criteria and suggestions, with the source of each value.',
+      'Edit the brief directly when needed; the coverage check updates as requirements or criteria disappear.',
       'Copy the six-section brief or save it as a version.',
       'Compare versions to see what changed, and restore an earlier version when needed.',
       'Save a baseline before editing requirements to detect regressions later.',
@@ -130,7 +131,7 @@ const SECTIONS: ManualSection[] = [
     title: 'Bolt Workspace',
     intro: 'Move from a validated brief into interface generation.',
     steps: [
-      'Open the workspace to see the brief beside the Bolt panel.',
+      'Open the workspace to see the brief beside the Bolt panel; it is editable and shared with Specification & Prompt.',
       'Select Send to Bolt: the brief is prefilled in Bolt and copied as a fallback.',
       'Sign in if needed, review the brief, press Build, then Publish.',
       'Use Paste URL to capture the published link, then Save preview.',

@@ -31,6 +31,8 @@ import {
   saveRequirementBaseline,
 } from '../services/generation/memory.ts';
 import { loadProjectMemory, saveProjectMemory } from '../services/projectMemory.ts';
+import { usePromptDraft } from '../hooks/usePromptDraft.ts';
+import { analyzePromptCoverage, coverageLabel } from '../services/generation/promptCoverage.ts';
 import type { AcceptanceCriterion, RequirementRecord, RequirementSuggestion } from '../types/requirements.ts';
 import type { PromptVersionRecord } from '../types/prompt.ts';
 
@@ -38,6 +40,7 @@ export const PromptStudioPage: React.FC = () => {
   const { user, localMode } = useAuth();
   const { currentProject } = useProject();
   const { toast } = useToast();
+  const { draft, setDraft, resetDraft } = usePromptDraft(currentProject?.id);
   const [requirements, setRequirements] = useState<RequirementRecord[]>([]);
   const [suggestions, setSuggestions] = useState<RequirementSuggestion[]>([]);
   const [criteria, setCriteria] = useState<AcceptanceCriterion[]>([]);
@@ -45,7 +48,6 @@ export const PromptStudioPage: React.FC = () => {
   const [designSystems, setDesignSystems] = useState([DEFAULT_DESIGN_SYSTEM]);
   const [designSystemId, setDesignSystemId] = useState(DEFAULT_DESIGN_SYSTEM.id);
   const [baseline, setBaseline] = useState<Awaited<ReturnType<typeof loadRequirementBaseline>>>([]);
-  const [restoredPrompt, setRestoredPrompt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -142,7 +144,12 @@ export const PromptStudioPage: React.FC = () => {
     }
   };
 
-  const displayedPrompt = restoredPrompt ?? generated.prompt;
+  const displayedPrompt = draft ?? generated.prompt;
+  const isEdited = draft !== null && draft !== generated.prompt;
+  const coverage = analyzePromptCoverage(displayedPrompt, briefInputs.requirements, briefInputs.criteria);
+  const coverageComplete =
+    coverage.requirementsMet.length === coverage.requirementsTotal &&
+    coverage.criteriaMet.length === coverage.criteriaTotal;
   const copyPrompt = async () => {
     try {
       await navigator.clipboard.writeText(displayedPrompt);
@@ -158,10 +165,19 @@ export const PromptStudioPage: React.FC = () => {
     if (!currentProject || !user) return;
     setSaving(true);
     try {
-      const saved = await savePromptVersion(currentProject.id, user.id, displayedPrompt, generated.specification);
+      const specification = {
+        ...generated.specification,
+        edited: isEdited,
+        coverage: {
+          requirementsMet: coverage.requirementsMet.length,
+          requirementsTotal: coverage.requirementsTotal,
+          criteriaMet: coverage.criteriaMet.length,
+          criteriaTotal: coverage.criteriaTotal,
+        },
+      };
+      const saved = await savePromptVersion(currentProject.id, user.id, displayedPrompt, specification);
       setVersions((prev) => [saved, ...prev]);
       setSelectedVersion(saved.id);
-      setRestoredPrompt(null);
       toast(`Saved prompt version ${saved.version}.`, 'success');
     } catch (e: any) {
       toast(e?.message || 'Could not save prompt version.', 'error');
@@ -213,14 +229,26 @@ export const PromptStudioPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-[#E5E2D8]">
             <Sparkles className="w-4 h-4 text-[#49686C]" />
             <h2 className="text-sm font-bold text-[#283638]">Generated prompt</h2>
-            <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-md border ${generated.specification.status.startsWith('Ready') ? 'bg-[#F4F9F1] border-[#CFE2C8] text-[#3E6B33]' : 'bg-[#FEFCE8] border-[#FEF08A] text-[#856C16]'}`}>
-              {generated.specification.status}
-            </span>
+            {isEdited && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-[#FED7AA] bg-[#FFF7ED] text-[#9C4A28]">
+                Edited draft
+              </span>
+            )}
+            <div className="ml-auto flex items-center gap-2">
+              {isEdited && (
+                <button type="button" onClick={() => void resetDraft()} className="text-[10px] font-bold text-[#49686C] hover:underline">
+                  Reset to generated
+                </button>
+              )}
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${isEdited ? (coverageComplete ? 'bg-[#F4F9F1] border-[#CFE2C8] text-[#3E6B33]' : 'bg-[#FEFCE8] border-[#FEF08A] text-[#856C16]') : generated.specification.status.startsWith('Ready') ? 'bg-[#F4F9F1] border-[#CFE2C8] text-[#3E6B33]' : 'bg-[#FEFCE8] border-[#FEF08A] text-[#856C16]'}`}>
+                {isEdited ? (coverageComplete ? 'Edited · all covered' : 'Edited · items missing') : generated.specification.status}
+              </span>
+            </div>
           </div>
           <textarea
-            readOnly
             value={displayedPrompt}
-            className="w-full min-h-[720px] resize-y p-5 bg-[#FAFAF8] text-[12px] leading-relaxed font-mono text-[#283638] focus:outline-none"
+            onChange={(event) => setDraft(event.target.value)}
+            className="w-full min-h-[720px] resize-y p-5 bg-[#FAFAF8] text-[12px] leading-relaxed font-mono text-[#283638] focus:bg-white focus:outline-none"
             spellCheck={false}
           />
         </div>
@@ -276,6 +304,36 @@ export const PromptStudioPage: React.FC = () => {
 
           <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl shadow-xs p-4">
             <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-bold text-[#283638]">Coverage check</h2>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${coverageComplete ? 'bg-[#F4F9F1] border-[#CFE2C8] text-[#3E6B33]' : 'bg-[#FEFCE8] border-[#FEF08A] text-[#856C16]'}`}>
+                {coverageComplete ? 'Complete' : 'Needs review'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
+              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5">
+                <span className="text-[#737A72] block text-[10px]">Requirements met</span>
+                <b className="font-mono">{coverage.requirementsMet.length} / {coverage.requirementsTotal}</b>
+              </div>
+              <div className="bg-[#FAFAF8] border border-[#E5E2D8] rounded-lg p-2.5">
+                <span className="text-[#737A72] block text-[10px]">Criteria covered</span>
+                <b className="font-mono">{coverage.criteriaMet.length} / {coverage.criteriaTotal}</b>
+              </div>
+            </div>
+            <p className={`text-[11px] mt-2 leading-relaxed ${coverageComplete ? 'text-[#737A72]' : 'text-[#856C16]'}`}>
+              {coverageLabel(coverage)}
+              {coverage.requirementsMissing.length > 0 && (
+                <span className="block mt-1 font-mono text-[10px]">
+                  Missing: {coverage.requirementsMissing.map((requirement) => requirement.requirementCode).join(', ')}
+                </span>
+              )}
+            </p>
+            <p className="text-[10px] text-[#737A72] mt-1">
+              Measured against the approved requirements and criteria, from the text currently in the editor.
+            </p>
+          </div>
+
+          <div className="bg-[#FFFFFF] border border-[#E5E2D8] rounded-xl shadow-xs p-4">
+            <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-bold text-[#283638]">Regression check</h2>
               <button type="button" onClick={() => void handleBaseline()} className="text-[10px] font-bold text-[#49686C] hover:underline">Save baseline</button>
             </div>
@@ -297,8 +355,8 @@ export const PromptStudioPage: React.FC = () => {
                       <span
                         role="button"
                         tabIndex={0}
-                        onClick={(event) => { event.stopPropagation(); setRestoredPrompt(version.promptMarkdown); toast('Version loaded into the editor', 'info'); }}
-                        onKeyDown={(event) => { if (event.key === 'Enter') { event.stopPropagation(); setRestoredPrompt(version.promptMarkdown); } }}
+                        onClick={(event) => { event.stopPropagation(); setDraft(version.promptMarkdown); toast('Version loaded into the editor', 'info'); }}
+                        onKeyDown={(event) => { if (event.key === 'Enter') { event.stopPropagation(); setDraft(version.promptMarkdown); } }}
                         className="inline-block mt-1 text-[10px] font-bold text-[#49686C] hover:underline"
                       >Restore version</span>
                     )}

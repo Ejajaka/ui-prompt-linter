@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateProfessionalPrompt, selectBriefInputs } from './promptGenerator.ts';
+import { analyzePromptCoverage } from './promptCoverage.ts';
 import { compareVersions } from './promptVersions.ts';
 import type { RequirementRecord } from '../../types/requirements.ts';
 import type { PromptVersionRecord } from '../../types/prompt.ts';
@@ -112,6 +113,37 @@ describe('brief selection', () => {
     expect(selection.requirements.map((item) => item.id)).toEqual(['r1']);
     expect(selection.criteria).toHaveLength(0);
     expect(selection.approvedRequirements).toHaveLength(1);
+  });
+});
+
+describe('editable prompt coverage', () => {
+  it('reports every confirmed requirement and criterion as covered by the generated brief', () => {
+    const requirement = req('r1', 'REQ-001', 'Employees must save their profile.', 'approved');
+    const criterion = {
+      id: 'c1', projectId: 'p1', requirementId: 'r1', requirementCode: 'REQ-001',
+      given: 'Given an authenticated employee', when: 'when they save their profile',
+      then: 'then the profile is stored', status: 'approved' as const,
+      source: 'ai_inferred' as const, createdAt: new Date().toISOString(),
+    };
+    const result = generateProfessionalPrompt({
+      projectName: 'Portal', requirements: [requirement], suggestions: [], criteria: [criterion],
+    });
+    const coverage = analyzePromptCoverage(result.prompt, [requirement], [criterion]);
+    expect(result.prompt).toContain('[REQ-001] Given an authenticated employee');
+    expect(coverage.requirementsMet).toHaveLength(1);
+    expect(coverage.criteriaMet).toHaveLength(1);
+    expect(coverage.requirementsMissing).toHaveLength(0);
+  });
+
+  it('flags a requirement removed from the edited prompt', () => {
+    const requirement = req('r1', 'REQ-001', 'Employees must save their profile.', 'approved');
+    const result = generateProfessionalPrompt({
+      projectName: 'Portal', requirements: [requirement], suggestions: [], criteria: [],
+    });
+    const edited = result.prompt.replace(/REQ-001/g, '').replace(/Employees must save their profile/g, '');
+    const coverage = analyzePromptCoverage(edited, [requirement], []);
+    expect(coverage.requirementsMissing).toHaveLength(1);
+    expect(coverage.requirementsMet).toHaveLength(0);
   });
 });
 

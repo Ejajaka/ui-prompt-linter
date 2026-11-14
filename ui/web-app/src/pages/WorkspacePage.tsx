@@ -18,9 +18,12 @@ import { listRequirements } from '../services/documents/requirementDocuments.ts'
 import { generateSuggestions } from '../services/requirements/suggestions.ts';
 import { generateAcceptanceCriteria } from '../services/requirements/acceptance.ts';
 import { listAcceptanceCriteria, loadSuggestions } from '../services/requirements/acceptanceRepository.ts';
-import { generateProfessionalPrompt } from '../services/generation/promptGenerator.ts';
+import { generateProfessionalPrompt, selectBriefInputs } from '../services/generation/promptGenerator.ts';
 import { loadProjectMemory, saveProjectMemory } from '../services/projectMemory.ts';
 import { MEMORY_KEYS } from '../services/generation/memory.ts';
+import { listDesignSystems } from '../services/generation/designSystems.ts';
+import { analyzePromptCoverage } from '../services/generation/promptCoverage.ts';
+import { usePromptDraft } from '../hooks/usePromptDraft.ts';
 import { DEFAULT_DESIGN_SYSTEM } from '../types/designSystem.ts';
 import type { AcceptanceCriterion, RequirementRecord, RequirementSuggestion } from '../types/requirements.ts';
 
@@ -45,6 +48,9 @@ export const WorkspacePage: React.FC = () => {
   const [requirements, setRequirements] = useState<RequirementRecord[]>([]);
   const [suggestions, setSuggestions] = useState<RequirementSuggestion[]>([]);
   const [criteria, setCriteria] = useState<AcceptanceCriterion[]>([]);
+  const [designSystems, setDesignSystems] = useState([DEFAULT_DESIGN_SYSTEM]);
+  const [designSystemId, setDesignSystemId] = useState(DEFAULT_DESIGN_SYSTEM.id);
+  const { draft, setDraft, resetDraft } = usePromptDraft(currentProject?.id);
   const [boltUrl, setBoltUrl] = useState('');
   const [draftUrl, setDraftUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,14 +68,18 @@ export const WorkspacePage: React.FC = () => {
     try {
       const reqs = await listRequirements(currentProject.id);
       const codeMap = new Map(reqs.map((requirement) => [requirement.id, requirement.requirementCode]));
-      const [savedSuggestions, savedCriteria, savedUrl] = await Promise.all([
+      const [savedSuggestions, savedCriteria, savedUrl, savedSystems, savedDesignSystem] = await Promise.all([
         loadSuggestions(currentProject.id),
         listAcceptanceCriteria(currentProject.id, codeMap),
         loadProjectMemory<string>(currentProject.id, MEMORY_KEYS.boltUrl, ''),
+        listDesignSystems(),
+        loadProjectMemory<string>(currentProject.id, MEMORY_KEYS.designSystem, DEFAULT_DESIGN_SYSTEM.id),
       ]);
       setRequirements(reqs);
       setSuggestions(savedSuggestions.length ? savedSuggestions : generateSuggestions(reqs, currentProject.id));
       setCriteria(savedCriteria.length ? savedCriteria : generateAcceptanceCriteria(reqs, currentProject.id));
+      setDesignSystems([DEFAULT_DESIGN_SYSTEM, ...savedSystems.filter((system) => system.id !== DEFAULT_DESIGN_SYSTEM.id)]);
+      setDesignSystemId(savedDesignSystem || DEFAULT_DESIGN_SYSTEM.id);
       setBoltUrl(savedUrl || '');
       setDraftUrl(savedUrl || '');
     } catch (e: any) {
@@ -83,20 +93,34 @@ export const WorkspacePage: React.FC = () => {
     void load();
   }, [load]);
 
+  const designSystem = designSystems.find((system) => system.id === designSystemId) || DEFAULT_DESIGN_SYSTEM;
   const generated = useMemo(
     () => generateProfessionalPrompt({
       projectName: currentProject?.name || 'Untitled project',
       requirements,
       suggestions,
       criteria,
-      designSystem: DEFAULT_DESIGN_SYSTEM,
+      designSystem,
     }),
-    [currentProject, requirements, suggestions, criteria]
+    [currentProject, requirements, suggestions, criteria, designSystem]
   );
+  const briefInputs = selectBriefInputs({
+    projectName: currentProject?.name || 'Untitled project',
+    requirements,
+    suggestions,
+    criteria,
+    designSystem,
+  });
+  const displayedPrompt = draft ?? generated.prompt;
+  const isEdited = draft !== null && draft !== generated.prompt;
+  const coverage = analyzePromptCoverage(displayedPrompt, briefInputs.requirements, briefInputs.criteria);
+  const coverageComplete =
+    coverage.requirementsMet.length === coverage.requirementsTotal &&
+    coverage.criteriaMet.length === coverage.criteriaTotal;
 
   const copyPrompt = async () => {
     try {
-      await navigator.clipboard.writeText(generated.prompt);
+      await navigator.clipboard.writeText(displayedPrompt);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
       toast('Prompt copied', 'success');
@@ -107,11 +131,11 @@ export const WorkspacePage: React.FC = () => {
 
   const sendToBolt = async () => {
     try {
-      await navigator.clipboard.writeText(generated.prompt);
+      await navigator.clipboard.writeText(displayedPrompt);
     } catch {
       // Clipboard may be blocked; the URL handoff still carries the brief.
     }
-    const url = `https://bolt.new/?prompt=${encodeURIComponent(generated.prompt)}`;
+    const url = `https://bolt.new/?prompt=${encodeURIComponent(displayedPrompt)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
     toast('Bolt opened with your brief prefilled. Sign in, review it, then press Build.', 'info');
   };
@@ -205,10 +229,20 @@ export const WorkspacePage: React.FC = () => {
           <section className="min-w-0 flex flex-col" style={{ width: rightCollapsed ? '100%' : `${split}%` }}>
             <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-[#E5E2D8] bg-[#FAFAF8]">
               <div className="text-xs font-bold text-[#283638]">Vector Prompt Analyser</div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${generated.specification.status.startsWith('Ready') ? 'bg-[#F4F9F1] border-[#CFE2C8] text-[#3E6B33]' : 'bg-[#FEFCE8] border-[#FEF08A] text-[#856C16]'}`}>
-                {generated.specification.status}
+              {isEdited && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-[#FED7AA] bg-[#FFF7ED] text-[#9C4A28]">
+                  Edited draft
+                </span>
+              )}
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${(isEdited ? coverageComplete : generated.specification.status.startsWith('Ready')) ? 'bg-[#F4F9F1] border-[#CFE2C8] text-[#3E6B33]' : 'bg-[#FEFCE8] border-[#FEF08A] text-[#856C16]'}`}>
+                {isEdited ? (coverageComplete ? 'Edited · all covered' : 'Edited · items missing') : generated.specification.status}
               </span>
               <div className="ml-auto flex items-center gap-2">
+                {isEdited && (
+                  <button type="button" onClick={() => void resetDraft()} className="text-[10px] font-bold text-[#49686C] hover:underline">
+                    Reset
+                  </button>
+                )}
                 <button type="button" onClick={copyPrompt} className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-[#E5E2D8] bg-white text-[10px] font-bold text-[#49686C]">
                   {copied ? 'Copied' : <><Clipboard className="w-3 h-3" /> Copy</>}
                 </button>
@@ -218,14 +252,25 @@ export const WorkspacePage: React.FC = () => {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2 p-3 border-b border-[#E5E2D8] text-[10px]">
-              <div className="rounded-md bg-[#FAFAF8] border border-[#E5E2D8] p-2"><span className="text-[#737A72] block">Requirements</span><b className="font-mono">{generated.specification.includedRequirementCodes.length}</b></div>
-              <div className="rounded-md bg-[#FAFAF8] border border-[#E5E2D8] p-2"><span className="text-[#737A72] block">Criteria</span><b className="font-mono">{generated.specification.includedCriterionCount}</b></div>
+              <div className={`rounded-md border p-2 ${coverage.requirementsMet.length === coverage.requirementsTotal ? 'bg-[#FAFAF8] border-[#E5E2D8]' : 'bg-[#FEFCE8] border-[#FEF08A]'}`}>
+                <span className="text-[#737A72] block">Requirements met</span>
+                <b className="font-mono">{coverage.requirementsMet.length} / {coverage.requirementsTotal}</b>
+              </div>
+              <div className={`rounded-md border p-2 ${coverage.criteriaMet.length === coverage.criteriaTotal ? 'bg-[#FAFAF8] border-[#E5E2D8]' : 'bg-[#FEFCE8] border-[#FEF08A]'}`}>
+                <span className="text-[#737A72] block">Criteria covered</span>
+                <b className="font-mono">{coverage.criteriaMet.length} / {coverage.criteriaTotal}</b>
+              </div>
               <div className="rounded-md bg-[#FAFAF8] border border-[#E5E2D8] p-2"><span className="text-[#737A72] block">Unresolved</span><b className="font-mono">{generated.specification.unresolvedSuggestionIds.length}</b></div>
             </div>
+            {coverage.requirementsMissing.length > 0 && (
+              <div className="px-3 py-2 border-b border-[#FEF08A] bg-[#FEFCE8] text-[10px] text-[#856C16] font-mono">
+                Missing: {coverage.requirementsMissing.map((requirement) => requirement.requirementCode).join(', ')}
+              </div>
+            )}
             <textarea
-              readOnly
-              value={generated.prompt}
-              className="flex-1 w-full min-h-[560px] resize-none p-4 bg-[#FFFFFF] text-[11px] leading-relaxed font-mono text-[#283638] focus:outline-none"
+              value={displayedPrompt}
+              onChange={(event) => setDraft(event.target.value)}
+              className="flex-1 w-full min-h-[560px] resize-none p-4 bg-[#FFFFFF] text-[11px] leading-relaxed font-mono text-[#283638] focus:bg-[#FAFAF8] focus:outline-none"
               spellCheck={false}
             />
           </section>

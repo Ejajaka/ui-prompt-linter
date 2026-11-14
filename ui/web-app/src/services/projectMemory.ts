@@ -20,3 +20,13 @@ export async function saveProjectMemory<T>(projectId: string, key: string, value
   );
   if (error) throw new Error(error.message);
 }
+
+export async function removeProjectMemory(projectId: string, key: string): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase
+    .from('project_memory')
+    .delete()
+    .eq('project_id', projectId)
+    .eq('key', key);
+  if (error) throw new Error(error.message);
+}

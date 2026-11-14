@@ -322,20 +322,34 @@ approved, otherwise **Draft — pending requirement approval**.
 Choose a design system from the dropdown. Tokens are injected into section 4.
 The selection is remembered per project.
 
-### 7.4 Copy and save
+### 7.4 Editing the brief
 
-- **Copy prompt** copies the current brief to the clipboard.
-- **Save version** stores the generated brief and its specification with an
+The prompt is editable. Type directly in the editor to tighten wording or
+remove a section.
+
+Below the editor, **Coverage check** reports how many approved requirements and
+criteria are still present in the edited text, and lists the missing
+requirement codes. This is measured from the text in the editor, not from the
+project records, so it updates as you type.
+
+Use **Reset to generated** to discard the draft and rebuild from the current
+approved inputs. One draft is kept per project and is shared with the Bolt
+workspace.
+
+### 7.5 Copy and save
+
+- **Copy prompt** copies the current text (edited draft or generated brief).
+- **Save version** stores the current text and a coverage snapshot with an
   incrementing version number.
 
-### 7.5 Versions and restore
+### 7.6 Versions and restore
 
 Every saved version lists its date and change summary. Select a version to
 compare it with the previous one; the comparison reports requirements added or
 removed and criteria added or removed. **Restore version** loads that text back
 into the editor so it can be saved again if needed.
 
-### 7.6 Regression baseline
+### 7.7 Regression baseline
 
 Select **Save baseline** to snapshot the current requirements. After editing
 documents, the regression panel reports which requirements disappeared,
@@ -376,8 +390,13 @@ confirmation and removes its version history.
 
 The workspace is split into two panels:
 
-- **Vector Prompt Analyser** — the generated brief, readiness status and counts
+- **Vector Prompt Analyser** — the editable brief, readiness status and
+  requirement/criteria coverage
 - **Bolt Workspace** — launch and preview area
+
+The brief here is the same per-project draft used in Specification & Prompt.
+Edits made in either place are reflected in the other, and coverage recalculates
+as you type.
 
 Both panels can be collapsed, and the divider can be dragged to resize.
 

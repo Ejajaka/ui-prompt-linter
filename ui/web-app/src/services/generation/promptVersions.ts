@@ -49,7 +49,7 @@ export async function savePromptVersion(
       prompt_markdown: prompt,
       specification,
       source_requirement_ids: specification.confirmedRequirementIds,
-      change_summary: `Version ${version}: ${specification.includedRequirementCodes.length} requirement(s), ${specification.includedCriterionCount} acceptance criterion/criteria.`,
+      change_summary: `Version ${version}: ${specification.includedRequirementCodes.length} requirement(s), ${specification.includedCriterionCount} acceptance criterion/criteria.${specification.coverage ? ` ${specification.coverage.requirementsMet}/${specification.coverage.requirementsTotal} requirements covered.` : ''}${specification.edited ? ' Edited draft.' : ''}`,
       created_by: userId,
     })
     .select('*')

@@ -109,6 +109,8 @@ Actions `tests` and `pages-build-deployment` all pass.
 | In-app **Manual** tab with a guided tour of every workflow | Done |
 | Settings reduced to appearance, manual, local data and privacy | Done |
 | Marketing copy rewritten at feature level | Done |
+| Generated prompt is editable in Specification and Workspace, with shared per-project draft | Done |
+| Coverage check recomputes requirements/criteria from the edited text | Done |
 
 ## Manual actions still required
 

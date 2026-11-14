@@ -31,6 +31,13 @@ export interface Specification {
   acceptanceCriterionIds: string[];
   includedRequirementCodes: string[];
   includedCriterionCount: number;
+  edited?: boolean;
+  coverage?: {
+    requirementsMet: number;
+    requirementsTotal: number;
+    criteriaMet: number;
+    criteriaTotal: number;
+  };
 }
 
 function requirementLine(requirement: RequirementRecord, pending = false): string {
@@ -221,7 +228,7 @@ export function generateProfessionalPrompt(input: SpecificationInput): { prompt:
 
   if (criteria.length) {
     for (const criterion of criteria) {
-      lines.push(`- Given ${criterion.given.replace(/^Given\s+/i, '')}, when ${criterion.when.replace(/^when\s+/i, '')}, then ${criterion.then.replace(/^then\s+/i, '')}.`);
+      lines.push(`- [${criterion.requirementCode}] Given ${criterion.given.replace(/^Given\s+/i, '')}, when ${criterion.when.replace(/^when\s+/i, '')}, then ${criterion.then.replace(/^then\s+/i, '')}.`);
     }
   } else {
     lines.push('- No acceptance criteria have been approved for the confirmed requirements yet.');
