@@ -1,18 +1,15 @@
 /* Vector — floating assistant for AI chat sites.
  *
  * Injects a small "V" button in the bottom-right corner of ChatGPT, Claude and
- * Gemini. Clicking it reads the prompt currently in the chat composer, runs the
- * same offline Rules engine as the popup, and shows the completeness score,
- * missing details, clarification questions and a validated rewrite to copy.
+ * Gemini. Clicking it reads the prompt currently in the chat composer and runs
+ * the same router-first pipeline as the popup, web app and Android app:
+ * auto -> Rules / BERT / LLM -> clarification rounds -> LLM explanation.
  */
 (function () {
   'use strict';
 
   if (window.__vectorInjected) return;
   window.__vectorInjected = true;
-
-  var engine = window.VectorEngine;
-  if (!engine) return;
 
   var LEVEL_COLORS = {
     Critical: '#B94D42',
@@ -37,6 +34,12 @@
   var panel = null;
   var resultsEl = null;
   var lastComposer = null;
+
+  var runnerFrame = null;
+  var runnerReady = null;
+  var runnerSeq = 0;
+  var runnerPending = {};
+  var RUNNER_TIMEOUT = 180000;
 
   function esc(value) {
     return String(value == null ? '' : value)
@@ -93,6 +96,70 @@
     return readComposer(boxes[0]);
   }
 
+  // The full pipeline runs in an extension-origin iframe so the host page's CSP
+  // cannot block BERT or the optional LLM request.
+  function ensureRunner() {
+    if (runnerReady) return runnerReady;
+    runnerReady = new Promise(function (resolve, reject) {
+      if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.getURL) {
+        reject(new Error('Extension runtime unavailable.'));
+        return;
+      }
+      var frame = document.createElement('iframe');
+      frame.id = 'pl-runner';
+      frame.setAttribute('aria-hidden', 'true');
+      frame.tabIndex = -1;
+      frame.src = chrome.runtime.getURL('runner.html');
+      frame.style.cssText =
+        'position:fixed;left:-9999px;top:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none;';
+      frame.addEventListener('load', function () { resolve(frame); });
+      document.body.appendChild(frame);
+      runnerFrame = frame;
+    });
+    return runnerReady;
+  }
+
+  window.addEventListener('message', function (event) {
+    if (!runnerFrame || event.source !== runnerFrame.contentWindow) return;
+    var data = event.data || {};
+    if (data.type === 'vector:progress' && data.id && runnerPending[data.id]) {
+      runnerPending[data.id].progress(data.message);
+      return;
+    }
+    if (data.type !== 'vector:result' || !data.id) return;
+    var pending = runnerPending[data.id];
+    if (!pending) return;
+    delete runnerPending[data.id];
+    clearTimeout(pending.timer);
+    if (data.error) pending.reject(new Error(data.error));
+    else pending.resolve(data.payload);
+  });
+
+  function requestAnalysis(text, answers, finalize, onProgress) {
+    return ensureRunner().then(function (frame) {
+      return new Promise(function (resolve, reject) {
+        var id = 'pl-' + (++runnerSeq) + '-' + Date.now();
+        var timer = window.setTimeout(function () {
+          delete runnerPending[id];
+          reject(new Error('The analysis engine timed out.'));
+        }, RUNNER_TIMEOUT);
+        runnerPending[id] = {
+          resolve: resolve,
+          reject: reject,
+          timer: timer,
+          progress: onProgress || function () {}
+        };
+        frame.contentWindow.postMessage({
+          type: 'vector:analyze',
+          id: id,
+          text: text,
+          answers: answers || {},
+          finalize: !!finalize
+        }, '*');
+      });
+    });
+  }
+
   var LOGO =
     '<svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">' +
     '<path d="M13.1 11.4 L24 36.2 L34.9 11.4" fill="none" stroke="#FAD237" ' +
@@ -112,14 +179,14 @@
     el.innerHTML =
       '<div class="pl-head">' +
       '<div class="pl-brand"><span class="pl-mark">' + PANEL_LOGO + '</span>' +
-      '<span><b>Vector</b><small>UI/UX prompt review · rules engine</small></span></div>' +
+       '<span><b>Vector</b><small>UI/UX prompt review · auto pipeline</small></span></div>' +
       '<button class="pl-close" id="pl-close" type="button" aria-label="Close">×</button>' +
       '</div>' +
       '<div class="pl-body">' +
       '<div id="pl-empty" class="pl-hint">Type your UI prompt in the chat box, then review it here.</div>' +
       '<div id="pl-results"></div>' +
       '<div class="pl-actions"><button class="pl-btn primary" id="pl-analyze" type="button">Review composer text</button></div>' +
-      '<div class="pl-foot">Offline rules engine · <a href="https://ejajaka.github.io/ui-prompt-linter/" target="_blank" rel="noreferrer">Full app →</a></div>' +
+       '<div class="pl-foot">Auto · Rules + BERT + LLM · <a href="https://ejajaka.github.io/ui-prompt-linter/" target="_blank" rel="noreferrer">Full app →</a></div>' +
       '</div>';
     document.body.appendChild(el);
     resultsEl = el.querySelector('#pl-results');
@@ -307,12 +374,14 @@
     state.payload = null;
     setBusy('Reviewing the prompt for missing details…');
     window.setTimeout(function () {
-      try {
-        state.payload = engine.analyze(text, {}, false);
+      requestAnalysis(text, {}, false, function (message) {
+        setBusy(message);
+      }).then(function (payload) {
+        state.payload = payload;
         render();
-      } catch (err) {
+      }, function (err) {
         showMessage('Analysis failed: ' + ((err && err.message) || String(err)));
-      }
+      });
     }, 30);
   }
 
@@ -334,19 +403,15 @@
     Object.keys(values).forEach(function (key) { merged[key] = values[key]; });
     state.answers = merged;
     state.round += 1;
-    try {
-      var p = engine.analyze(state.text, merged, false);
-      if (p.needs_clarification && !stop && !allUnknown && state.round < 4) {
-        state.payload = p;
-        render();
-        return;
-      }
-      if (p.needs_clarification) p = engine.analyze(state.text, merged, true);
-      state.payload = p;
+    setBusy('Re-checking with the selected analysis pipeline…');
+    requestAnalysis(state.text, merged, stop || allUnknown || state.round >= 4, function (message) {
+      setBusy(message);
+    }).then(function (payload) {
+      state.payload = payload;
       render();
-    } catch (err) {
+    }, function (err) {
       showMessage('Analysis failed: ' + ((err && err.message) || String(err)));
-    }
+    });
   }
 
   var fab = document.createElement('button');

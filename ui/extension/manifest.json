@@ -22,7 +22,7 @@
       "128": "icons/icon128.png"
     }
   },
-  "content_scripts": [
+    "content_scripts": [
     {
       "matches": [
         "https://chatgpt.com/*",
@@ -33,6 +33,17 @@
       "js": ["engine.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["runner.html", "runner.js", "engine.js", "ai.js", "ai-config.js", "transformers.web.min.js", "ort.webgpu.min.js", "ort-common/*"],
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*"
+      ]
     }
   ],
   "icons": {

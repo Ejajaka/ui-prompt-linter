@@ -34,6 +34,8 @@ SHIP_FILES = [
     "popup.html",
     "popup.css",
     "popup.js",
+    "runner.html",
+    "runner.js",
     "content.js",
     "content.css",
     "engine.js",

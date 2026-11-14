@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Vector analysis runner</title>
+</head>
+<body>
+  <!-- Extension-origin runner for the floating assistant. Living in an iframe
+       keeps BERT/LLM loading away from the host page's CSP. -->
+  <script src="engine.js"></script>
+  <script src="ai-config.js"></script>
+  <script type="module" src="ai.js"></script>
+  <script src="runner.js"></script>
+</body>
+</html>
