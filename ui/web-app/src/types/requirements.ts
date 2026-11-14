@@ -72,3 +72,48 @@ export interface RequirementRow {
   metadata: RequirementMetadata | null;
   created_at: string;
 }
+
+
+export type SuggestionType = 'implicit_behavior' | 'edge_case';
+export type SuggestionStatus = 'pending_review' | 'accepted' | 'rejected' | 'modified';
+export type SuggestionSource = 'deterministic' | 'llm';
+
+export interface RequirementSuggestion {
+  id: string;
+  projectId: string;
+  requirementId: string | null;
+  requirementCode: string | null;
+  type: SuggestionType;
+  title: string;
+  detail: string;
+  question: string;
+  recommendation: string;
+  status: SuggestionStatus;
+  source: SuggestionSource;
+  createdAt: string;
+}
+
+export interface AcceptanceCriterion {
+  id: string;
+  projectId: string;
+  requirementId: string;
+  requirementCode: string;
+  given: string;
+  when: string;
+  then: string;
+  status: 'pending_review' | 'approved' | 'rejected' | 'modified';
+  source: 'company' | 'ai_inferred' | 'user';
+  createdAt: string;
+}
+
+export interface AcceptanceCriterionRow {
+  id: string;
+  project_id: string;
+  requirement_id: string;
+  given_text: string;
+  when_text: string;
+  then_text: string;
+  status: AcceptanceCriterion['status'];
+  source: AcceptanceCriterion['source'];
+  created_at: string;
+}

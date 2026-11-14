@@ -334,6 +334,17 @@ Remaining in later phases: persist findings/relationships, approval actions,
 implicit behaviour, edge cases, acceptance criteria, specification and prompt
 generation.
 
+Phases 4–8 core workflows are implemented:
+
+- Suggestions, edge cases and Given/When/Then criteria.
+- Six-section specification/prompt generator and prompt versions.
+- Design systems, priority classification and approval audit.
+- Project memory, prompt restore and regression checks.
+- Resizable Bolt workspace with launch/copy and published-app preview.
+- See `docs/PHASE-4-8-REPORT.md`.
+
+Production gaps and remaining optional LLM deployment work are listed there.
+
 ## 9. Immediate next action
 
 Start Phase 1 with:

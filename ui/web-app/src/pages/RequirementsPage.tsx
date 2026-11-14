@@ -22,6 +22,8 @@ import type {
   RequirementDocument,
   RequirementRecord,
 } from '../types/requirements.ts';
+import { applyRequirementPriorities } from '../services/requirements/priority.ts';
+import { recordRequirementDecision } from '../services/requirements/approvals.ts';
 
 type KindFilter = 'all' | 'functional' | 'non_functional';
 
@@ -38,6 +40,7 @@ export const RequirementsPage: React.FC = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [kindFilter, setKindFilter] = useState<KindFilter>('all');
+  const [prioritizing, setPrioritizing] = useState(false);
 
   const load = useCallback(async () => {
     if (!currentProject || localMode) {
@@ -91,6 +94,30 @@ export const RequirementsPage: React.FC = () => {
     }
   };
 
+  const handlePrioritize = async () => {
+    if (!currentProject || localMode) return;
+    setPrioritizing(true);
+    try {
+      setRequirements(await applyRequirementPriorities(currentProject.id, requirements));
+      toast('Requirements prioritized', 'success');
+    } catch (e: any) {
+      toast(e?.message || 'Could not classify priorities.', 'error');
+    } finally {
+      setPrioritizing(false);
+    }
+  };
+
+  const handleDecision = async (requirement: RequirementRecord, decision: 'approved' | 'rejected') => {
+    if (!currentProject || !user) return;
+    try {
+      await recordRequirementDecision(currentProject.id, requirement.id, user.id, decision);
+      setRequirements((prev) => prev.map((item) => item.id === requirement.id ? { ...item, status: decision } : item));
+      toast(decision === 'approved' ? 'Requirement approved' : 'Requirement rejected', 'info');
+    } catch (e: any) {
+      toast(e?.message || 'Could not save approval.', 'error');
+    }
+  };
+
   const handleDelete = async (document: RequirementDocument) => {
     if (!window.confirm(`Delete “${document.fileName}” and its requirements?`)) return;
     try {
@@ -134,8 +161,19 @@ export const RequirementsPage: React.FC = () => {
             Upload a company requirement document. Every extracted statement keeps its source page and character offsets.
           </p>
         </div>
-        <div className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#F6F4EC] border border-[#E5E2D8] text-[#49686C]">
-          {currentProject.name}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#F6F4EC] border border-[#E5E2D8] text-[#49686C]">
+            {currentProject.name}
+          </div>
+          <button
+            type="button"
+            onClick={() => void handlePrioritize()}
+            disabled={prioritizing || localMode || !requirements.length}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E2D8] bg-white text-xs font-bold text-[#49686C] hover:bg-[#F6F4EC] disabled:opacity-60"
+          >
+            {prioritizing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+            Prioritize
+          </button>
         </div>
       </div>
 
@@ -288,9 +326,15 @@ export const RequirementsPage: React.FC = () => {
                     <span className="text-[10px] text-[#737A72]">
                       page {requirement.sourcePage ?? '—'} · para {requirement.sourceParagraph ?? '—'}
                     </span>
-                    <span className="ml-auto text-[10px] text-[#737A72]">{requirement.status.replace(/_/g, ' ')}</span>
+                    <span className="ml-auto text-[10px] text-[#737A72]">{requirement.priority} priority ? {requirement.status.replace(/_/g, ' ')}</span>
                   </div>
                   <p className="text-sm text-[#283638] mt-2 leading-relaxed">{requirement.originalText}</p>
+                  {requirement.status === 'pending_review' && (
+                    <div className="flex gap-2 mt-3">
+                      <button type="button" onClick={() => void handleDecision(requirement, 'approved')} className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-[#F4F9F1] border border-[#CFE2C8] text-[#3E6B33]">Approve</button>
+                      <button type="button" onClick={() => void handleDecision(requirement, 'rejected')} className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-[#FDF2F0] border border-[#F0C4BF] text-[#B94D42]">Reject</button>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-1.5 mt-2.5">
                     {(requirement.metadata.roles || []).map((role) => (
                       <span key={`role-${role}`} className="text-[10px] px-2 py-0.5 rounded-full bg-[#FAFAF8] border border-[#E5E2D8] text-[#49686C]">{role}</span>

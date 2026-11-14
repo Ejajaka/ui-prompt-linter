@@ -42,6 +42,22 @@ export const Header: React.FC<HeaderProps> = ({
       title: 'Requirement Intelligence',
       subtitle: 'Graph, Conflicts & Dependencies'
     },
+    review: {
+      title: 'Review & Acceptance',
+      subtitle: 'Suggestions, Edge Cases & Criteria'
+    },
+    prompt: {
+      title: 'Specification & Prompt',
+      subtitle: 'Design Brief Generator'
+    },
+    design: {
+      title: 'Design Systems',
+      subtitle: 'Tokens & Brand Context'
+    },
+    workspace: {
+      title: 'Bolt Workspace',
+      subtitle: 'Prompt ? Generate ? Refine'
+    },
     'new-analysis': {
       title: 'New UI Prompt Analysis',
       subtitle: 'UI/UX Prompt Analyzer'

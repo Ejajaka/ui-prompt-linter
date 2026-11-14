@@ -18,6 +18,10 @@ import { PrivacyPage } from './pages/PrivacyPage.tsx';
 import { ProjectsPage } from './pages/ProjectsPage.tsx';
 import { RequirementsPage } from './pages/RequirementsPage.tsx';
 import { RequirementGraphPage } from './pages/RequirementGraphPage.tsx';
+import { RequirementReviewPage } from './pages/RequirementReviewPage.tsx';
+import { PromptStudioPage } from './pages/PromptStudioPage.tsx';
+import { DesignSystemsPage } from './pages/DesignSystemsPage.tsx';
+import { WorkspacePage } from './pages/WorkspacePage.tsx';
 
 function AppShell() {
   const { configured, loading, user, passwordRecovery } = useAuth();
@@ -86,6 +90,10 @@ function AppShell() {
 
           {activeTab === 'requirements' && <RequirementsPage />}
           {activeTab === 'intelligence' && <RequirementGraphPage />}
+          {activeTab === 'review' && <RequirementReviewPage />}
+          {activeTab === 'prompt' && <PromptStudioPage />}
+          {activeTab === 'design' && <DesignSystemsPage />}
+          {activeTab === 'workspace' && <WorkspacePage />}
 
           {activeTab === 'overview' && (
             <OverviewPage
