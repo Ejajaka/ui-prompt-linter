@@ -6,9 +6,9 @@ interface LogoProps {
 }
 
 /**
- * Prompt Linter mark: a dark-green rounded tile with the bold yellow "PL"
- * monogram. Mirrors `public/logo.svg`, the extension icons and the Android
- * `PlLogo` composable.
+ * Vector mark: a dark-green rounded tile with the bold yellow "V" monogram.
+ * Mirrors `public/logo.svg`, the extension icons and the Android
+ * `VectorLogo` composable.
  */
 export const Logo: React.FC<LogoProps> = ({ size = 20, className = '' }) => (
   <svg
@@ -17,15 +17,16 @@ export const Logo: React.FC<LogoProps> = ({ size = 20, className = '' }) => (
     viewBox="0 0 48 48"
     className={className}
     role="img"
-    aria-label="Prompt Linter"
+    aria-label="Vector"
   >
-    <rect width="48" height="48" rx="10.1" fill="#185345" />
-    <g fill="#FAD237">
-      <rect x="9.23" y="13.86" width="5.21" height="20.28" rx="2.6" />
-      <circle cx="17.84" cy="20.56" r="6.7" />
-      <rect x="25.68" y="13.86" width="5.55" height="20.25" rx="2.78" />
-      <rect x="25.68" y="28.44" width="13.64" height="5.67" rx="2.84" />
-    </g>
-    <rect x="14.43" y="18.26" width="4.78" height="4.48" rx="1.61" fill="#185345" />
+    <rect width="48" height="48" rx="10.1" fill="#2D5D4F" />
+    <path
+      d="M13.1 11.4 L24 36.2 L34.9 11.4"
+      fill="none"
+      stroke="#FAD237"
+      strokeWidth="7.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );

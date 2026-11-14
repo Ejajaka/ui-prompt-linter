@@ -448,15 +448,15 @@ export const NewAnalysisPage: React.FC<NewAnalysisPageProps> = ({ initialResult,
     let mime = '';
     let filename = '';
     if (format === 'json') {
-      filename = `prompt-linter-report-${dateStr}.json`;
+      filename = `vector-report-${dateStr}.json`;
       mime = 'application/json;charset=utf-8';
       content = JSON.stringify(payload, null, 2);
     } else {
-      filename = `prompt-linter-report-${dateStr}.md`;
+      filename = `vector-report-${dateStr}.md`;
       mime = 'text/markdown;charset=utf-8';
       const f = payload.risk.final;
       content = [
-        '# Prompt Linter Report',
+        '# Vector Report',
         '',
         '## Original prompt',
         '```',

@@ -32,7 +32,7 @@ export const PrivacyPage: React.FC = () => {
       </div>
 
       <Section icon={<ShieldCheck className="w-4 h-4 text-[#49686C]" />} title="Data collection">
-        <p>Prompt Linter collects <strong>no data</strong>. It does not:</p>
+        <p>Vector collects <strong>no data</strong>. It does not:</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>collect, store or transmit any prompt text, browsing history, or personal information;</li>
           <li>use analytics, trackers, or cookies;</li>
@@ -92,7 +92,7 @@ export const PrivacyPage: React.FC = () => {
       <div className="flex items-start gap-2.5 bg-[#F6F4EC] border border-[#E5E2D8] rounded-xl p-4">
         <Lock className="w-4 h-4 text-[#49686C] shrink-0 mt-0.5" />
         <p className="text-xs text-[#737A72] leading-relaxed">
-          This policy applies to the Prompt Linter website, browser extension and Android app. It does not cover the
+          This policy applies to the Vector website, browser extension and Android app. It does not cover the
           separate Streamlit full engine, which runs BERT and LLM features server-side.
         </p>
       </div>

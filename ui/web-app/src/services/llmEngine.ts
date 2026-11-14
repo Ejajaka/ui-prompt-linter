@@ -73,7 +73,7 @@ async function chatJson(system: string, user: string, settingsOverride?: AppSett
     Authorization: `Bearer ${settings.apiKey}`,
   };
   if (settings.baseUrl.includes('opencode.ai')) {
-    headers['x-opencode-session'] = 'ui-prompt-linter';
+    headers['x-opencode-session'] = 'vector';
   }
   const res = await fetch(`${settings.baseUrl.replace(/\/$/, '')}/chat/completions`, {
     method: 'POST',

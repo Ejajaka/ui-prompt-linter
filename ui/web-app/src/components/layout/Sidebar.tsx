@@ -89,8 +89,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               type="button"
               onClick={() => setIsCollapsed(false)}
               className="w-10 h-10 rounded-lg hover:bg-[#F0EDE3] flex items-center justify-center shrink-0 transition-all cursor-pointer"
-              title="Prompt Linter - Click to expand sidebar"
-              aria-label="Prompt Linter - Click to expand sidebar"
+              title="Vector - Click to expand sidebar"
+              aria-label="Vector - Click to expand sidebar"
             >
               <Logo size={28} />
             </button>
@@ -103,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div className="flex flex-col truncate">
                   <span className="font-bold text-base tracking-tight text-[#283638]">
-                    Prompt Linter
+                    Vector
                   </span>
                   <span className="text-[10px] text-[#737A72] tracking-wider uppercase font-semibold truncate">
                     UI/UX Prompt Review
@@ -168,14 +168,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Bottom Metadata */}
         <div className={`border-t border-[#E5E2D8] bg-[#FAFAF8] ${isCollapsed ? 'p-2.5' : 'p-3'}`}>
           {isCollapsed ? (
-            <div className="flex flex-col items-center justify-center py-1 text-center" title="Prompt Linter v2.0 · Core Rules">
+            <div className="flex flex-col items-center justify-center py-1 text-center" title="Vector v2.0 · Core Rules">
               <span className="text-[10px] font-mono font-semibold text-[#737A72]">
                 v0.8.0
               </span>
             </div>
           ) : (
             <div className="flex items-center justify-between text-[11px] text-[#737A72]">
-              <span className="font-mono">Prompt Linter v2.0</span>
+              <span className="font-mono">Vector v2.0</span>
               <span className="inline-flex items-center gap-1 text-[#49686C] font-medium">
                 <Shield className="w-3 h-3" /> Rules + BERT + LLM
               </span>

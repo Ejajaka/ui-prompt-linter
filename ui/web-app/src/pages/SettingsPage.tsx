@@ -51,7 +51,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
           System Settings
         </h1>
         <p className="text-xs sm:text-sm text-[#737A72] mt-1">
-          Theme, engine information and local data for Prompt Linter.
+          Theme, engine information and local data for Vector.
         </p>
       </div>
 
@@ -63,7 +63,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
         </div>
 
         <p className="text-xs text-[#737A72]">
-          Choose your interface theme. Both themes preserve Prompt Linter's teal and mustard accents with high-contrast readability.
+          Choose your interface theme. Both themes preserve Vector's teal and mustard accents with high-contrast readability.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -86,7 +86,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
                 <Sun className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[#283638] block">Prompt Linter Classic (Light)</span>
+                <span className="text-xs font-bold text-[#283638] block">Vector Classic (Light)</span>
                 <span className="text-[11px] text-[#737A72]">Warm ivory #F6F4EC canvas &amp; teal typography</span>
               </div>
             </div>
@@ -112,7 +112,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
                 <Moon className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[#283638] block">Prompt Linter Obsidian (Dark)</span>
+                <span className="text-xs font-bold text-[#283638] block">Vector Obsidian (Dark)</span>
                 <span className="text-[11px] text-[#737A72]">Deep slate teal-black canvas &amp; high contrast</span>
               </div>
             </div>
@@ -294,13 +294,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onRefreshData }) => 
       <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-xl border border-[#E5E2D8] shadow-xs space-y-3">
         <div className="flex items-center gap-2 pb-3 border-b border-[#E5E2D8]">
           <Info className="w-4 h-4 text-[#49686C]" />
-          <h2 className="text-base font-bold text-[#283638]">About Prompt Linter</h2>
+          <h2 className="text-base font-bold text-[#283638]">About Vector</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
             <span className="text-[#737A72] block">Application</span>
-            <span className="font-bold text-[#283638]">Prompt Linter — UI/UX Prompt Review</span>
+            <span className="font-bold text-[#283638]">Vector — UI/UX Prompt Review</span>
           </div>
           <div>
             <span className="text-[#737A72] block">Version</span>

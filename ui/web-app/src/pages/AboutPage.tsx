@@ -52,7 +52,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#E4EBDD] text-[#30494B] border border-[#CFE2C8] shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[#49686C] animate-pulse" />
-              <span>Prompt Linter — Pre-Generation UI Prompt Review</span>
+              <span>Vector — Pre-Generation UI Prompt Review</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#283638] tracking-tight leading-[1.15]">
@@ -65,7 +65,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
 
             <p className="text-base sm:text-lg text-[#737A72] max-w-xl leading-relaxed">
               Catch missing labels, colours, placement and actions in natural-language UI prompts
-              before they reach a generator. Prompt Linter detects elements, links attributes,
+              before they reach a generator. Vector detects elements, links attributes,
               clears up ambiguity and produces a validated rewrite.
             </p>
 
@@ -117,7 +117,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
                   <div className="w-2.5 h-2.5 rounded-full bg-[#B94D42]/70" />
                   <div className="w-2.5 h-2.5 rounded-full bg-[#D1B653]/70" />
                   <div className="w-2.5 h-2.5 rounded-full bg-[#688E5E]/70" />
-                  <span className="text-[11px] font-mono text-[#737A72] ml-2">prompt-linter.live</span>
+                  <span className="text-[11px] font-mono text-[#737A72] ml-2">vector.live</span>
                 </div>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F6F4EC] text-[#49686C] font-semibold">
                   Step {animStep + 1}/4
@@ -272,7 +272,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
             <h3 className="text-sm font-bold text-[#283638]">Vague values</h3>
             <p className="text-xs text-[#737A72] leading-relaxed">
               “Some nice colour”, “somewhere on the side” and “does something useful” are not
-              actionable. Prompt Linter asks instead of pretending.
+              actionable. Vector asks instead of pretending.
             </p>
           </div>
 
@@ -296,7 +296,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
             Diagnostic workflow
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#283638] tracking-tight">
-            How Prompt Linter works
+            How Vector works
           </h2>
           <p className="text-sm text-[#737A72]">
             Four stages that turn an ambiguous UI request into a safe, specific prompt.
@@ -371,7 +371,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onStartAnalysis }) => {
             Engine advantages
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#283638] tracking-tight">
-            What makes Prompt Linter useful?
+            What makes Vector useful?
           </h2>
           <p className="text-sm text-[#737A72]">
             Built for designers, product teams and engineers who use AI-assisted UI generation.

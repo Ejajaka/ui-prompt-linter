@@ -64,7 +64,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       <div className="bg-[#FFFFFF] rounded-xl border border-[#E5E2D8] p-6 sm:p-8 shadow-xs relative overflow-hidden">
         <div className="max-w-2xl space-y-3 relative z-10">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-[#E4EBDD] text-[#30494B]">
-            <span>Prompt Linter</span>
+            <span>Vector</span>
             <span>·</span>
             <span>Pre-generation UI Review</span>
           </div>
@@ -92,11 +92,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
         </div>
 
-        {/* Subtle Prompt Linter mark watermark in background */}
-        <div className="absolute right-6 -bottom-8 opacity-5 hidden md:block pointer-events-none text-[#2D5D4F]">
-          <svg width="220" height="220" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="16" rx="2" />
-            <path d="M3 9h18M9 9v11" />
+        {/* Subtle Vector V watermark in background */}
+        <div className="absolute -right-4 -bottom-12 opacity-[0.07] hidden md:block pointer-events-none text-[#2D5D4F]">
+          <svg width="300" height="300" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M13.1 11.4 L24 36.2 L34.9 11.4" stroke="currentColor" strokeWidth="7.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       </div>

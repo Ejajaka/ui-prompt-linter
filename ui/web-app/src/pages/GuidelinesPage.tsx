@@ -34,7 +34,7 @@ const GUIDELINES_DATA: GuidelineCategory[] = [
     title: 'Supported UI Elements',
     icon: Layers,
     description:
-      'The ten interface elements Prompt Linter detects, and the required details each one must state to be considered complete.',
+      'The ten interface elements Vector detects, and the required details each one must state to be considered complete.',
     detailLabel: 'Required attributes',
     controls: [
       {
@@ -272,14 +272,14 @@ export const GuidelinesPage: React.FC = () => {
         </h1>
         <p className="text-xs sm:text-sm text-[#737A72] mt-1">
           Reference catalog of the UI elements, required attributes, annotation rules and risk bands
-          evaluated by Prompt Linter.
+          evaluated by Vector.
         </p>
       </div>
 
       <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#E5E2D8] text-xs text-[#737A72] leading-relaxed flex items-start gap-3">
         <CheckCircle2 className="w-4 h-4 text-[#49686C] shrink-0 mt-0.5" />
         <p>
-          Prompt Linter checks each detected element against a fixed{' '}
+          Vector checks each detected element against a fixed{' '}
           <strong className="text-[#283638]">required-attribute schema</strong>. Findings shown
           during analysis map directly to the element types, attribute kinds and rules documented
           here.

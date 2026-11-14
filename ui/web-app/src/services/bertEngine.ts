@@ -83,7 +83,7 @@ function load(onProgress?: BERTProgressHandler): Promise<any> {
     modelPromise = (async () => {
       // Web app loads the weights next to the page. The extension/Android
       // bundle points at the same GitHub Pages copy and caches it in-browser.
-      const remoteHost = (globalThis as any).PROMPT_LINTER_BERT_REMOTE as string | undefined;
+      const remoteHost = (globalThis as any).VECTOR_BERT_REMOTE as string | undefined;
       const modelPath = remoteHost ? 'models/bert_tagger' : LOCAL_MODEL_PATH;
       env.allowLocalModels = !remoteHost;
       env.allowRemoteModels = !!remoteHost;

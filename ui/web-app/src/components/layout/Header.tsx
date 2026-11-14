@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const titles: Record<ActiveTab, { title: string; subtitle: string }> = {
     about: {
-      title: 'About Prompt Linter',
+      title: 'About Vector',
       subtitle: 'UI/UX Prompt Review'
     },
     overview: {
