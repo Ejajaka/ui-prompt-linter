@@ -16,6 +16,7 @@ import { SettingsPage } from './pages/SettingsPage.tsx';
 import { AboutPage } from './pages/AboutPage.tsx';
 import { PrivacyPage } from './pages/PrivacyPage.tsx';
 import { ProjectsPage } from './pages/ProjectsPage.tsx';
+import { RequirementsPage } from './pages/RequirementsPage.tsx';
 
 function AppShell() {
   const { configured, loading, user, passwordRecovery } = useAuth();
@@ -81,6 +82,8 @@ function AppShell() {
           {activeTab === 'projects' && (
             <ProjectsPage onOpenProject={handleStartNewAnalysis} onOpenSettings={() => setActiveTab('settings')} />
           )}
+
+          {activeTab === 'requirements' && <RequirementsPage />}
 
           {activeTab === 'overview' && (
             <OverviewPage

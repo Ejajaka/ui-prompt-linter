@@ -308,6 +308,19 @@ Production follow-ups: delete the temporary test user, re-enable email
 confirmation, configure auth redirect URLs, and rotate the secret key that was
 shared in chat.
 
+Phase 2 core is implemented and live-verified for TXT/Markdown uploads:
+
+- PDF/DOCX/TXT/Markdown text extraction.
+- Traceable requirement compiler with source page/paragraph/character offsets.
+- Functional/non-functional classification and metadata extraction.
+- Supabase Storage + requirement document/requirement persistence.
+- Requirement Compiler UI with search, filters, progress and deletion.
+- Unit tests and a live upload/compile/list/delete integration check.
+- See `docs/PHASE-2-REPORT.md`.
+
+Still to add in later phases: LLM semantic enrichment, graph/ambiguity/conflict
+analysis, acceptance criteria, specification and prompt generation.
+
 ## 9. Immediate next action
 
 Start Phase 1 with:
